@@ -1146,7 +1146,27 @@ function renderAll() {
   var backArr = [];
   for (var n = 1; n <= bMax; n++) backArr.push({num:n, count:backFreq[n]||0});
   backArr.sort(function(a,b){return b.count-a.count;});
-  var recBack = backArr.slice(0, getBackCount()).map(function(n){return n.num;}).sort(function(a,b){return a-b;});
+  // Weighted random pick for back numbers (same as front area logic)
+  var backWeights = backArr.map(function(d){ return Math.max(d.count, 1); });
+  var backTw = backWeights.reduce(function(a,b){return a+b;},0);
+  (function pickBackWeighted() {
+    var cnt = getBackCount(), picked = new Set(), safe = 0;
+    while (picked.size < cnt && safe < 1000) {
+      safe++;
+      var r = Math.random() * backTw, cum = 0;
+      for (var j = 0; j < backArr.length; j++) {
+        cum += backWeights[j];
+        if (r <= cum) { picked.add(backArr[j].num); break; }
+      }
+    }
+    var arr = Array.from(picked).sort(function(a,b){return a-b;});
+    if (arr.length < cnt) {
+      backArr.forEach(function(d) { if (arr.length < cnt && arr.indexOf(d.num) < 0) arr.push(d.num); });
+      arr.sort(function(a,b){return a-b;});
+    }
+    recBack = arr;
+  })();
+  var recBack;
 
   var recHtml = '<div class="code-preview">';
   recHtml += '<div style="color:var(--accent);margin-bottom:8px">';
@@ -1308,7 +1328,26 @@ function _doRefresh() {
     var bf={}; data.forEach(function(d){ if(currentGame==='ssq') bf[d[bKey]]=(bf[d[bKey]]||0)+1; else d[bKey].forEach(function(n){ bf[n]=(bf[n]||0)+1; }); });
     backArr=[]; for (var n=1; n<=bMax; n++) backArr.push({num:n,count:bf[n]||0}); backArr.sort(function(a,b){return b.count-a.count;});
   }
-  var recBack = backArr.slice(0,getBackCount()).map(function(n){return n.num;}).sort(function(a,b){return a-b;});
+  // Weighted random pick for back numbers — each group gets a different combination
+  var backWeights2 = backArr.map(function(d){ return Math.max(d.count, 1); });
+  var backTw2 = backWeights2.reduce(function(a,b){return a+b;},0);
+  function pickBack() {
+    var cnt = getBackCount(), picked = new Set(), safe = 0;
+    while (picked.size < cnt && safe < 1000) {
+      safe++;
+      var r = Math.random() * backTw2, cum = 0;
+      for (var j = 0; j < backArr.length; j++) {
+        cum += backWeights2[j];
+        if (r <= cum) { picked.add(backArr[j].num); break; }
+      }
+    }
+    var arr = Array.from(picked).sort(function(a,b){return a-b;});
+    if (arr.length < cnt) {
+      backArr.forEach(function(d) { if (arr.length < cnt && arr.indexOf(d.num) < 0) arr.push(d.num); });
+      arr.sort(function(a,b){return a-b;});
+    }
+    return arr;
+  }
 
   // Build MC index for realistic scoring
   var mcIndex = {};
@@ -1321,11 +1360,12 @@ function _doRefresh() {
     // Score based on average MC rate of drawn numbers (70% weight) + randomness (30% weight)
     var avgRate = fn.reduce(function(s,n){return s+(mcIndex[n]||0);},0)/fn.length;
     var score = Math.min(Math.round(avgRate/maxRate*65 + 20 + Math.random()*10), 95).toFixed(1);
-    var allNums = fn.concat(recBack.slice());
+    var backNums = pickBack();
+    var allNums = fn.concat(backNums);
     var sumVal = allNums.reduce(function(a,b){return a+b;},0);
     var oddCnt = allNums.filter(function(n){return n%2===1;}).length;
     var evenCnt = allNums.length - oddCnt;
-    gs.push({nums:fn, backNums:recBack.slice(), score:score, sum:sumVal, oddRatio:oddCnt+':'+evenCnt});
+    gs.push({nums:fn, backNums:backNums, score:score, sum:sumVal, oddRatio:oddCnt+':'+evenCnt});
   }
   window._lastRecommend = gs;
 
