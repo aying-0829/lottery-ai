@@ -144,14 +144,15 @@ def crawl_ssq(session):
 # ============ 大乐透爬取 ============
 
 DLT_FILE = os.path.join(DATA_DIR, 'dlt_data.json')
-DLT_API = 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry'
+# 2026-07-05: sporttery.cn 已启用腾讯 WAF 滑块验证，改为从 500.com 爬取
+DLT_API = 'https://datachart.500.com/dlt/history/newinc/history.php'
 
 def crawl_dlt(session):
     """
-    从体彩网拉取最新大乐透开奖数据。
+    从 500.com 拉取最新大乐透开奖数据。
     返回: 新增期数列表 (period strings)
     """
-    print('[DLT] 开始爬取大乐透数据...')
+    print('[DLT] 开始爬取大乐透数据（数据源: 500.com）...')
 
     existing_periods = set()
     existing_data = None
@@ -162,43 +163,48 @@ def crawl_dlt(session):
             existing_periods.add(p['period'])
         print(f'[DLT] 已有 {len(existing_periods)} 期数据，最新期号: {max(existing_periods) if existing_periods else "无"}')
 
+    # 取最新10期覆盖最近开奖
     params = {
-        'gameNo': '85',
-        'provinceId': '0',
-        'pageSize': '5',
-        'isVerify': '1',
-        'pageNo': '1',
-        'termLimits': '5'
+        'start': '26001',
+        'end': '26999'
     }
 
-    headers = get_headers(referer='https://www.lottery.gov.cn/')
-    resp = session.get(DLT_API, params=params, headers=headers, timeout=15)
+    headers = get_headers(referer='https://datachart.500.com/')
+    resp = session.get(DLT_API, params=params, headers=headers, timeout=20)
     resp.raise_for_status()
-    data = resp.json()
+    resp.encoding = 'gb2312'
 
-    if data.get('errorCode') != '0':
-        print(f'[DLT] API 返回异常: {data}')
-        return []
+    # 用正则从 HTML 表格提取数据（无需 bs4）
+    import re
+    html = resp.text
 
-    records = data.get('value', {}).get('list', [])
+    # 匹配表格行：期号 + 前区5个号码 + 后区2个号码 + 日期
+    # 表格结构: <tr> <td>期号</td> <td>前1</td>...<td>前5</td> <td>后1</td><td>后2</td> ... <td>日期</td> </tr>
+    row_pattern = re.compile(
+        r'<tr[^>]*>.*?'
+        r'<td[^>]*>(\d{5})</td>'           # 期号 (5位)
+        r'\s*<td[^>]*>(\d+)</td>'          # 前1
+        r'\s*<td[^>]*>(\d+)</td>'          # 前2
+        r'\s*<td[^>]*>(\d+)</td>'          # 前3
+        r'\s*<td[^>]*>(\d+)</td>'          # 前4
+        r'\s*<td[^>]*>(\d+)</td>'          # 前5
+        r'\s*<td[^>]*>(\d+)</td>'          # 后1
+        r'\s*<td[^>]*>(\d+)</td>'          # 后2
+        r'.*?<td[^>]*>(\d{4}-\d{2}-\d{2})</td>'  # 日期
+        , re.DOTALL
+    )
+
+    rows = row_pattern.findall(html)
 
     new_periods = []
-    for rec in records:
-        period = rec.get('lotteryDrawNum', '')
+    for row in rows:
+        period = row[0]
         if period in existing_periods:
             continue
 
-        result = rec.get('lotteryDrawResult', '')
-        parts = result.strip().split()
-        if len(parts) < 2:
-            print(f'[DLT] 期号 {period} 开奖结果格式异常: {result}')
-            continue
-
-        front_str = parts[0]
-        back_str = parts[1]
-
-        front = [int(x) for x in front_str.split(' ') if x.strip()]
-        back = [int(x) for x in back_str.split(' ') if x.strip()]
+        front = sorted([int(row[i]) for i in range(1, 6)])
+        back = sorted([int(row[6]), int(row[7])])
+        date_str = row[8]
 
         if len(front) != 5 or len(back) != 2:
             print(f'[DLT] 期号 {period} 数据异常: front={front}, back={back}，跳过')
@@ -206,9 +212,9 @@ def crawl_dlt(session):
 
         entry = {
             'period': period,
-            'date': rec.get('lotteryDrawTime', '')[:10],
-            'front': sorted(front),
-            'back': sorted(back)
+            'date': date_str,
+            'front': front,
+            'back': back
         }
         new_periods.append(entry)
         print(f'[DLT] 新增期号: {period} date={entry["date"]} front={front} back={back}')
