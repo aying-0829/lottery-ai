@@ -410,6 +410,7 @@ function getPrimes() {
 function isPrime(n) { return getPrimes().indexOf(n) >= 0; }
 
 function initChart(chartId) {
+  if (typeof echarts === 'undefined') { console.warn('ECharts not loaded, skip chart:', chartId); return null; }
   var dom = document.getElementById(chartId);
   if (!dom) return null;
   if (charts[chartId]) charts[chartId].dispose();
@@ -517,7 +518,12 @@ function initApp() {
   // Hide skeleton, show app
   document.getElementById('loading-overlay').style.display = 'none';
   document.getElementById('app-container').style.display = 'block';
-  renderAll();
+  try {
+    renderAll();
+  } catch(e) {
+    showLoadError('渲染失败：' + e.message + '（请刷新页面重试，如持续出现请检查网络或反馈给开发者）');
+    console.error('renderAll crashed:', e);
+  }
 }
 
 // ============ SWITCH ============
@@ -560,7 +566,13 @@ function getModelData() {
   return currentGame === 'ssq' ? LOADED_MODEL.ssq_model : LOADED_MODEL.dlt_model;
 }
 function getData() {
-  return currentGame === 'ssq' ? ssq : dlt;
+  var raw = currentGame === 'ssq' ? ssq : dlt;
+  if (!dateFilter.start && !dateFilter.end) return raw;
+  return raw.filter(function(d) {
+    if (dateFilter.start && d.date < dateFilter.start) return false;
+    if (dateFilter.end && d.date > dateFilter.end) return false;
+    return true;
+  });
 }
 function getModelMainKey() { return currentGame === 'ssq' ? 'red' : 'front'; }
 function getModelBackKey() { return currentGame === 'ssq' ? 'blue' : 'back'; }
