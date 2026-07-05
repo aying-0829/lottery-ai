@@ -387,6 +387,67 @@ var DATA_FILES = [
   { key: 'dlt_model', file: './data/dlt_model.json', schema: 'DLT_MODEL_V1' }
 ];
 
+// ============ HELPERS ============
+var currentGame = 'ssq';
+var charts = {};
+var dateFilter = { start: null, end: null };
+
+function getFrontKey() { return currentGame === 'ssq' ? 'red' : 'front'; }
+function getBackKey() { return currentGame === 'ssq' ? 'blue' : 'back'; }
+function getFrontMax() { return currentGame === 'ssq' ? 33 : 35; }
+function getFrontCount() { return currentGame === 'ssq' ? 6 : 5; }
+function getBackMax() { return currentGame === 'ssq' ? 16 : 12; }
+function getBackCount() { return currentGame === 'ssq' ? 1 : 2; }
+
+function getPrimes() {
+  var maxNum = getFrontMax();
+  var primes = {2:1,3:1,5:1,7:1,11:1,13:1,17:1,19:1,23:1,29:1,31:1};
+  if (currentGame === 'dlt') primes[2]=1; // 35 range includes same primes as 33
+  var result = [];
+  for (var i = 1; i <= maxNum; i++) { if (primes[i]) result.push(i); }
+  return result;
+}
+function isPrime(n) { return getPrimes().indexOf(n) >= 0; }
+
+function initChart(chartId) {
+  var dom = document.getElementById(chartId);
+  if (!dom) return null;
+  if (charts[chartId]) charts[chartId].dispose();
+  var c = echarts.init(dom, 'dark');
+  charts[chartId] = c;
+  return c;
+}
+
+function disposeAllCharts() {
+  for (var k in charts) {
+    if (charts[k]) { charts[k].dispose(); delete charts[k]; }
+  }
+}
+
+/** 计算 AC 值（Arithmetic Complexity） */
+function computeAC(arr) {
+  var sorted = arr.slice().sort(function(a,b){return a-b;});
+  var diffs = new Set();
+  for (var i = 0; i < sorted.length; i++) {
+    for (var j = i+1; j < sorted.length; j++) {
+      diffs.add(sorted[j] - sorted[i]);
+    }
+  }
+  return diffs.size - (sorted.length - 1);
+}
+
+/** 分类连号模式，返回连号长度数组 */
+function classifyConsec(arr) {
+  var sorted = arr.slice().sort(function(a,b){return a-b;});
+  var groups = [], curLen = 1;
+  for (var i = 1; i < sorted.length; i++) {
+    if (sorted[i] === sorted[i-1] + 1) { curLen++; }
+    else { if (curLen >= 2) groups.push(curLen); curLen = 1; }
+  }
+  if (curLen >= 2) groups.push(curLen);
+  return groups;
+}
+
 function fetchWithRetry(url, retries) {
   retries = retries || 1;
   return fetch(url).then(function(r) {
@@ -888,7 +949,7 @@ function renderAll() {
 
   // --- Prime trend ---
   var primeSlice = data.slice(0, 100).reverse();
-  var primeVals = primeSlice.map(function(d){ return d[fKey].filter(function(n){return primes.has(n);}).length; });
+  var primeVals = primeSlice.map(function(d){ return d[fKey].filter(function(n){return primes.indexOf(n)>=0;}).length; });
   var primePeriods = primeSlice.map(function(d){ return d.period; });
   var primeAvg = (primeVals.reduce(function(a,b){return a+b;},0)/primeVals.length).toFixed(2);
 
@@ -1332,8 +1393,7 @@ window.addEventListener('resize', function(){
   Object.values(charts).forEach(function(c){c.resize();});
 });
 
-// Initial render
-renderAll();
+// initApp() will call renderAll() after data loads via loadAllData()
 </script>
 
 <!-- 号码钻取 Modal -->
