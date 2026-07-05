@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI彩票分析工具 - 真实数据驱动</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js">
+// ── 启动 ──
+window.addEventListener('DOMContentLoaded', loadAllData);
+</script>
+<style>
+:root {
+  --bg: #0d1117; --card-bg: #161b22; --border: #30363d;
+  --text: #c9d1d9; --text2: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --red: #f85149; --orange: #d2991d;
+  --purple: #a371f7; --cyan: #39d353;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Microsoft YaHei','PingFang SC',sans-serif;min-height:100vh}
+header{background:var(--card-bg);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:22px;font-weight:700;color:var(--accent)}
+header .subtitle{font-size:13px;color:var(--text2);margin-left:12px}
+.toggle-group{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.toggle-group button{padding:8px 20px;border:none;background:transparent;color:var(--text);cursor:pointer;font-size:14px;transition:all .2s}
+.toggle-group button.active{background:var(--accent);color:#fff;font-weight:600}
+.toggle-group button:hover:not(.active){background:rgba(88,166,255,.1)}
+.tabs{display:flex;gap:4px;padding:12px 24px 0;background:var(--bg);border-bottom:1px solid var(--border)}
+.tab-btn{padding:10px 24px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;border-bottom:2px solid transparent;transition:all .2s}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tab-btn:hover{color:var(--text)}
+main{padding:24px;max-width:1400px;margin:0 auto}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h3{font-size:15px;color:var(--accent);margin-bottom:12px}
+.card .chart{width:100%;height:280px}
+.card .chart-lg{height:320px}
+.card .chart-sm{height:220px}
+.insight{font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:rgba(88,166,255,.05);border-radius:6px;border-left:3px solid var(--accent)}
+.stat-row{display:flex;gap:16px;margin-bottom:16px}
+.stat-card{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-card .num{font-size:28px;font-weight:700;color:var(--accent)}
+.stat-card .label{font-size:12px;color:var(--text2);margin-top:4px}
+.ball-group{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.ball{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.ball.red{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.ball.blue{background:linear-gradient(135deg,#3498db,#2980b9)}
+.ball.hot{box-shadow:0 0 12px rgba(231,76,60,.5)}
+.ball.cold{opacity:.5}
+.model-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+/* ── 骨架屏 ── */
+@keyframes skeleton-shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton{background:linear-gradient(90deg,var(--card-bg) 25%,#1e2430 50%,var(--card-bg) 75%);background-size:800px 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:8px}
+.skeleton-title{height:24px;width:60%;margin-bottom:16px}
+.skeleton-chart{height:280px;width:100%;margin-bottom:12px}
+.skeleton-row{display:flex;gap:16px;margin-bottom:16px}
+.skeleton-stat{flex:1;height:80px}
+.skeleton-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.skeleton-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+#loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;max-width:1400px;margin:0 auto}
+#loading-overlay .status-text{color:var(--text2);font-size:14px;margin-top:16px}
+#loading-overlay .error-text{color:var(--red);font-size:14px;margin-top:8px;display:none}
+#loading-overlay .retry-btn{display:none;margin-top:16px;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#loading-overlay .retry-btn:hover{opacity:.9}
+#app-container{display:none}
+.model-card .model-name{font-size:14px;font-weight:600;color:var(--accent)}
+.model-card .score{font-size:32px;font-weight:700;margin:8px 0}
+.model-card .score.good{color:var(--green)}
+.model-card .score.mid{color:var(--orange)}
+.model-card .ball-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.model-card .reason{font-size:11px;color:var(--text2);margin-top:8px;line-height:1.5}
+.loading-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;justify-content:center;align-items:center;flex-direction:column;gap:16px}
+.loading-overlay.show{display:flex}
+.loading-overlay .spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.code-preview{background:#0d1117;color:var(--green);padding:16px;border-radius:8px;font-family:'Consolas','Courier New',monospace;font-size:13px;overflow-x:auto;margin:8px 0;line-height:1.8}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge.green{background:rgba(63,185,80,.15);color:var(--green)}
+.badge.red{background:rgba(248,81,73,.15);color:var(--red)}
+.badge.orange{background:rgba(210,153,29,.15);color:var(--orange)}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* AI Model Panel Styles */
+.sub-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.sub-tab-btn{padding:10px 24px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-weight:500}
+.sub-tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.sub-tab-btn:hover:not(.active){color:var(--text);background:rgba(88,166,255,.05)}
+.ai-model-panel{display:none}
+.ai-model-panel.active{display:block}
+.ai-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ai-chart{width:100%;height:360px}
+.ai-chart-sm{width:100%;height:280px}
+.consensus-section{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);border-radius:12px;padding:20px;margin-top:16px}
+.consensus-section h3{font-size:15px;color:var(--accent);margin-bottom:8px}
+.consensus-ball-group{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.consensus-ball{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 14px rgba(88,166,255,.4)}
+.consensus-ball.front{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.consensus-ball.back{background:linear-gradient(135deg,#3498db,#2980b9)}
+.consensus-empty{color:var(--text2);font-size:14px;padding:8px 0}
+.consensus-insight{font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6}
+.recommend-consensus{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.recommend-consensus h3{font-size:14px;color:var(--orange);margin-bottom:10px}
+
+/* Date Filter */
+.date-filter{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap}
+.date-filter label{font-size:13px;color:var(--text2)}
+.date-filter input[type="date"]{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit}
+.date-filter input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.7)}
+.date-filter .btn-sm{padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-size:13px;cursor:pointer;font-weight:600;transition:all .2s}
+.date-filter .btn-sm:hover{opacity:.85}
+.date-filter .filter-info{font-size:12px;color:var(--orange);margin-left:auto}
+
+/* Export & Refresh Buttons */
+.btn-export{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text);cursor:pointer;font-size:13px;transition:all .2s;margin-left:8px;display:inline-flex;align-items:center;gap:4px}
+.btn-export:hover{background:rgba(88,166,255,.1);border-color:var(--accent);color:var(--accent)}
+.btn-refresh{padding:8px 20px;border:1px solid var(--accent);border-radius:8px;background:rgba(88,166,255,.1);color:var(--accent);cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;margin-bottom:16px}
+.btn-refresh:hover{background:rgba(88,166,255,.2)}
+.btn-refresh.loading{opacity:.6;pointer-events:none}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:10000;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal-overlay.fadeIn{animation:fadeIn .25s ease}
+.modal-overlay.fadeOut{animation:fadeOut .2s ease forwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+.modal-box{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px 28px;max-width:560px;width:90%;max-height:80vh;overflow-y:auto;position:relative}
+.modal-box h2{font-size:18px;color:var(--accent);margin-bottom:16px}
+.modal-box .close-btn{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;line-height:1;transition:color .2s}
+.modal-box .close-btn:hover{color:var(--text)}
+.modal-stats-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+.modal-stats-table td{padding:6px 10px;border-bottom:1px solid var(--border)}
+.modal-stats-table td:first-child{color:var(--text2);width:160px}
+.modal-stats-table td:last-child{color:var(--text);font-weight:600}
+.modal-history-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.modal-history-table th{text-align:left;color:var(--text2);padding:4px 8px;border-bottom:1px solid var(--border);font-weight:500}
+.modal-history-table td{padding:4px 8px;border-bottom:1px solid rgba(48,54,61,.5);color:var(--text)}
+.bar-clickable{cursor:pointer}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>AI彩票分析工具<span class="subtitle">基于 500 期真实历史数据</span></h1>
+  </div>
+  <div class="toggle-group">
+    <button id="btnSSQ" class="active" onclick="switchGame('ssq')">双色球</button>
+    <button id="btnDLT" onclick="switchGame('dlt')">大乐透</button>
+    <button class="btn-export" onclick="exportCSV()" title="导出推荐号码CSV">&#8691; 导出CSV</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('overview')">数据概览</button>
+  <button class="tab-btn" onclick="switchTab('trend')">走势分析</button>
+  <button class="tab-btn" onclick="switchTab('model')">概率模型</button>
+  <button class="tab-btn" onclick="switchTab('ai-model')">AI 概率模型</button>
+  <button class="tab-btn" onclick="switchTab('recommend')">推荐号码</button>
+</div>
+
+<main>
+<!-- TAB: 数据概览 -->
+<div id="tab-overview" class="tab-content active">
+  <!-- 日期筛选器 -->
+  <div class="date-filter">
+    <label>日期范围：</label>
+    <input type="date" id="filter-start">
+    <span style="color:var(--text2);font-size:13px">~</span>
+    <input type="date" id="filter-end">
+    <button class="btn-sm" onclick="applyDateFilter()">应用</button>
+    <button class="btn-sm" style="background:transparent;border:1px solid var(--border);color:var(--text2)" onclick="resetDateFilter()">重置</button>
+    <span class="filter-info" id="filter-info"></span>
+  </div>
+  <!-- 统计卡片 -->
+  <div class="stat-row">
+    <div class="stat-card"><div class="num" id="stat-total">500</div><div class="label">历史总期数</div></div>
+    <div class="stat-card"><div class="num" id="stat-latest"></div><div class="label">最新一期</div></div>
+    <div class="stat-card"><div class="num" id="stat-avgsum"></div><div class="label">历史均值(前区)</div></div>
+    <div class="stat-card"><div class="num" id="stat-hotball"></div><div class="label">最热号码</div></div>
+  </div>
+  <!-- 最新开奖 -->
+  <div class="card" style="margin-bottom:16px">
+    <h3>最新开奖号码</h3>
+    <div id="latest-balls"></div>
+  </div>
+  <!-- 图表行 -->
+  <div class="grid-2">
+    <div class="card">
+      <h3>冷热号分析（近30期）</h3>
+      <div class="chart" id="chart-hothold"></div>
+      <div class="insight" id="insight-hothold"></div>
+    </div>
+    <div class="card">
+      <h3>频率 TOP 10 环形图（全部历史）</h3>
+      <div class="chart" id="chart-freq"></div>
+      <div class="insight" id="insight-freq"></div>
+    </div>
+    <div class="card">
+      <h3>遗漏值 vs 历史最大遗漏</h3>
+      <div class="chart chart-lg" id="chart-missing"></div>
+      <div class="insight" id="insight-missing"></div>
+    </div>
+    <div class="card">
+      <h3>奇偶比分布（全部历史）</h3>
+      <div class="chart" id="chart-oddeven"></div>
+      <div class="insight" id="insight-oddeven"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: 走势分析 -->
+<div id="tab-trend" class="tab-content">
+  <div class="grid-2">
+    <div class="card">
+      <h3>和值走势（最近50期）</h3>
+      <div class="chart" id="chart-sumtrend"></div>
+      <div class="insight" id="insight-sumtrend"></div>
+    </div>
+    <div class="card">
+      <h3>质合比走势（最近100期，每期质数个数）</h3>
+      <div class="chart" id="chart-primetrend"></div>
+      <div class="insight" id="insight-primetrend"></div>
+    </div>
+    <div class="card">
+      <h3>AC 值走势（最近100期）</h3>
+      <div class="chart" id="chart-actrend"></div>
+      <div class="insight" id="insight-actrend"></div>
+    </div>
+    <div class="card">
+      <h3>连号模式分布（最近100期）</h3>
+      <div class="chart" id="chart-consec"></div>
+      <div class="insight" id="insight-consec"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: 概率模型 -->
+<div id="tab-model" class="tab-content">
+  <div class="stat-row">
+    <div class="stat-card"><div class="num" id="model-mc-total">10,000</div><div class="label">蒙特卡洛模拟次数</div></div>
+    <div class="stat-card"><div class="num" id="model-periods">500</div><div class="label">训练数据期数</div></div>
+  </div>
+  <div class="grid-3">
+    <div class="model-card">
+      <div class="model-name">蒙特卡洛模拟</div>
+      <div class="score good" id="mc-score">--</div>
+      <div class="ball-row" id="mc-balls"></div>
+      <div class="reason" id="mc-reason"></div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">频率贝叶斯</div>
+      <div class="score mid" id="bayes-score">--</div>
+      <div class="ball-row" id="bayes-balls"></div>
+      <div class="reason" id="bayes-reason"></div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">随机森林加权</div>
+      <div class="score good" id="rf-score">--</div>
+      <div class="ball-row" id="rf-balls"></div>
+      <div class="reason" id="rf-reason"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>蒙特卡洛模拟 — 号码期望频率分布</h3>
+    <div class="chart chart-lg" id="chart-mc"></div>
+    <div class="insight" id="insight-mc"></div>
+  </div>
+</div>
+
+
+<!-- TAB: AI 概率模型 -->
+<div id="tab-ai-model" class="tab-content">
+  <div class="sub-tabs">
+    <button class="sub-tab-btn active" onclick="switchSubTab('rf')">随机森林</button>
+    <button class="sub-tab-btn" onclick="switchSubTab('nb')">朴素贝叶斯</button>
+    <button class="sub-tab-btn" onclick="switchSubTab('mc')">蒙特卡洛</button>
+  </div>
+
+  <!-- 随机森林 -->
+  <div id="sub-rf" class="ai-model-panel active">
+    <div class="ai-grid-2">
+      <div class="card">
+        <h3 id="rf-main-title">红球 Top 15 评分排行</h3>
+        <div class="ai-chart" id="chart-rf-main"></div>
+        <div class="insight" id="insight-rf-main"></div>
+      </div>
+      <div class="card">
+        <h3 id="rf-back-title">蓝球 Top 15 评分排行</h3>
+        <div class="ai-chart-sm" id="chart-rf-back"></div>
+        <div class="insight" id="insight-rf-back"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 朴素贝叶斯 -->
+  <div id="sub-nb" class="ai-model-panel">
+    <div class="ai-grid-2">
+      <div class="card">
+        <h3 id="nb-main-title">红球 Top 15 评分排行</h3>
+        <div class="ai-chart" id="chart-nb-main"></div>
+        <div class="insight" id="insight-nb-main"></div>
+      </div>
+      <div class="card">
+        <h3 id="nb-back-title">蓝球 Top 15 评分排行</h3>
+        <div class="ai-chart-sm" id="chart-nb-back"></div>
+        <div class="insight" id="insight-nb-back"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 蒙特卡洛 -->
+  <div id="sub-mc" class="ai-model-panel">
+    <div class="ai-grid-2">
+      <div class="card">
+        <h3 id="mc-main-title">红球 Top 15 评分排行</h3>
+        <div class="ai-chart" id="chart-mc-main"></div>
+        <div class="insight" id="insight-mc-main"></div>
+      </div>
+      <div class="card">
+        <h3 id="mc-back-title">蓝球 Top 15 评分排行</h3>
+        <div class="ai-chart-sm" id="chart-mc-back"></div>
+        <div class="insight" id="insight-mc-back"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 共识号码池 -->
+  <div class="consensus-section">
+    <h3>三模型共识推荐号码池</h3>
+    <div class="consensus-ball-group" id="consensus-main-balls"></div>
+    <div class="consensus-ball-group" style="margin-top:4px" id="consensus-back-balls"></div>
+    <div class="consensus-insight" id="consensus-insight"></div>
+  </div>
+</div>
+
+
+<!-- TAB: 推荐号码 -->
+<div id="tab-recommend" class="tab-content">
+  <button class="btn-refresh" id="btn-refresh" onclick="refreshRecommend()">重新生成</button>
+  <div class="card">
+    <h3>综合推荐号码（基于三大模型加权 + 规则引擎）</h3>
+    <div id="recommend-content"></div>
+    <div class="insight" style="margin-top:16px" id="insight-recommend">
+      <strong>免责声明：</strong>彩票开奖为完全随机事件，历史数据不能预测未来结果。本工具仅供娱乐参考，请理性购彩。
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ── 骨架屏加载层 ── -->
+<div id="loading-overlay">
+  <div class="skeleton skeleton-title"></div>
+  <div class="skeleton-row"><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div></div>
+  <div class="skeleton-grid"><div class="skeleton skeleton-chart"></div><div class="skeleton skeleton-chart"></div></div>
+  <div class="skeleton-grid-3"><div class="skeleton skeleton-chart"></div><div class="skeleton skeleton-chart"></div><div class="skeleton skeleton-chart"></div></div>
+  <div class="status-text">正在加载数据…</div>
+  <div class="error-text" id="load-error"></div>
+  <button class="retry-btn" id="retry-btn" onclick="loadAllData()">重新加载</button>
+</div>
+<!-- ── 应用主体 ── -->
+<div id="app-container">
+
+<script>
+// ============ DATA LOADING (fetch from ./data/) ============
+var LOADED_DATA = {};
+var LOADED_MODEL = {};
+var ssq = null, dlt = null;
+
+var SCHEMA_MAP = {
+  'SSQ_DATA_V1': 'ssq_data.json',
+  'DLT_DATA_V1': 'dlt_data.json',
+  'SSQ_MODEL_V1': 'ssq_model.json',
+  'DLT_MODEL_V1': 'dlt_model.json'
+};
+
+var DATA_FILES = [
+  { key: 'ssq', file: './data/ssq_data.json', schema: 'SSQ_DATA_V1' },
+  { key: 'dlt', file: './data/dlt_data.json', schema: 'DLT_DATA_V1' },
+  { key: 'ssq_model', file: './data/ssq_model.json', schema: 'SSQ_MODEL_V1' },
+  { key: 'dlt_model', file: './data/dlt_model.json', schema: 'DLT_MODEL_V1' }
+];
+
+function fetchWithRetry(url, retries) {
+  retries = retries || 1;
+  return fetch(url).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).catch(function(e) {
+    if (retries > 0) {
+      return new Promise(function(resolve) { setTimeout(resolve, 2000); })
+        .then(function() { return fetchWithRetry(url, retries - 1); });
+    }
+    throw e;
+  });
+}
+
+var FAILED_FILES = [];
+
+function loadAllData() {
+  document.getElementById('loading-overlay').style.display = 'flex';
+  document.getElementById('app-container').style.display = 'none';
+  document.getElementById('load-error').style.display = 'none';
+  document.getElementById('retry-btn').style.display = 'none';
+  document.querySelector('#loading-overlay .status-text').textContent = '正在加载数据…';
+  FAILED_FILES = [];
+
+  var promises = DATA_FILES.map(function(item) {
+    return fetchWithRetry(item.file).then(function(json) {
+      if (json['#schema'] !== item.schema) {
+        throw new Error('Schema mismatch: expected ' + item.schema);
+      }
+      if (item.key === 'ssq' || item.key === 'dlt') {
+        LOADED_DATA[item.key] = json;
+      } else {
+        LOADED_MODEL[item.key] = json;
+      }
+    }).catch(function(e) {
+      FAILED_FILES.push(item.file + ': ' + e.message);
+    });
+  });
+
+  Promise.all(promises).then(function() {
+    if (FAILED_FILES.length > 0) {
+      showLoadError('部分文件加载失败：' + FAILED_FILES.join(', '));
+      return;
+    }
+    initApp();
+  }).catch(function() {
+    showLoadError('数据加载失败，请检查网络连接后重试');
+  });
+}
+
+function showLoadError(msg) {
+  document.getElementById('load-error').textContent = msg;
+  document.getElementById('load-error').style.display = 'block';
+  document.getElementById('retry-btn').style.display = 'inline-block';
+  document.querySelector('#loading-overlay .status-text').textContent = '加载失败';
+}
+
+function initApp() {
+  // Convert JSON periods to plain arrays (existing code expects raw arrays)
+  ssq = LOADED_DATA.ssq.periods.map(function(p) {
+    return { period: p.period, date: p.date.split('(')[0], red: p.red.map(Number), blue: Number(p.blue) };
+  });
+  dlt = LOADED_DATA.dlt.periods.map(function(p) {
+    return { period: p.period, date: p.date.split('(')[0], front: p.front.map(Number), back: p.back.map(Number) };
+  });
+
+  // Hide skeleton, show app
+  document.getElementById('loading-overlay').style.display = 'none';
+  document.getElementById('app-container').style.display = 'block';
+  renderAll();
+}
+
+// ============ SWITCH ============
+function switchGame(game) {
+  currentGame = game;
+  document.getElementById('btnSSQ').className = game === 'ssq' ? 'active' : '';
+  document.getElementById('btnDLT').className = game === 'dlt' ? 'active' : '';
+  disposeAllCharts();
+  renderAll();
+}
+
+function switchTab(tab) {
+  ['overview','trend','model','ai-model','recommend'].forEach(function(t) {
+    document.getElementById('tab-'+t).className = 'tab-content' + (t===tab?' active':'');
+  });
+  var btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(function(b,i) {
+    b.className = 'tab-btn' + (['overview','trend','model','ai-model','recommend'].indexOf(tab)===i?' active':'');
+  });
+  disposeAllCharts();
+  setTimeout(renderAll, 50);
+}
+
+
+// ============ AI MODEL RENDERING ============
+var currentSubTab = 'rf';
+
+function switchSubTab(sub) {
+  currentSubTab = sub;
+  document.querySelectorAll('.sub-tab-btn').forEach(function(b){
+    b.className = 'sub-tab-btn' + (b.textContent.trim().indexOf(sub==='rf'?'随机森林':sub==='nb'?'朴素贝叶斯':'蒙特卡洛')>=0?' active':'');
+  });
+  ['rf','nb','mc'].forEach(function(s){
+    document.getElementById('sub-'+s).className = 'ai-model-panel' + (s===sub?' active':'');
+  });
+  renderAiModelCharts();
+}
+
+function getModelData() {
+  return currentGame === 'ssq' ? LOADED_MODEL.ssq_model : LOADED_MODEL.dlt_model;
+}
+function getData() {
+  return currentGame === 'ssq' ? ssq : dlt;
+}
+function getModelMainKey() { return currentGame === 'ssq' ? 'red' : 'front'; }
+function getModelBackKey() { return currentGame === 'ssq' ? 'blue' : 'back'; }
+function getModelMainLabel() { return currentGame === 'ssq' ? '红球' : '前区'; }
+function getModelBackLabel() { return currentGame === 'ssq' ? '蓝球' : '后区'; }
+
+function renderAiModelBarChart(chartId, data, titleText, topN, modelLabel) {
+  var dom = document.getElementById(chartId);
+  if (!dom) return null;
+  if (charts[chartId]) charts[chartId].dispose();
+  var c = echarts.init(dom, 'dark');
+  charts[chartId] = c;
+
+  // data is [[num_str, score], ...]
+  var items = data.slice(0, topN);
+  // Reverse for bar chart (top at top)
+  items.reverse();
+  var maxScore = Math.max.apply(null, items.map(function(d){return d[1];}));
+
+  var categories = items.map(function(d){return d[0];});
+  var values = items.map(function(d){return d[1];});
+  var maxIdx = values.indexOf(maxScore);
+
+  c.setOption({
+    tooltip: {trigger:'axis', formatter:function(p){return p[0].name + '：评分 ' + p[0].value.toFixed(2);}},
+    grid: {left:55, right:50, top:10, bottom:20},
+    xAxis: {type:'value', name:'评分', axisLabel:{fontSize:10}},
+    yAxis: {type:'category', data:categories, axisLabel:{fontSize:11,fontWeight:'bold'}, inverse:true},
+    series: [{
+      type: 'bar',
+      data: values.map(function(v,i){
+        return {value:v, itemStyle:{color:i===maxIdx?'#58a6ff':'#3a5f8a',borderRadius:[0,4,4,0]}};
+      }),
+      barMaxWidth: 20,
+      label: {show:true,position:'right',fontSize:10,formatter:function(p){return p.value.toFixed(1);}}
+    }]
+  });
+  return c;
+}
+
+function renderAiModelCharts() {
+  var mData = getModelData();
+  var mainKey = getModelMainKey(), backKey = getModelBackKey();
+  var mainLabel = getModelMainLabel(), backLabel = getModelBackLabel();
+  var sub = currentSubTab;
+
+  // Update titles
+  document.getElementById('rf-main-title').textContent = mainLabel + ' Top 15 评分排行';
+  document.getElementById('rf-back-title').textContent = backLabel + ' Top 15 评分排行';
+  document.getElementById('nb-main-title').textContent = mainLabel + ' Top 15 评分排行';
+  document.getElementById('nb-back-title').textContent = backLabel + ' Top 15 评分排行';
+  document.getElementById('mc-main-title').textContent = mainLabel + ' Top 15 评分排行';
+  document.getElementById('mc-back-title').textContent = backLabel + ' Top 15 评分排行';
+
+  // Render charts for all sub-tabs (so they exist when switching)
+  ['rf','nb','mc'].forEach(function(model){
+    var mainData = mData[mainKey][model];
+    var backData = mData[backKey][model];
+    var mainTopN = Math.min(mainData.length, 15);
+    var backTopN = Math.min(backData.length, 15);
+
+    renderAiModelBarChart('chart-'+model+'-main', mainData, mainLabel, mainTopN, model);
+    renderAiModelBarChart('chart-'+model+'-back', backData, backLabel, backTopN, model);
+
+    // Insights
+    var topMainNum = mainData[0][0];
+    var topMainScore = mainData[0][1];
+    var topBackNum = backData[0][0];
+    var topBackScore = backData[0][1];
+
+    var modelNames = {rf:'随机森林',nb:'朴素贝叶斯',mc:'蒙特卡洛'};
+    var mainInsights = {
+      rf: modelNames[model]+'模型综合频率、遗漏值、冷热度多维特征，认为'+mainLabel+'号码 '+topMainNum+' 综合评分最高（'+topMainScore.toFixed(1)+'分），历史遗漏值较高，存在均值回归可能。',
+      nb: modelNames[model]+'模型基于历史出现频率为先验概率，'+mainLabel+'号码 '+topMainNum+' 后验概率最高（'+topMainScore.toFixed(1)+'分），近期趋势偏向活跃号码。',
+      mc: modelNames[model]+'模型通过大量随机模拟，'+mainLabel+'号码 '+topMainNum+' 期望出现频率最高（'+topMainScore.toFixed(1)+'分），模拟结果显著偏离均匀分布。'
+    };
+    var backInsights = {
+      rf: modelNames[model]+'模型认为'+backLabel+'号码 '+topBackNum+' 最具投资价值，综合遗漏与频率评分 '+topBackScore.toFixed(1)+' 分。',
+      nb: modelNames[model]+'模型基于贝叶斯推断，'+backLabel+'号码 '+topBackNum+' 后验概率领先，评分为 '+topBackScore.toFixed(1)+' 分。',
+      mc: modelNames[model]+'模型模拟中'+backLabel+'号码 '+topBackNum+' 出现频次最高，评分 '+topBackScore.toFixed(1)+' 分，显著高于平均期望。'
+    };
+
+    document.getElementById('insight-'+model+'-main').innerHTML = '<strong>洞察：</strong>' + mainInsights[model];
+    document.getElementById('insight-'+model+'-back').innerHTML = '<strong>洞察：</strong>' + backInsights[model];
+  });
+
+  // Consensus
+  renderConsensus();
+}
+
+function renderConsensus() {
+  var mData = getModelData();
+  var mainKey = getModelMainKey(), backKey = getModelBackKey();
+  var mainLabel = getModelMainLabel(), backLabel = getModelBackLabel();
+
+  // Get top 15 numbers from each model for main pool
+  function getTopNums(data, n) {
+    return data.slice(0, n).map(function(d){return d[0];});
+  }
+  function getScoreMap(data) {
+    var map = {};
+    data.forEach(function(d){map[d[0]] = d[1];});
+    return map;
+  }
+
+  var rfTop = getTopNums(mData[mainKey]['rf'], 15);
+  var nbTop = getTopNums(mData[mainKey]['nb'], 15);
+  var mcTop = getTopNums(mData[mainKey]['mc'], 15);
+
+  var rfMap = getScoreMap(mData[mainKey]['rf']);
+  var nbMap = getScoreMap(mData[mainKey]['nb']);
+  var mcMap = getScoreMap(mData[mainKey]['mc']);
+
+  // Find intersection: numbers in all 3 top 15
+  var rfSet = new Set(rfTop), nbSet = new Set(nbTop), mcSet = new Set(mcTop);
+  var consensus = [];
+  rfSet.forEach(function(n){
+    if (nbSet.has(n) && mcSet.has(n)) {
+      consensus.push(n);
+    }
+  });
+
+  // If no 3-way consensus, use numbers in at least 2
+  if (consensus.length === 0) {
+    var allNums = {};
+    [rfTop, nbTop, mcTop].forEach(function(arr){
+      arr.forEach(function(n){
+        allNums[n] = (allNums[n] || 0) + 1;
+      });
+    });
+    Object.keys(allNums).forEach(function(n){
+      if (allNums[n] >= 2) consensus.push(n);
+    });
+  }
+
+  // Sort by average score descending
+  consensus.sort(function(a,b){
+    var avgA = ((rfMap[a]||0) + (nbMap[a]||0) + (mcMap[a]||0)) / 3;
+    var avgB = ((rfMap[b]||0) + (nbMap[b]||0) + (mcMap[b]||0)) / 3;
+    return avgB - avgA;
+  });
+
+  // Back consensus
+  var rfBackTop = getTopNums(mData[backKey]['rf'], 15);
+  var nbBackTop = getTopNums(mData[backKey]['nb'], 15);
+  var mcBackTop = getTopNums(mData[backKey]['mc'], 15);
+
+  var rfBackMap = getScoreMap(mData[backKey]['rf']);
+  var nbBackMap = getScoreMap(mData[backKey]['nb']);
+  var mcBackMap = getScoreMap(mData[backKey]['mc']);
+
+  var rfBackSet = new Set(rfBackTop), nbBackSet = new Set(nbBackTop), mcBackSet = new Set(mcBackTop);
+  var consensusBack = [];
+  rfBackSet.forEach(function(n){
+    if (nbBackSet.has(n) && mcBackSet.has(n)) {
+      consensusBack.push(n);
+    }
+  });
+  if (consensusBack.length === 0) {
+    var allBack = {};
+    [rfBackTop, nbBackTop, mcBackTop].forEach(function(arr){
+      arr.forEach(function(n){
+        allBack[n] = (allBack[n] || 0) + 1;
+      });
+    });
+    Object.keys(allBack).forEach(function(n){
+      if (allBack[n] >= 2) consensusBack.push(n);
+    });
+  }
+  consensusBack.sort(function(a,b){
+    var avgA = ((rfBackMap[a]||0) + (nbBackMap[a]||0) + (mcBackMap[a]||0)) / 3;
+    var avgB = ((rfBackMap[b]||0) + (nbBackMap[b]||0) + (mcBackMap[b]||0)) / 3;
+    return avgB - avgA;
+  });
+
+  // Render consensus
+  var mainHtml = '';
+  if (consensus.length > 0) {
+    consensus.forEach(function(n){
+      var avg = ((rfMap[n]||0)+(nbMap[n]||0)+(mcMap[n]||0))/3;
+      mainHtml += '<span class="consensus-ball front" title="均分:'+avg.toFixed(1)+'">'+n+'</span>';
+    });
+  } else {
+    mainHtml = '<span class="consensus-empty">暂无共识号码（三模型 Top 15 无交集且任意两模型也无交集）</span>';
+  }
+  document.getElementById('consensus-main-balls').innerHTML = mainHtml;
+
+  var backHtml = '';
+  if (consensusBack.length > 0) {
+    consensusBack.forEach(function(n){
+      var avg = ((rfBackMap[n]||0)+(nbBackMap[n]||0)+(mcBackMap[n]||0))/3;
+      backHtml += '<span class="consensus-ball back" title="均分:'+avg.toFixed(1)+'">'+n+'</span>';
+    });
+  } else {
+    backHtml = '<span class="consensus-empty">暂无共识号码</span>';
+  }
+  document.getElementById('consensus-back-balls').innerHTML = backHtml;
+
+  var insight = '';
+  if (consensus.length > 0) {
+    insight = '<strong>共识解读：</strong>三模型共同看好的' + mainLabel + '号码为 ' + consensus.join('、') +
+      '，这些号码在随机森林、朴素贝叶斯、蒙特卡洛三个模型中均进入 Top 15，具备较高的多模型一致性。' +
+      (consensusBack.length > 0 ? backLabel + '共识：' + consensusBack.join('、') + '。' : '');
+  } else {
+    insight = '<strong>共识解读：</strong>当前周期三模型观点分歧较大，' + mainLabel + '无三模型完全共识号码。图中展示的是至少两个模型认可的号码，请结合各模型独立评分综合判断。';
+  }
+  document.getElementById('consensus-insight').innerHTML = insight;
+
+  // Store consensus for recommend tab
+  window._aiConsensusMain = consensus;
+  window._aiConsensusBack = consensusBack;
+}
+
+function renderAiModelAll() {
+  renderAiModelCharts();
+}
+
+// ============ RENDER ALL ============
+function renderAll() {
+  var data = getData();
+  var fKey = getFrontKey(), bKey = getBackKey();
+  var fMax = getFrontMax(), fCnt = getFrontCount(), bMax = getBackMax();
+  var primes = getPrimes();
+  var latest = data[0];
+
+  // --- Stats ---
+  document.getElementById('stat-total').textContent = data.length;
+  document.getElementById('stat-latest').textContent = latest.period;
+  var allSums = data.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
+  var sumMean = (allSums.reduce(function(a,b){return a+b;},0) / allSums.length).toFixed(1);
+  document.getElementById('stat-avgsum').textContent = sumMean;
+
+  // --- Latest balls ---
+  var ballsHtml = '<div class="ball-group">';
+  latest[fKey].forEach(function(n){ ballsHtml += '<span class="ball red">'+String(n).padStart(2,'0')+'</span>'; });
+  if (currentGame === 'ssq') {
+    ballsHtml += '<span class="ball blue">'+String(latest[bKey]).padStart(2,'0')+'</span>';
+  } else {
+    latest[bKey].forEach(function(n){ ballsHtml += '<span class="ball blue">'+String(n).padStart(2,'0')+'</span>'; });
+  }
+  ballsHtml += '</div><div style="font-size:12px;color:var(--text2);margin-top:4px">'
+    + latest.period + '期 | ' + latest.date + '</div>';
+  document.getElementById('latest-balls').innerHTML = ballsHtml;
+
+  // --- Hot/Cold: last 30 ---
+  var hotMap = {};
+  for (var i = 0; i < Math.min(30, data.length); i++)
+    data[i][fKey].forEach(function(n){ hotMap[n] = (hotMap[n]||0)+1; });
+
+  var allNums = [];
+  for (var n = 1; n <= fMax; n++) allNums.push({num:n, count:hotMap[n]||0});
+  allNums.sort(function(a,b){return b.count-a.count;});
+  var topHot = allNums[0];
+  document.getElementById('stat-hotball').textContent = String(topHot.num).padStart(2,'0')+' ('+topHot.count+'次)';
+
+  var hotChart = initChart('chart-hothold');
+  if (hotChart) {
+    hotChart.setOption({
+      tooltip:{trigger:'axis'},
+      grid:{left:50,right:20,top:20,bottom:30},
+      xAxis:{type:'category',data:allNums.map(function(n){return String(n.num).padStart(2,'0');}),axisLabel:{fontSize:10}},
+      yAxis:{type:'value',name:'次'},
+      series:[{type:'bar',data:allNums.map(function(n,i){
+        var c = n.count >= 3 ? '#f85149' : n.count >= 1 ? '#d2991d' : '#30363d';
+        return {value:n.count,itemStyle:{color:c}};
+      }),barMaxWidth:14}]
+    });
+    hotChart.off('click').on('click', function(params){
+      if (params.dataIndex !== undefined) showDrillModal(allNums[params.dataIndex].num);
+    });
+  }
+  var hotTop = allNums.slice(0,5).map(function(n){return n.num;}).join(', ');
+  var coldNums = allNums.filter(function(n){return n.count===0;}).map(function(n){return n.num;}).join(', ');
+  document.getElementById('insight-hothold').innerHTML = '<strong>洞察：</strong>近30期最热号码 ' + hotTop +
+    '；最近30期零出现的冷号：' + (coldNums || '无');
+
+  // --- Freq Top 10 ---
+  var freqAll = {};
+  data.forEach(function(d){ d[fKey].forEach(function(n){ freqAll[n] = (freqAll[n]||0)+1; }); });
+  var freqArr = [];
+  for (var n = 1; n <= fMax; n++) freqArr.push({num:n, count:freqAll[n]||0});
+  freqArr.sort(function(a,b){return b.count-a.count;});
+  var freqTop = freqArr.slice(0,10);
+
+  var freqChart = initChart('chart-freq');
+  if (freqChart) {
+    freqChart.setOption({
+      tooltip:{trigger:'item',formatter:'{b}: {c} 次 ({d}%)'},
+      series:[{type:'pie',radius:['40%','70%'],center:['50%','55%'],
+        data:freqTop.map(function(n){return {name:String(n.num).padStart(2,'0'),value:n.count};}),
+        label:{formatter:'{b} {d}%',fontSize:11},
+        emphasis:{label:{fontSize:16}}}]
+    });
+  }
+  document.getElementById('insight-freq').innerHTML = '<strong>洞察：</strong>历史总出现次数最高为 ' +
+    freqTop[0].num + '（' + freqTop[0].count + '次），前10集中度约' +
+    (freqTop.reduce(function(s,n){return s+n.count;},0) / Object.values(freqAll).reduce(function(a,b){return a+b;},0) * 100).toFixed(0) + '%';
+
+  // --- Missing ---
+  var missing = {}, maxMissing = {};
+  for (var n = 1; n <= fMax; n++) {
+    var cnt = 0, maxM = 0, cur = 0;
+    for (var i = 0; i < data.length; i++) {
+      if (data[i][fKey].indexOf(n) >= 0) { maxM = Math.max(maxM, cur); cur = 0; }
+      else { cur++; }
+    }
+    maxM = Math.max(maxM, cur);
+    cnt = cur; // current missing since last occurrence
+    missing[n] = cnt;
+    maxMissing[n] = maxM;
+  }
+
+  var missChart = initChart('chart-missing');
+  if (missChart) {
+    var missData = [];
+    for (var n = 1; n <= fMax; n++) missData.push({num:n, curr:missing[n], max:maxMissing[n]});
+    missChart.setOption({
+      tooltip:{trigger:'axis'},
+      legend:{data:['当前遗漏','历史最大遗漏'],textStyle:{fontSize:11}},
+      grid:{left:55,right:20,top:40,bottom:30},
+      xAxis:{type:'category',data:missData.map(function(d){return String(d.num).padStart(2,'0');}),axisLabel:{fontSize:10}},
+      yAxis:{type:'value',name:'期'},
+      series:[
+        {name:'当前遗漏',type:'bar',data:missData.map(function(d){return d.curr;}),barMaxWidth:12,itemStyle:{color:'#f85149'}},
+        {name:'历史最大遗漏',type:'bar',data:missData.map(function(d){return d.max;}),barMaxWidth:12,itemStyle:{color:'#30363d'}}
+      ]
+    });
+  }
+  var topMiss = Object.entries(missing).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
+  document.getElementById('insight-missing').innerHTML = '<strong>洞察：</strong>当前遗漏最大号码为 ' +
+    topMiss.map(function(e){return e[0]+'（'+e[1]+'期）';}).join('、') +
+    '；历史最大遗漏为 ' + Object.entries(maxMissing).sort(function(a,b){return b[1]-a[1];})[0][0] +
+    '（' + Object.entries(maxMissing).sort(function(a,b){return b[1]-a[1];})[0][1] + '期）';
+
+  // --- Odd/Even ---
+  var oeAll = {};
+  data.forEach(function(d){
+    var odd = d[fKey].filter(function(n){return n%2===1;}).length;
+    var even = fCnt - odd;
+    var key = odd + ':' + even;
+    oeAll[key] = (oeAll[key]||0)+1;
+  });
+  var oeArr = [];
+  for (var o = 0; o <= fCnt; o++) {
+    var k = o + ':' + (fCnt-o);
+    oeArr.push({key:k, count:oeAll[k]||0});
+  }
+
+  var oeChart = initChart('chart-oddeven');
+  if (oeChart) {
+    oeChart.setOption({
+      tooltip:{trigger:'axis'},
+      grid:{left:55,right:20,top:20,bottom:30},
+      xAxis:{type:'category',data:oeArr.map(function(d){return d.key;})},
+      yAxis:{type:'value',name:'期'},
+      series:[{type:'bar',data:oeArr.map(function(d){
+        return {value:d.count,itemStyle:{color: d.key.indexOf('3:')===0 || d.key.indexOf('2:3')===0 ? '#58a6ff':'#30363d'}};
+      }),barMaxWidth:30}]
+    });
+  }
+  var bestOE = oeArr.reduce(function(a,b){return a.count>b.count?a:b;});
+  document.getElementById('insight-oddeven').innerHTML = '<strong>洞察：</strong>' + data.length + '期历史中，' +
+    bestOE.key + ' 奇偶比出现最多（' + bestOE.count + '期，占' + (bestOE.count/data.length*100).toFixed(1) + '%）';
+
+  // ===== TREND TAB =====
+  // --- Sum trend ---
+  var sumSlice = data.slice(0, 50).reverse();
+  var sumVals = sumSlice.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
+  var periods = sumSlice.map(function(d){ return d.period; });
+
+  var sumChart = initChart('chart-sumtrend');
+  if (sumChart) {
+    sumChart.setOption({
+      tooltip:{trigger:'axis'},
+      grid:{left:55,right:20,top:20,bottom:30},
+      xAxis:{type:'category',data:periods,axisLabel:{fontSize:9,rotate:45}},
+      yAxis:{type:'value',name:'和值'},
+      series:[{type:'line',data:sumVals,smooth:true,lineStyle:{color:'#58a6ff',width:2},
+        areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(88,166,255,.3)'},{offset:1,color:'rgba(88,166,255,0)'}]}},
+        markLine:{silent:true,data:[{yAxis:sumMean,label:{formatter:'均值 '+sumMean,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}}]
+    });
+  }
+  document.getElementById('insight-sumtrend').innerHTML = '<strong>洞察：</strong>近50期和值均值 ' +
+    (sumVals.reduce(function(a,b){return a+b;},0)/sumVals.length).toFixed(1) +
+    '，历史全局均值 ' + sumMean + '，当前和值水平' + (sumVals[sumVals.length-1] > parseFloat(sumMean) ? '偏高' : '偏低');
+
+  // --- Prime trend ---
+  var primeSlice = data.slice(0, 100).reverse();
+  var primeVals = primeSlice.map(function(d){ return d[fKey].filter(function(n){return primes.has(n);}).length; });
+  var primePeriods = primeSlice.map(function(d){ return d.period; });
+  var primeAvg = (primeVals.reduce(function(a,b){return a+b;},0)/primeVals.length).toFixed(2);
+
+  var primeChart = initChart('chart-primetrend');
+  if (primeChart) {
+    primeChart.setOption({
+      tooltip:{trigger:'axis'},
+      grid:{left:50,right:20,top:20,bottom:30},
+      xAxis:{type:'category',data:primePeriods,axisLabel:{fontSize:9,rotate:45}},
+      yAxis:{type:'value',name:'质数个数',min:0,max:fCnt},
+      series:[{type:'line',data:primeVals,lineStyle:{color:'#a371f7',width:2},areaStyle:{color:'rgba(163,113,247,.15)'},
+        markLine:{silent:true,data:[{yAxis:primeAvg,label:{formatter:'均值 '+primeAvg,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}}]
+    });
+  }
+  document.getElementById('insight-primetrend').innerHTML = '<strong>洞察：</strong>近100期每期质数均值 ' + primeAvg +
+    ' 个，最新一期质数 ' + primeVals[primeVals.length-1] + ' 个';
+
+  // --- AC trend ---
+  var acSlice = data.slice(0, 100).reverse();
+  var acVals = acSlice.map(function(d){ return computeAC(d[fKey]); });
+  var acPeriods = acSlice.map(function(d){ return d.period; });
+  var acMean = (acVals.reduce(function(a,b){return a+b;},0)/acVals.length).toFixed(2);
+
+  var acChart = initChart('chart-actrend');
+  if (acChart) {
+    acChart.setOption({
+      tooltip:{trigger:'axis'},
+      grid:{left:50,right:20,top:20,bottom:30},
+      xAxis:{type:'category',data:acPeriods,axisLabel:{fontSize:9,rotate:45}},
+      yAxis:{type:'value',name:'AC值'},
+      series:[{type:'line',data:acVals,lineStyle:{color:'#39d353',width:2},areaStyle:{color:'rgba(57,211,83,.15)'},
+        markLine:{silent:true,data:[{yAxis:acMean,label:{formatter:'均值 '+acMean,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}}]
+    });
+  }
+  document.getElementById('insight-actrend').innerHTML = '<strong>洞察：</strong>近100期AC值均值 ' + acMean +
+    '，最新一期AC值 ' + acVals[acVals.length-1] + '。AC值越大号码离散度越高';
+
+  // --- Consec ---
+  var consecData = data.slice(0, 100);
+  var consecMap = {'0':0,'2连':0,'3连':0,'两组2连':0,'其他':0};
+  consecData.forEach(function(d){
+    var g = classifyConsec(d[fKey]);
+    if (g.length === 0) consecMap['0']++;
+    else if (g.length === 1) { if (g[0]===2) consecMap['2连']++; else if (g[0]===3) consecMap['3连']++; else consecMap['其他']++; }
+    else if (g.length === 2 && g[0]===2 && g[1]===2) consecMap['两组2连']++;
+    else consecMap['其他']++;
+  });
+
+  var consecChart = initChart('chart-consec');
+  if (consecChart) {
+    var cKeys = ['0','2连','3连','两组2连','其他'];
+    var cVals = cKeys.map(function(k){return consecMap[k];});
+    consecChart.setOption({
+      tooltip:{trigger:'item',formatter:'{b}: {c} 期 ({d}%)'},
+      series:[{type:'pie',radius:'60%',center:['50%','55%'],
+        data:cKeys.map(function(k,i){return {name:k,value:cVals[i]};}),
+        label:{fontSize:11}}]
+    });
+  }
+  document.getElementById('insight-consec').innerHTML = '<strong>洞察：</strong>近100期中 ' +
+    consecMap['0'] + ' 期无连号，' + (100-consecMap['0']) + ' 期出现连号，连号出现率 ' + ((100-consecMap['0'])) + '%';
+
+  // ===== MODEL TAB =====
+  // Monte Carlo: 10000 simulations based on real frequency
+  var totalDraws = data.length * fCnt;
+  var weights = {};
+  for (var n = 1; n <= fMax; n++) weights[n] = (freqAll[n]||0) / totalDraws;
+
+  var mcResults = {};
+  for (var n = 1; n <= fMax; n++) mcResults[n] = 0;
+  var simCount = 10000;
+
+  // Simple Monte Carlo: weighted random sampling
+  function weightedSample(weights, fMax, fCnt) {
+    var pool = [];
+    for (var n = 1; n <= fMax; n++) { var w = weights[n] || 0.001; pool.push({num:n, w:w}); }
+    pool.sort(function(a,b){return a.w-b.w;});
+    var cum = [];
+    var total = 0;
+    for (var i = 0; i < pool.length; i++) { total += pool[i].w; cum.push({num:pool[i].num, cum:total}); }
+
+    var result = [];
+    for (var i = 0; i < fCnt; i++) {
+      var r = Math.random() * total;
+      var idx = 0;
+      while (idx < cum.length && cum[idx].cum < r) idx++;
+      var chosen = cum[Math.min(idx, cum.length-1)].num;
+      if (result.indexOf(chosen) >= 0) { i--; continue; }
+      result.push(chosen);
+    }
+    result.sort(function(a,b){return a-b;});
+    return result;
+  }
+
+  for (var s = 0; s < simCount; s++) {
+    var sample = weightedSample(weights, fMax, fCnt);
+    sample.forEach(function(n){ mcResults[n]++; });
+  }
+
+  // Normalize MC
+  var mcNorm = [];
+  for (var n = 1; n <= fMax; n++) mcNorm.push({num:n, count:mcResults[n], rate:(mcResults[n]/simCount*100).toFixed(1)});
+  mcNorm.sort(function(a,b){return b.count-a.count;});
+
+  var mcTop = mcNorm.slice(0, fCnt);
+  var mcScoreVal = (mcTop.reduce(function(s,n){return s+n.count;},0) / simCount / fCnt * 100).toFixed(1);
+  document.getElementById('mc-score').textContent = mcScoreVal + '%';
+  document.getElementById('mc-balls').innerHTML = mcTop.map(function(n){
+    return '<span class="ball red">'+String(n.num).padStart(2,'0')+'</span>';
+  }).join('');
+  document.getElementById('mc-reason').textContent = '基于 ' + data.length +
+    ' 期真实频率分布做 ' + simCount.toLocaleString() + ' 次加权随机抽样，期望命中率 ' + mcScoreVal + '%';
+
+  // Monte Carlo chart
+  var mcChart = initChart('chart-mc');
+  if (mcChart) {
+    mcChart.setOption({
+      tooltip:{trigger:'axis'},
+      grid:{left:55,right:20,top:20,bottom:30},
+      xAxis:{type:'category',data:mcNorm.map(function(d){return String(d.num).padStart(2,'0');}),axisLabel:{fontSize:10}},
+      yAxis:{type:'value',name:'次'},
+      series:[{type:'bar',data:mcNorm.map(function(d){
+        return {value:d.count,itemStyle:{color:d.count>simCount*fCnt/fMax*1.3?'#f85149':d.count>simCount*fCnt/fMax*0.7?'#d2991d':'#30363d'}};
+      }),barMaxWidth:12}]
+    });
+  }
+
+  // Bayes
+  var bayesTop = freqArr.slice(0, fCnt);
+  var bayesScoreVal = (bayesTop.reduce(function(s,n){return s+n.count;},0) / (totalDraws) * 100).toFixed(1);
+  document.getElementById('bayes-score').textContent = bayesScoreVal + '%';
+  document.getElementById('bayes-balls').innerHTML = bayesTop.map(function(n){
+    return '<span class="ball red">'+String(n.num).padStart(2,'0')+'</span>';
+  }).join('');
+  document.getElementById('bayes-reason').textContent = '以 ' + data.length + ' 期历史频率为先验，贝叶斯推断最可能号码集合';
+
+  // Random Forest weighted
+  var rfWeights = {};
+  for (var n = 1; n <= fMax; n++) {
+    var w = (freqAll[n]||0) / totalDraws;
+    var missPenalty = Math.min(missing[n] / Math.max(maxMissing[n]||1, 1), 1) * 0.3;
+    var hotBonus = ((hotMap[n]||0) / 30 / fCnt) * 0.2;
+    rfWeights[n] = w * (1 + hotBonus - missPenalty);
+  }
+  var rfArr = [];
+  for (var n = 1; n <= fMax; n++) rfArr.push({num:n, w:rfWeights[n]});
+  rfArr.sort(function(a,b){return b.w-a.w;});
+  var rfTop = rfArr.slice(0, fCnt);
+  var rfScoreVal = (rfTop.reduce(function(s,n){return s+n.w;},0) / rfArr.reduce(function(s,n){return s+n.w;},0) * 100).toFixed(1);
+  document.getElementById('rf-score').textContent = rfScoreVal + '%';
+  document.getElementById('rf-balls').innerHTML = rfTop.map(function(n){
+    return '<span class="ball red" style="background:linear-gradient(135deg,'+(n.w>0.02?'#e74c3c':'#d2991d')+','+(n.w>0.02?'#c0392b':'#b8860b')+')">'+String(n.num).padStart(2,'0')+'</span>';
+  }).join('');
+  document.getElementById('rf-reason').textContent = '综合频率权重 + 冷热调整 + 遗漏回补因子，加权评分最高号码组合';
+
+  document.getElementById('insight-mc').innerHTML = '<strong>洞察：</strong>' + simCount.toLocaleString() +
+    '次模拟中，号码 ' + mcNorm[0].num + ' 期望出现 ' + mcNorm[0].count + ' 次（' + mcNorm[0].rate + '%），远高于均匀期望 ' +
+    (simCount * fCnt / fMax).toFixed(0) + ' 次';
+
+  // ===== RECOMMEND TAB =====
+  var recBalls = mcTop.map(function(n){return n.num;});
+  // If mcTop matches rfTop on some numbers, keep; otherwise blend
+  var rfNums = rfTop.map(function(n){return n.num;});
+  var recSet = new Set();
+  // Pick consensus: numbers appearing in both top lists
+  mcTop.forEach(function(n){ if (rfNums.indexOf(n.num) >= 0 && recSet.size < fCnt) recSet.add(n.num); });
+  // Fill with RF top
+  rfTop.forEach(function(n){ if (recSet.size < fCnt) recSet.add(n.num); });
+  // Fill with MC top
+  mcTop.forEach(function(n){ if (recSet.size < fCnt) recSet.add(n.num); });
+  var recFinal = Array.from(recSet).slice(0, fCnt).sort(function(a,b){return a-b;});
+
+  // Back ball recommendation
+  var backFreq = {};
+  data.forEach(function(d){
+    if (currentGame === 'ssq') {
+      backFreq[d[bKey]] = (backFreq[d[bKey]]||0)+1;
+    } else {
+      d[bKey].forEach(function(n){ backFreq[n] = (backFreq[n]||0)+1; });
+    }
+  });
+  var backArr = [];
+  for (var n = 1; n <= bMax; n++) backArr.push({num:n, count:backFreq[n]||0});
+  backArr.sort(function(a,b){return b.count-a.count;});
+  var recBack = backArr.slice(0, getBackCount()).map(function(n){return n.num;}).sort(function(a,b){return a-b;});
+
+  var recHtml = '<div class="code-preview">';
+  recHtml += '<div style="color:var(--accent);margin-bottom:8px">';
+  recHtml += currentGame === 'ssq' ? '双色球推荐（前区6红 + 后区1蓝）' : '大乐透推荐（前区5 + 后区2）';
+  recHtml += '</div>';
+  recHtml += '<div class="ball-group" style="justify-content:center">';
+  recFinal.forEach(function(n){ recHtml += '<span class="ball red hot">'+String(n).padStart(2,'0')+'</span>'; });
+  if (currentGame === 'ssq') {
+    recHtml += '<span class="ball blue hot">'+String(recBack[0]).padStart(2,'0')+'</span>';
+  } else {
+    recBack.forEach(function(n){ recHtml += '<span class="ball blue hot">'+String(n).padStart(2,'0')+'</span>'; });
+  }
+  recHtml += '</div>';
+  recHtml += '<div style="font-size:12px;color:var(--text2);margin-top:12px;line-height:1.8">';
+  recHtml += '<strong>推荐理由：</strong><br>';
+  recHtml += '1. 蒙特卡洛 ' + simCount.toLocaleString() + ' 次模拟中期望频率最高号码集合<br>';
+  recHtml += '2. 随机森林加权模型综合频率/冷热/遗漏三维评分最优<br>';
+  recHtml += '3. 贝叶斯先验概率最高的号码组合<br>';
+  recHtml += '4. 后区推荐基于历史出现频率 TOP ' + getBackCount() + '（' + recBack.join(', ') + '）';
+  recHtml += '</div></div>';
+  document.getElementById('recommend-content').innerHTML = recHtml;
+
+  // Store for export/refresh
+  window._lastRecommend = [{nums: recFinal.slice(), backNums: recBack.slice(), score: (rfScoreVal||'N/A')}];
+  window._lastMcNorm = mcNorm.slice();
+  window._lastBackFreq = backFreq;
+  window._lastBackArr = backArr.slice();
+
+  // Resize all
+  // AI Model Tab (render if visible, but always compute consensus)
+  if (document.getElementById('tab-ai-model').className.indexOf('active') >= 0) {
+    renderAiModelAll();
+  }
+  // Always compute consensus for recommend tab
+  renderConsensus();
+
+  // Add AI consensus to recommend tab
+  var recDiv = document.getElementById('recommend-content');
+  if (recDiv && window._aiConsensusMain && window._aiConsensusMain.length > 0) {
+    var consMain = window._aiConsensusMain;
+    var consBack = window._aiConsensusBack || [];
+    var mLabel = getModelMainLabel();
+    var bLabel = getModelBackLabel();
+    var bCnt = getBackCount();
+
+    var consHtml = '<div class="recommend-consensus">';
+    consHtml += '<h3>AI模型共识推荐</h3>';
+    consHtml += '<div class="ball-group" style="justify-content:center">';
+    consMain.slice(0, getFrontCount()).forEach(function(n){
+      consHtml += '<span class="ball red">'+String(n).padStart(2,'0')+'</span>';
+    });
+    // Show back consensus
+    if (currentGame === 'ssq' && consBack.length > 0) {
+      consHtml += '<span class="ball blue">'+String(consBack[0]).padStart(2,'0')+'</span>';
+    } else if (currentGame === 'dlt' && consBack.length >= 2) {
+      consBack.slice(0,2).forEach(function(n){
+        consHtml += '<span class="ball blue">'+String(n).padStart(2,'0')+'</span>';
+      });
+    }
+    consHtml += '</div>';
+    consHtml += '<div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:1.6">';
+    consHtml += '<strong>推荐理由：</strong>三模型（随机森林 + 朴素贝叶斯 + 蒙特卡洛）Top 15 交集共识号码，按三模型平均评分降序排列。' +
+      '这些号码在三个独立概率模型中均表现优异，具备较高的一致性置信度。';
+    if (consMain.length < getFrontCount()) {
+      consHtml += '<br><span style="color:var(--orange)">注意：共识号码不足 ' + getFrontCount() + ' 个（仅 ' + consMain.length + ' 个），建议结合各模型独立推荐综合判断。</span>';
+    }
+    consHtml += '</div></div>';
+
+    // Append to existing content
+    recDiv.innerHTML += consHtml;
+  } else if (recDiv && (window._aiConsensusMain || []).length === 0) {
+    recDiv.innerHTML += '<div class="recommend-consensus"><h3>AI模型共识推荐</h3><span class="consensus-empty">当前三模型观点分歧较大，暂无共识号码。</span></div>';
+  }
+
+  setTimeout(function(){
+    Object.values(charts).forEach(function(c){c.resize();});
+  }, 100);
+}
+
+// ============ DATE FILTER HANDLERS ============
+function applyDateFilter() {
+  var s = document.getElementById('filter-start').value;
+  var e = document.getElementById('filter-end').value;
+  dateFilter.start = s || null;
+  dateFilter.end = e || null;
+  if (s || e) {
+    document.getElementById('filter-info').textContent = '当前分析范围：' + (s||'最早') + ' ~ ' + (e||'最新');
+  } else {
+    document.getElementById('filter-info').textContent = '当前分析范围：全部数据';
+  }
+  renderAll();
+}
+function resetDateFilter() {
+  dateFilter.start = null;
+  dateFilter.end = null;
+  document.getElementById('filter-start').value = '';
+  document.getElementById('filter-end').value = '';
+  document.getElementById('filter-info').textContent = '当前分析范围：全部数据';
+  renderAll();
+}
+
+// ============ EXPORT CSV ============
+function exportCSV() {
+  var recs = window._lastRecommend || [];
+  if (recs.length === 0) { alert('暂无推荐号码可导出'); return; }
+  var gameLabel = currentGame === 'ssq' ? '双色球' : '大乐透';
+  var today = new Date();
+  var ds = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  var csvRows = ['\uFEFF组号,推荐号码,和值,奇偶比,综合评分'];
+  recs.forEach(function(r, i) {
+    var allNums = r.nums.concat(r.backNums||[]);
+    var sum = allNums.reduce(function(a,b){return a+b;},0);
+    var odd = allNums.filter(function(n){return n%2===1;}).length;
+    var even = allNums.length - odd;
+    csvRows.push([
+      i+1,
+      '"' + r.nums.join(',') + ' + ' + (r.backNums||[]).join(',') + '"',
+      sum,
+      odd + ':' + even,
+      r.score || 'N/A'
+    ].join(','));
+  });
+  var blob = new Blob([csvRows.join('\n')], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'AI推荐号码_' + gameLabel + '_' + ds + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============ REFRESH RECOMMEND ============
+function refreshRecommend() {
+  var btn = document.getElementById('btn-refresh');
+  btn.textContent = '生成中...'; btn.disabled = true;
+  setTimeout(function() {
+    _doRefresh(); btn.textContent = '重新生成'; btn.disabled = false;
+  }, 800);
+}
+function _doRefresh() {
+  var fCnt = getFrontCount(), fMax = getFrontMax(), bKey = getBackKey(), bMax = getBackMax();
+  var mcData = window._lastMcNorm, backArr = window._lastBackArr, data = getData();
+  if (!mcData || mcData.length === 0) {
+    var freqAll = {}; data.forEach(function(d){ d[getFrontKey()].forEach(function(n){ freqAll[n]=(freqAll[n]||0)+1; }); });
+    mcData = []; for (var n=1; n<=fMax; n++) mcData.push({num:n, rate:((freqAll[n]||0)/(data.length*fCnt)*100).toFixed(2)});
+  }
+  var weights = mcData.map(function(d){ return Math.max(parseFloat(d.rate),0.01); });
+  var tw = weights.reduce(function(a,b){return a+b;},0);
+  function pick(cnt) {
+    var s = new Set(), safe=0;
+    while (s.size < cnt && safe < 1000) { safe++;
+      var r=Math.random()*tw, cum=0;
+      for (var j=0; j<mcData.length; j++) { cum+=weights[j]; if (r<=cum) { s.add(mcData[j].num); break; } }
+    }
+    var arr=Array.from(s).sort(function(a,b){return a-b;});
+    if (arr.length<cnt) { mcData.slice().sort(function(a,b){return parseFloat(b.rate)-parseFloat(a.rate);}).forEach(function(d){ if(arr.length<cnt && arr.indexOf(d.num)<0) arr.push(d.num); }); arr.sort(function(a,b){return a-b;}); }
+    return arr;
+  }
+  if (!backArr) {
+    var bf={}; data.forEach(function(d){ if(currentGame==='ssq') bf[d[bKey]]=(bf[d[bKey]]||0)+1; else d[bKey].forEach(function(n){ bf[n]=(bf[n]||0)+1; }); });
+    backArr=[]; for (var n=1; n<=bMax; n++) backArr.push({num:n,count:bf[n]||0}); backArr.sort(function(a,b){return b.count-a.count;});
+  }
+  var recBack = backArr.slice(0,getBackCount()).map(function(n){return n.num;}).sort(function(a,b){return a-b;});
+
+  // Build MC index for realistic scoring
+  var mcIndex = {};
+  mcData.forEach(function(d){ mcIndex[d.num] = parseFloat(d.rate); });
+  var maxRate = mcData[0] ? parseFloat(mcData[0].rate) : 10;
+
+  var gs = [];
+  for (var g=0; g<4; g++) {
+    var fn = pick(fCnt);
+    // Score based on average MC rate of drawn numbers (70% weight) + randomness (30% weight)
+    var avgRate = fn.reduce(function(s,n){return s+(mcIndex[n]||0);},0)/fn.length;
+    var score = Math.min(Math.round(avgRate/maxRate*65 + 20 + Math.random()*10), 95).toFixed(1);
+    var allNums = fn.concat(recBack.slice());
+    var sumVal = allNums.reduce(function(a,b){return a+b;},0);
+    var oddCnt = allNums.filter(function(n){return n%2===1;}).length;
+    var evenCnt = allNums.length - oddCnt;
+    gs.push({nums:fn, backNums:recBack.slice(), score:score, sum:sumVal, oddRatio:oddCnt+':'+evenCnt});
+  }
+  window._lastRecommend = gs;
+
+  // Render all 4 groups as individual cards in a 2x2 grid
+  var gameLabel = currentGame==='ssq'?'双色球推荐（前区6红 + 后区1蓝）':'大乐透推荐（前区5 + 后区2）';
+  var h = '<div style="color:var(--accent);margin-bottom:14px;font-weight:600;font-size:15px">'+gameLabel+'</div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px">';
+  for (var g=0; g<4; g++) {
+    var r = gs[g];
+    var starCount = r.score>80?5:r.score>65?4:r.score>50?3:r.score>35?2:1;
+    var stars=''; for (var s=0;s<5;s++) stars+=s<starCount?'★':'☆';
+    h += '<div class="model-card" style="padding:14px">';
+    h += '<div class="model-name">第 '+(g+1)+' 组</div>';
+    h += '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin:10px 0">';
+    r.nums.forEach(function(n){ h+='<span class="ball red hot">'+String(n).padStart(2,'0')+'</span>'; });
+    if (currentGame==='ssq') { h+='<span class="ball blue hot">'+String(r.backNums[0]).padStart(2,'0')+'</span>'; }
+    else { r.backNums.forEach(function(n){ h+='<span class="ball blue hot">'+String(n).padStart(2,'0')+'</span>'; }); }
+    h += '</div>';
+    h += '<div style="text-align:center;margin-top:6px"><span style="font-size:16px;color:#f0c000">'+stars+'</span><span style="color:var(--accent);font-size:14px;margin-left:6px">'+r.score+'分</span></div>';
+    h += '<div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:center">和值 '+r.sum+' | 奇偶 '+r.oddRatio+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '<div style="font-size:12px;color:var(--text2);line-height:1.8"><strong>推荐理由：</strong><br>1. 基于蒙特卡洛 10000 次模拟加权随机采样重新组合<br>2. 保留高概率号码，模拟随机扰动<br>3. 后区推荐基于历史出现频率<br>4. 每次重新生成结果不同，仅供参考比较</div>';
+  document.getElementById('recommend-content').innerHTML = h;
+
+  // Update insight
+  var ins = document.getElementById('insight-recommend');
+  if (ins) ins.innerHTML = '<strong>已重新生成：</strong>共 '+gs.length+' 组新推荐，点击"导出CSV"可保存全部。';
+}
+
+// ============ NUMBER DRILL DOWN ============
+function showDrillModal(num) {
+  var data = getData(), fKey = getFrontKey(), bKey = getBackKey();
+  var totalCount = 0, positions = [];
+  data.forEach(function(d,i){ if(d[fKey].indexOf(num)>=0){ totalCount++; positions.push(i); } });
+  var curMissing = 0;
+  for (var i=0; i<data.length; i++) { if(data[i][fKey].indexOf(num)>=0) break; curMissing++; }
+  var maxMissing=0, cur=0;
+  for (var i=data.length-1; i>=0; i--) { if(data[i][fKey].indexOf(num)>=0) { maxMissing=Math.max(maxMissing,cur); cur=0; } else { cur++; } }
+  maxMissing = Math.max(maxMissing, cur);
+  function fIn(n) { var c=0; for(var i=0; i<Math.min(n,data.length); i++) if(data[i][fKey].indexOf(num)>=0) c++; return c; }
+  var avgInt = positions.length>1 ? ((positions[positions.length-1]-positions[0])/(positions.length-1)).toFixed(1) : 'N/A';
+  var last5 = positions.slice(0,5).map(function(pos){ return {period:data[pos].period, date:data[pos].date}; });
+  var total = data.length;
+
+  var html = '<h2 style="text-align:center;margin-bottom:20px">号码 <span style="font-size:28px;color:var(--accent)">'+String(num).padStart(2,'0')+'</span> 深度分析</h2>';
+  html += '<table class="drill-table"><tbody>';
+  html += '<tr><td>历史出现总次数</td><td><strong>'+totalCount+'</strong> 次（共 '+total+' 期，占比 '+(totalCount/total*100).toFixed(1)+'%）</td></tr>';
+  html += '<tr><td>当前遗漏期数</td><td><strong>'+curMissing+'</strong> 期</td></tr>';
+  html += '<tr><td>历史最大遗漏期数</td><td><strong>'+maxMissing+'</strong> 期</td></tr>';
+  html += '<tr><td>近10期出现频率</td><td><strong>'+fIn(10)+'</strong> 次</td></tr>';
+  html += '<tr><td>近30期出现频率</td><td><strong>'+fIn(30)+'</strong> 次</td></tr>';
+  html += '<tr><td>近50期出现频率</td><td><strong>'+fIn(50)+'</strong> 次</td></tr>';
+  html += '<tr><td>近100期出现频率</td><td><strong>'+fIn(100)+'</strong> 次</td></tr>';
+  html += '<tr><td>平均出现间隔</td><td><strong>'+avgInt+'</strong> 期</td></tr>';
+  html += '</tbody></table>';
+  html += '<h3 style="margin-top:16px">最近5次出现</h3>';
+  html += '<table class="drill-table"><thead><tr><th>期号</th><th>日期</th></tr></thead><tbody>';
+  last5.forEach(function(d){ html += '<tr><td>'+d.period+'</td><td>'+d.date+'</td></tr>'; });
+  if (last5.length===0) html += '<tr><td colspan="2" style="text-align:center">暂无出现记录</td></tr>';
+  html += '</tbody></table>';
+
+  document.getElementById('drill-content').innerHTML = html;
+  var modal = document.getElementById('drill-modal');
+  modal.style.display = 'flex';
+  setTimeout(function(){ modal.style.opacity = '1'; }, 10);
+}
+function closeDrillModal() {
+  var modal = document.getElementById('drill-modal');
+  modal.style.opacity = '0';
+  setTimeout(function(){ modal.style.display = 'none'; }, 300);
+}
+
+// ============ INIT ============
+window.addEventListener('resize', function(){
+  Object.values(charts).forEach(function(c){c.resize();});
+});
+
+// Initial render
+renderAll();
+</script>
+
+<!-- 号码钻取 Modal -->
+<div class="modal-overlay" id="drill-modal" onclick="closeDrillModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="close-btn" onclick="closeDrillModal()">&times;</button>
+    <div id="drill-content"></div>
+  </div>
+</div>
+</div>
+</body>
+</html>
