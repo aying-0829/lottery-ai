@@ -38,6 +38,24 @@ jobs:
       - name: Crawl latest lottery data
         run: python scripts/crawl.py
 
+      - name: Check crawl status & warn on partial failure
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          try:
+              m = json.load(open('data/.crawl_meta.json'))
+          except Exception:
+              print("::warning::无法读取 data/.crawl_meta.json，爬取可能未完成")
+              raise SystemExit(0)
+          if m.get('ssq_failed'):
+              print("::warning::双色球爬取失败（中彩网对海外 IP 封禁 403），本次未更新双色球数据，网站将沿用已有数据")
+          if m.get('dlt_failed'):
+              print("::warning::大乐透爬取失败，本次未更新大乐透数据，网站将沿用已有数据")
+          if not m.get('ssq_failed') and not m.get('dlt_failed'):
+              print("爬取正常：双色球新增 %d 期，大乐透新增 %d 期" % (m.get('ssq_new',0), m.get('dlt_new',0)))
+          PY
+
       - name: Regenerate prediction models
         run: python scripts/model.py
 

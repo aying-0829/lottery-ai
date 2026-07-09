@@ -288,9 +288,11 @@ def main():
     print(f'大乐透新增: {summary["dlt_new"]} 期' + (' [失败]' if summary['dlt_failed'] else ''))
     print(f'时间戳: {summary["timestamp"]}')
 
-    # 返回 exit code: 任何一档爬取失败 → 1（让调度器/CI 能感知到失败）；
-    # 全部成功（无论有无新数据）→ 0
-    return 1 if (failed.get('ssq') or failed.get('dlt')) else 0
+    # 返回 exit code: 脚本已正常结束，单档失败的信息记录在 .crawl_meta.json 的
+    # ssq_failed / dlt_failed 字段中。是否判定为"致命失败"交给调用方（CI）根据
+    # 这两个字段决定——这里统一返回 0，避免某一档被海外 IP 封禁就拖垮整个部署
+    # （例如双色球的中彩网对 GitHub 美国 IP 返回 403，但大乐透仍可正常更新）。
+    return 0
 
 
 if __name__ == '__main__':
