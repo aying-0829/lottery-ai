@@ -51,12 +51,13 @@ def next_period(period, game):
 
 
 def combined_pick(group, k):
-    """对 rf/nb/mc 三组 Top15 评分求和，取前 k 个（确定性，无随机）。
+    """对 rf/nb/mc/xgb 四组 Top15 评分求和，取前 k 个（确定性，无随机）。
 
-    group 形如 {"rf": [[ball, score], ...], "nb": [...], "mc": [...]}.
+    group 形如 {"rf": [[ball, score], ...], "nb": [...], "mc": [...], "xgb": [...]}。
+    xgb 缺失时自动跳过（与 model.py 的共识逻辑一致）。
     """
     scores = {}
-    for mkey in ("rf", "nb", "mc"):
+    for mkey in ("rf", "nb", "mc", "xgb"):
         for ball, sc in group.get(mkey, []):
             scores[ball] = scores.get(ball, 0.0) + float(sc)
     ranked = sorted(scores.items(), key=lambda x: -x[1])
@@ -64,24 +65,38 @@ def combined_pick(group, k):
 
 
 def build_recommend(model, game):
-    """返回 (recommend_dict, model_top15_dict)。"""
+    """返回 (recommend_dict, model_top15_dict)。
+
+    P2 起：推荐组合直接读取 model["consensus"]（即 Stacking 融合结果），
+    保证「存档推荐 == 前端展示 == 回测对象」三者一致；consensus 缺失时
+    回退到 combined_pick（四模型求和）。
+    """
+    cons = model.get("consensus", {}) or {}
     if game == "ssq":
-        red = combined_pick(model["red"], 6)
-        blue = combined_pick(model["blue"], 1)
+        red = list(cons.get("red", {}).get("numbers", []))[:6]
+        blue = list(cons.get("blue", {}).get("numbers", []))[:1]
+        if not red:
+            red = combined_pick(model["red"], 6)
+        if not blue:
+            blue = combined_pick(model["blue"], 1)
         red.sort(); blue.sort()
         recommend = {"red": red, "blue": blue}
         top15 = {
-            "red": {m: model["red"][m] for m in ("rf", "nb", "mc")},
-            "blue": {m: model["blue"][m] for m in ("rf", "nb", "mc")},
+            "red": {m: model["red"][m] for m in ("rf", "nb", "mc", "xgb") if m in model.get("red", {})},
+            "blue": {m: model["blue"][m] for m in ("rf", "nb", "mc", "xgb") if m in model.get("blue", {})},
         }
     else:
-        front = combined_pick(model["front"], 5)
-        back = combined_pick(model["back"], 2)
+        front = list(cons.get("front", {}).get("numbers", []))[:5]
+        back = list(cons.get("back", {}).get("numbers", []))[:2]
+        if not front:
+            front = combined_pick(model["front"], 5)
+        if not back:
+            back = combined_pick(model["back"], 2)
         front.sort(); back.sort()
         recommend = {"front": front, "back": back}
         top15 = {
-            "front": {m: model["front"][m] for m in ("rf", "nb", "mc")},
-            "back": {m: model["back"][m] for m in ("rf", "nb", "mc")},
+            "front": {m: model["front"][m] for m in ("rf", "nb", "mc", "xgb") if m in model.get("front", {})},
+            "back": {m: model["back"][m] for m in ("rf", "nb", "mc", "xgb") if m in model.get("back", {})},
         }
     return recommend, top15
 

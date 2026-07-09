@@ -776,11 +776,11 @@ function renderConsensus() {
 
   var insight = '';
   if (consensus.length > 0) {
-    insight = '<strong>共识解读：</strong>三模型共同看好的' + mainLabel + '号码为 ' + consensus.join('、') +
-      '，这些号码在随机森林、朴素贝叶斯、蒙特卡洛三个模型中均进入 Top 15，具备较高的多模型一致性。' +
+    insight = '<strong>共识解读：</strong>多模型共同看好的' + mainLabel + '号码为 ' + consensus.join('、') +
+      '，这些号码在多个模型（随机森林 / 朴素贝叶斯 / XGBoost / 蒙特卡洛）的 Top 15 中均被看好，具备较高的多模型一致性。' +
       (consensusBack.length > 0 ? backLabel + '共识：' + consensusBack.join('、') + '。' : '');
   } else {
-    insight = '<strong>共识解读：</strong>当前周期三模型观点分歧较大，' + mainLabel + '无三模型完全共识号码。图中展示的是至少两个模型认可的号码，请结合各模型独立评分综合判断。';
+    insight = '<strong>共识解读：</strong>当前周期多模型观点分歧较大，' + mainLabel + '无多模型完全共识号码。图中展示的是至少两个模型认可的号码，请结合各模型独立评分综合判断。';
   }
   document.getElementById('consensus-insight').innerHTML = insight;
 
@@ -1192,32 +1192,38 @@ function renderConsensusRecommend() {
     : '大乐透推荐（前区5 + 后区2）';
   var h = '<div style="color:var(--accent);margin-bottom:14px;font-weight:600;font-size:15px">' + gameLabel + '</div>';
   h += '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:16px">';
+  var denom = main.model_count || 3;
   main.numbers.forEach(function(n) {
     var d = main.detail[String(n)] || {};
-    var sup = (d.in_top15 || 0) + '/3';
+    var sup = (d.in_top15 || 0) + '/' + denom;
+    var sc = (d.score != null ? d.score : (d.avg_score || 0));
     h += '<span class="ball red hot" title="' + mainLabel + ' ' + String(n).padStart(2, '0') +
-         '：' + sup + ' 模型进Top15，三模型均分 ' + (d.avg_score || 0) + '">' + String(n).padStart(2, '0') + '</span>';
+         '：' + sup + ' 模型进Top15，融合评分 ' + sc + '">' + String(n).padStart(2, '0') + '</span>';
   });
   if (currentGame === 'ssq') {
     var bn = back.numbers[0];
     var bd = back.detail[String(bn)] || {};
     h += '<span class="ball blue hot" title="' + backLabel + ' ' + String(bn).padStart(2, '0') +
-         '：' + (bd.in_top15 || 0) + '/3 模型进Top15">' + String(bn).padStart(2, '0') + '</span>';
+         '：' + (bd.in_top15 || 0) + '/' + denom + ' 模型进Top15">' + String(bn).padStart(2, '0') + '</span>';
   } else {
     back.numbers.forEach(function(n) {
       var bd = back.detail[String(n)] || {};
       h += '<span class="ball blue hot" title="' + backLabel + ' ' + String(n).padStart(2, '0') +
-           '：' + (bd.in_top15 || 0) + '/3 模型进Top15">' + String(n).padStart(2, '0') + '</span>';
+           '：' + (bd.in_top15 || 0) + '/' + denom + ' 模型进Top15">' + String(n).padStart(2, '0') + '</span>';
     });
   }
   h += '</div>';
   var conf = ((main.confidence || 0) + (back.confidence || 0)) / 2;
   h += '<div style="text-align:center;margin-bottom:6px"><span style="font-size:16px;color:#f0c000">共识置信度 ' + conf.toFixed(1) + ' 分</span></div>';
+  var fi = (mData.feature_importance && mData.feature_importance[mainKey]) || [];
+  var topFeats = fi.slice(0, 3).map(function(f){ return f[0]; }).join('、');
+  var modelWord = (denom >= 4) ? '四模型（随机森林 / 朴素贝叶斯 / XGBoost / 蒙特卡洛）' : '多模型';
   h += '<div style="font-size:12px;color:var(--text2);line-height:1.8"><strong>推荐依据（可量化追溯）：</strong><br>';
-  h += '1. 随机森林 / 朴素贝叶斯 / 蒙特卡洛三模型对每号码独立评分，取评分求和最高的前 ' + main.numbers.length + ' 个' + mainLabel + '号码<br>';
-  h += '2. ' + backLabel + '取评分求和最高的 ' + back.numbers.length + ' 个<br>';
-  h += '3. 每个球标注「x/3 模型进入 Top15」——即被几个模型共同看好；置信度综合三模型平均评分得出<br>';
-  h += '4. 纯确定性计算，刷新结果一致（不再随机扰动）</div>';
+  h += '1. ' + modelWord + ' 对每号码独立评分，经 Stacking 元学习器融合，取融合概率最高的前 ' + main.numbers.length + ' 个' + mainLabel + '号码<br>';
+  h += '2. ' + backLabel + '取融合概率最高的 ' + back.numbers.length + ' 个<br>';
+  h += '3. 每个球标注「x/' + denom + ' 模型进入 Top15」——即被几个模型共同看好；置信度综合融合概率得出<br>';
+  if (topFeats) h += '4. 模型最看重的特征（RF 特征重要性）：' + topFeats + '<br>';
+  h += (topFeats ? '5. ' : '4. ') + '纯确定性计算，刷新结果一致（不再随机扰动）</div>';
 
   // 供 CSV 导出 / 刷新复用
   window._lastRecommend = [{ nums: main.numbers.slice(), backNums: back.numbers.slice(), score: conf.toFixed(1) }];
@@ -1229,7 +1235,7 @@ function _doRefresh() {
   document.getElementById('recommend-content').innerHTML = h;
 
   var ins = document.getElementById('insight-recommend');
-  if (ins) ins.innerHTML = '<strong>已刷新：</strong>基于三模型确定性共识推荐，结果稳定可复现。点击"导出CSV"可保存。';
+  if (ins) ins.innerHTML = '<strong>已刷新：</strong>基于多模型 Stacking 确定性共识推荐，结果稳定可复现。点击"导出CSV"可保存。';
 }
 
 // ============ NUMBER DRILL DOWN ============
