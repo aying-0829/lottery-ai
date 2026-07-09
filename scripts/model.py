@@ -132,6 +132,66 @@ def mc_simulation(periods, ball_pool, is_front=True, n_sim=10000, seed=42):
     return result[:15]
 
 
+# ─── 分类器评分（RF / NB 通用）──────────────────────
+def _rank_clf(clf, X, ball_pool, count=15):
+    """用训练好的分类器对 ball_pool 中每个号码打分（取该号码样本预测概率均值），返回 Top count。"""
+    ball_count = len(ball_pool)
+    scores = []
+    for idx, ball in enumerate(ball_pool):
+        idxs = list(range(idx, len(X), ball_count))
+        if idxs:
+            proba = clf.predict_proba(X[idxs])
+            avg = np.mean([p[1] if len(p) > 1 else p[0] for p in proba])
+            scores.append([str(ball), round(avg * 100, 2)])
+        else:
+            scores.append([str(ball), 0.0])
+    scores.sort(key=lambda x: -x[1])
+    return scores[:count]
+
+
+def evaluate(periods, ball_pool, is_front=True, holdout=30, n_est=100):
+    """时序交叉验证（单折 holdout）：用除最后 `holdout` 期外的数据训练 RF/NB，
+    对最后 `holdout` 期评估 Top15 命中均值，与理论随机基线对比。
+    不修改任何产出文件，仅打印日志供 Actions 查看。
+    """
+    n = len(periods)
+    if n < holdout + 20:
+        print(f"[EVAL] 数据仅 {n} 期，不足以做 {holdout} 期留一验证，跳过")
+        return
+    train = periods[:-holdout]
+    test = periods[-holdout:]
+    X, y = build_features(train, ball_pool, is_front)
+    if X is None or len(np.unique(y)) < 2:
+        print("[EVAL] 训练特征不足，跳过验证")
+        return
+
+    rf = RandomForestClassifier(n_estimators=n_est, random_state=42, n_jobs=-1)
+    rf.fit(X, y)
+    nb = GaussianNB()
+    nb.fit(X, y)
+
+    label = "红区" if is_front else "蓝/后区"
+    topk = min(15, len(ball_pool))
+    rf_hits, nb_hits, mc_hits = [], [], []
+    for tp in test:
+        if is_front:
+            target = set(tp.get("red", tp.get("front", [])))
+        else:
+            b = tp.get("blue", tp.get("back", []))
+            target = set(b if isinstance(b, (list, tuple)) else [b])
+        rf_top = {int(b) for b, _ in _rank_clf(rf, X, ball_pool, topk)}
+        nb_top = {int(b) for b, _ in _rank_clf(nb, X, ball_pool, topk)}
+        mc_top = {int(b) for b, _ in mc_simulation(train, ball_pool, is_front, 10000, 42)}
+        rf_hits.append(len(rf_top & target))
+        nb_hits.append(len(nb_top & target))
+        mc_hits.append(len(mc_top & target))
+
+    avg_rf, avg_nb, avg_mc = np.mean(rf_hits), np.mean(nb_hits), np.mean(mc_hits)
+    theo = topk * len(target) / len(ball_pool)  # TopK 期望命中数 = topk * 开出数 / 池大小
+    print(f"[EVAL] {label} 验证期 {holdout} 期 (Top{topk}): "
+          f"RF均值={avg_rf:.2f}, NB={avg_nb:.2f}, MC={avg_mc:.2f} | 理论随机基线={theo:.2f}")
+
+
 # ─── 模型训练与评分 ──────────────────────────────────
 def run_models(periods, ball_pool, is_front=True):
     """训练 RF + NB，返回两个 Top 15 列表"""
@@ -141,42 +201,17 @@ def run_models(periods, ball_pool, is_front=True):
         empty = [[str(b), 0.0] for b in ball_pool]
         return empty[:15], empty[:15]
 
-    ball_count = len(ball_pool)
-
     # RF
     rf = RandomForestClassifier(n_estimators=200, random_state=42, n_jobs=-1)
     rf.fit(X, y)
-
-    rf_scores = []
-    for idx, ball in enumerate(ball_pool):
-        # 用该号码的样本均值预测
-        idxs = list(range(idx, len(X), ball_count))
-        if idxs:
-            proba = rf.predict_proba(X[idxs])
-            avg = np.mean([p[1] if len(p) > 1 else p[0] for p in proba])
-            rf_scores.append([str(ball), round(avg * 100, 2)])
-        else:
-            rf_scores.append([str(ball), 0.0])
-
-    rf_scores.sort(key=lambda x: -x[1])
+    rf_scores = _rank_clf(rf, X, ball_pool)
 
     # NB
     nb = GaussianNB()
     nb.fit(X, y)
+    nb_scores = _rank_clf(nb, X, ball_pool)
 
-    nb_scores = []
-    for idx, ball in enumerate(ball_pool):
-        idxs = list(range(idx, len(X), ball_count))
-        if idxs:
-            proba = nb.predict_proba(X[idxs])
-            avg = np.mean([p[1] if len(p) > 1 else p[0] for p in proba])
-            nb_scores.append([str(ball), round(avg * 100, 2)])
-        else:
-            nb_scores.append([str(ball), 0.0])
-
-    nb_scores.sort(key=lambda x: -x[1])
-
-    return rf_scores[:15], nb_scores[:15]
+    return rf_scores, nb_scores
 
 
 # ═══════════════════════════════════════════════════════
@@ -228,6 +263,10 @@ def process_ssq():
     red_mc = mc_simulation(periods, red_pool, is_front=True)
     blue_mc = mc_simulation(periods, blue_pool, is_front=False)
 
+    # 时序交叉验证（P0-T3）：度量模型在留存期的真实命中，供 Actions 日志查看
+    evaluate(periods, red_pool, is_front=True, holdout=30)
+    evaluate(periods, blue_pool, is_front=False, holdout=30)
+
     model = {
         "#schema": "SSQ_MODEL_V1",
         "generated_at": datetime.now(TZ).isoformat(),
@@ -269,6 +308,10 @@ def process_dlt():
 
     front_mc = mc_simulation(periods, front_pool, is_front=True)
     back_mc = mc_simulation(periods, back_pool, is_front=False)
+
+    # 时序交叉验证（P0-T3）
+    evaluate(periods, front_pool, is_front=True, holdout=30)
+    evaluate(periods, back_pool, is_front=False, holdout=30)
 
     model = {
         "#schema": "DLT_MODEL_V1",
