@@ -9,6 +9,7 @@ import sys
 import warnings
 from datetime import datetime, timezone, timedelta
 from collections import Counter
+import bisect
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -21,59 +22,71 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 TZ = timezone(timedelta(hours=8))
 
 # ─── 通用特征工程 ────────────────────────────────────
-def build_features(periods, ball_pool, is_front=True):
+def _ball_set(period, is_front):
+    """取出某期前/后区号码集合（兼容 SSQ red/blue 与 DLT front/back）。"""
+    if is_front:
+        return set(period.get("red", period.get("front", [])))
+    b = period.get("blue", period.get("back", 0))
+    return set(b if isinstance(b, (list, tuple)) else [b])
+
+
+def build_features(periods, ball_pool, is_front=True, feature_set="v2"):
     """
     构建每期每个号码的特征矩阵。
-    特征: 遗漏值, 近5期频率, 近10期频率, 近20期频率, 平均间隔
+
+    feature_set="v1"（旧, 5维）: 遗漏值, 近5/10/20期频率, 平均间隔
+    feature_set="v2"（新, 8维）: v1 + 冷热度(近20频率/(遗漏+1)), 遗漏趋势, 号码归一化
+
+    使用预计算出现位置 + bisect 加速，支持全量历史（数千期）高效计算。
     """
-    pick_count = 6 if is_front else 1
     n = len(periods)
     if n < 20:
         return None, None
 
-    X = []
-    y = []
+    # 预计算每个号码的出现期索引（升序），用于 O(log) 查询遗漏与频率
+    appear = {b: [] for b in ball_pool}
+    for i, p in enumerate(periods):
+        for b in _ball_set(p, is_front):
+            if b in appear:
+                appear[b].append(i)
+
+    max_b = float(ball_pool[-1])
+    min_b = float(ball_pool[0])
+
+    X, y = [], []
     for i in range(20, n):
-        # 提取目标 — 兼容 SSQ(red/blue) 和 DLT(front/back)
-        if is_front:
-            target_set = set(periods[i].get("red", periods[i].get("front", [])))
-        else:
-            back_val = periods[i].get("blue", periods[i].get("back", 0))
-            target_set = set(back_val if isinstance(back_val, list) else [back_val])
-
+        target_set = _ball_set(periods[i], is_front)
         for ball in ball_pool:
-            feats = []
+            lst = appear[ball]
+            # 最近一次出现位置（< i）
+            pos = bisect.bisect_left(lst, i) - 1
+            skip = (i - 1 - lst[pos]) if pos >= 0 else float(i)
+            # 上一期的遗漏（用于趋势特征）
+            if i - 1 >= 0:
+                pp = bisect.bisect_left(lst, i - 1) - 1
+                skip_prev = (i - 2 - lst[pp]) if pp >= 0 else float(i - 1)
+            else:
+                skip_prev = 0.0
 
-            # 遗漏值：距离上次出现的期数
-            skip = 0
-            for j in range(i - 1, -1, -1):
-                prev_set = set(periods[j].get("red", periods[j].get("front", [])))
-                if ball in prev_set:
-                    break
-                skip += 1
-            feats.append(float(skip))
-
-            # 近5/10/20 期频率
-            for window in [5, 10, 20]:
-                freq = 0
-                start = max(0, i - window)
-                for j in range(start, i):
-                    pset = set(periods[j].get("red", periods[j].get("front", [])))
-                    if ball in pset:
-                        freq += 1
-                feats.append(freq / window)
+            # 近 5/10/20 期频率（区间 [start, i) 内的出现次数 / 窗口）
+            hi = bisect.bisect_left(lst, i)
+            freq5 = (hi - bisect.bisect_left(lst, max(0, i - 5))) / 5.0
+            freq10 = (hi - bisect.bisect_left(lst, max(0, i - 10))) / 10.0
+            freq20 = (hi - bisect.bisect_left(lst, max(0, i - 20))) / 20.0
 
             # 平均间隔
-            appearances = []
-            for j in range(i):
-                pset = set(periods[j].get("red", periods[j].get("front", [])))
-                if ball in pset:
-                    appearances.append(j)
-            if len(appearances) >= 2:
-                gaps = [appearances[k] - appearances[k+1] for k in range(len(appearances)-1)]
-                feats.append(sum(gaps) / len(gaps))
+            if len(lst) >= 2:
+                gaps = [lst[k] - lst[k + 1] for k in range(len(lst) - 1) if lst[k] < i]
+                avg_gap = sum(gaps) / len(gaps) if gaps else float(n)
             else:
-                feats.append(float(n))
+                avg_gap = float(n)
+
+            feats = [float(skip), freq5, freq10, freq20, avg_gap]
+            if feature_set == "v2":
+                hot = freq20 / (skip + 1.0)                    # 冷热度：近期热度 / 当前遗漏
+                trend = float(skip - skip_prev)                # 遗漏趋势：上升为正，回补为负
+                norm = (ball - min_b) / (max_b - min_b + 1e-9)  # 号码大小单调先验
+                feats += [hot, trend, norm]
 
             X.append(feats)
             y.append(1 if ball in target_set else 0)
@@ -149,9 +162,60 @@ def _rank_clf(clf, X, ball_pool, count=15):
     return scores[:count]
 
 
-def evaluate(periods, ball_pool, is_front=True, holdout=30, n_est=100):
-    """时序交叉验证（单折 holdout）：用除最后 `holdout` 期外的数据训练 RF/NB，
-    对最后 `holdout` 期评估 Top15 命中均值，与理论随机基线对比。
+# ─── 确定性共识（三模型评分求和 Top-k）──────────────
+def consensus_pick(section, k):
+    """对 section 的 rf/nb/mc 三组 Top15 评分求和，取前 k 个（确定性，无随机）。
+
+    返回 dict:
+      numbers: 选出的 k 个号码（升序）
+      detail:  {str(num): {"in_top15": int, "avg_score": float, "score": float}}
+      confidence: 组合整体置信度 = 成员 score 的均值
+    score = 0.5*avg_score + 50*(in_top15/3) —— 既看三模型平均评分，也看被几个模型认可
+    """
+    sums, counts = {}, {}
+    for m in ("rf", "nb", "mc"):
+        for b, sc in section.get(m, []):
+            b = int(b)
+            sums[b] = sums.get(b, 0.0) + float(sc)
+            counts[b] = counts.get(b, 0) + 1
+    ranked = sorted(sums.items(), key=lambda x: -x[1])
+    top = [b for b, _ in ranked[:k]]
+    detail = {}
+    for b in top:
+        avg = sums[b] / 3.0
+        in15 = counts.get(b, 0)
+        score = round(0.5 * avg + 50.0 * (in15 / 3.0), 2)
+        detail[str(b)] = {"in_top15": in15, "avg_score": round(avg, 2), "score": score}
+    conf = round(sum(d["score"] for d in detail.values()) / k, 2) if detail else 0.0
+    return {"numbers": sorted(top), "detail": detail, "confidence": conf}
+
+
+def _eval_hits(X, y, train, test, ball_pool, is_front, topk, n_est):
+    """在 (X,y) 上训练 RF/NB，对 test 评估 Top topk 命中均值，返回 (rf,nb,mc) 均值。"""
+    rf = RandomForestClassifier(n_estimators=n_est, random_state=42, n_jobs=-1)
+    rf.fit(X, y)
+    nb = GaussianNB()
+    nb.fit(X, y)
+
+    rf_hits, nb_hits, mc_hits = [], [], []
+    for tp in test:
+        if is_front:
+            target = set(tp.get("red", tp.get("front", [])))
+        else:
+            b = tp.get("blue", tp.get("back", []))
+            target = set(b if isinstance(b, (list, tuple)) else [b])
+        rf_top = {int(x) for x, _ in _rank_clf(rf, X, ball_pool, topk)}
+        nb_top = {int(x) for x, _ in _rank_clf(nb, X, ball_pool, topk)}
+        mc_top = {int(x) for x, _ in mc_simulation(train, ball_pool, is_front, 10000, 42)}
+        rf_hits.append(len(rf_top & target))
+        nb_hits.append(len(nb_top & target))
+        mc_hits.append(len(mc_top & target))
+    return float(np.mean(rf_hits)), float(np.mean(nb_hits)), float(np.mean(mc_hits))
+
+
+def evaluate(periods, ball_pool, is_front=True, holdout=30, n_est=100, compare=True):
+    """时序交叉验证（单折 holdout）：用除最后 holdout 期外的数据训练，对留存期评估 Top15 命中均值，
+    与理论随机基线对比。compare=True 时额外对比 v1(旧) vs v2(新) 特征集，确认无退化。
     不修改任何产出文件，仅打印日志供 Actions 查看。
     """
     n = len(periods)
@@ -160,36 +224,27 @@ def evaluate(periods, ball_pool, is_front=True, holdout=30, n_est=100):
         return
     train = periods[:-holdout]
     test = periods[-holdout:]
-    X, y = build_features(train, ball_pool, is_front)
-    if X is None or len(np.unique(y)) < 2:
-        print("[EVAL] 训练特征不足，跳过验证")
-        return
-
-    rf = RandomForestClassifier(n_estimators=n_est, random_state=42, n_jobs=-1)
-    rf.fit(X, y)
-    nb = GaussianNB()
-    nb.fit(X, y)
-
     label = "红区" if is_front else "蓝/后区"
     topk = min(15, len(ball_pool))
-    rf_hits, nb_hits, mc_hits = [], [], []
-    for tp in test:
-        if is_front:
-            target = set(tp.get("red", tp.get("front", [])))
-        else:
-            b = tp.get("blue", tp.get("back", []))
-            target = set(b if isinstance(b, (list, tuple)) else [b])
-        rf_top = {int(b) for b, _ in _rank_clf(rf, X, ball_pool, topk)}
-        nb_top = {int(b) for b, _ in _rank_clf(nb, X, ball_pool, topk)}
-        mc_top = {int(b) for b, _ in mc_simulation(train, ball_pool, is_front, 10000, 42)}
-        rf_hits.append(len(rf_top & target))
-        nb_hits.append(len(nb_top & target))
-        mc_hits.append(len(mc_top & target))
+    pick_n = 6 if is_front else (1 if "blue" in test[0] else 2)
+    theo = topk * pick_n / len(ball_pool)  # TopK 期望命中数 = topk * 开出数 / 池大小
 
-    avg_rf, avg_nb, avg_mc = np.mean(rf_hits), np.mean(nb_hits), np.mean(mc_hits)
-    theo = topk * len(target) / len(ball_pool)  # TopK 期望命中数 = topk * 开出数 / 池大小
-    print(f"[EVAL] {label} 验证期 {holdout} 期 (Top{topk}): "
-          f"RF均值={avg_rf:.2f}, NB={avg_nb:.2f}, MC={avg_mc:.2f} | 理论随机基线={theo:.2f}")
+    X2, y2 = build_features(train, ball_pool, is_front, feature_set="v2")
+    if X2 is None or len(np.unique(y2)) < 2:
+        print("[EVAL] 训练特征不足，跳过验证")
+        return
+    avg_rf, avg_nb, avg_mc = _eval_hits(X2, y2, train, test, ball_pool, is_front, topk, n_est)
+    print(f"[EVAL] {label} v2(新特征) 验证期 {holdout} 期 (Top{topk}): "
+          f"RF={avg_rf:.2f}, NB={avg_nb:.2f}, MC={avg_mc:.2f} | 理论随机基线={theo:.2f}")
+
+    if compare:
+        X1, y1 = build_features(train, ball_pool, is_front, feature_set="v1")
+        if X1 is not None and len(np.unique(y1)) >= 2:
+            a1_rf, a1_nb, a1_mc = _eval_hits(X1, y1, train, test, ball_pool, is_front, topk, n_est)
+            print(f"[EVAL] {label} v1(旧特征) 验证期 {holdout} 期 (Top{topk}): "
+                  f"RF={a1_rf:.2f}, NB={a1_nb:.2f}, MC={a1_mc:.2f}")
+            print(f"[EVAL] {label} 特征对比(v2-v1): RF={avg_rf - a1_rf:+.2f}, NB={avg_nb - a1_nb:+.2f}, "
+                  f"MC={avg_mc - a1_mc:+.2f} (差异落在噪声内即视为无退化)")
 
 
 # ─── 模型训练与评分 ──────────────────────────────────
@@ -228,7 +283,7 @@ def save_model_if_changed(out_path, model):
             with open(out_path, "r", encoding="utf-8") as f:
                 old = json.load(f)
             changed = False
-            for grp in ["red", "blue", "front", "back"]:
+            for grp in ["red", "blue", "front", "back", "consensus"]:
                 if grp in model and grp in old and model[grp] != old[grp]:
                     changed = True
                     break
@@ -263,9 +318,9 @@ def process_ssq():
     red_mc = mc_simulation(periods, red_pool, is_front=True)
     blue_mc = mc_simulation(periods, blue_pool, is_front=False)
 
-    # 时序交叉验证（P0-T3）：度量模型在留存期的真实命中，供 Actions 日志查看
-    evaluate(periods, red_pool, is_front=True, holdout=30)
-    evaluate(periods, blue_pool, is_front=False, holdout=30)
+    # 时序交叉验证（P0-T3 + P1 特征对比）：度量模型在留存期的真实命中，供 Actions 日志查看
+    evaluate(periods, red_pool, is_front=True, holdout=30, compare=True)
+    evaluate(periods, blue_pool, is_front=False, holdout=30, compare=False)
 
     model = {
         "#schema": "SSQ_MODEL_V1",
@@ -273,6 +328,12 @@ def process_ssq():
         "data_periods_used": len(periods),
         "red": {"rf": red_rf, "nb": red_nb, "mc": red_mc},
         "blue": {"rf": blue_rf, "nb": blue_nb, "mc": blue_mc},
+    }
+
+    # 确定性共识（P1-T2）：三模型评分求和取 Top6红 / Top1蓝，带支持度与置信度
+    model["consensus"] = {
+        "red": consensus_pick(model["red"], 6),
+        "blue": consensus_pick(model["blue"], 1),
     }
 
     out = os.path.join(DATA_DIR, "ssq_model.json")
@@ -309,9 +370,9 @@ def process_dlt():
     front_mc = mc_simulation(periods, front_pool, is_front=True)
     back_mc = mc_simulation(periods, back_pool, is_front=False)
 
-    # 时序交叉验证（P0-T3）
-    evaluate(periods, front_pool, is_front=True, holdout=30)
-    evaluate(periods, back_pool, is_front=False, holdout=30)
+    # 时序交叉验证（P0-T3 + P1 特征对比）
+    evaluate(periods, front_pool, is_front=True, holdout=30, compare=True)
+    evaluate(periods, back_pool, is_front=False, holdout=30, compare=False)
 
     model = {
         "#schema": "DLT_MODEL_V1",
@@ -319,6 +380,12 @@ def process_dlt():
         "data_periods_used": len(periods),
         "front": {"rf": front_rf, "nb": front_nb, "mc": front_mc},
         "back": {"rf": back_rf, "nb": back_nb, "mc": back_mc},
+    }
+
+    # 确定性共识（P1-T2）：三模型评分求和取 Top5前 / Top2后，带支持度与置信度
+    model["consensus"] = {
+        "front": consensus_pick(model["front"], 5),
+        "back": consensus_pick(model["back"], 2),
     }
 
     out = os.path.join(DATA_DIR, "dlt_model.json")

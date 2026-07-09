@@ -1028,55 +1028,23 @@ function renderAll() {
     consecMap['0'] + ' 期无连号，' + (100-consecMap['0']) + ' 期出现连号，连号出现率 ' + ((100-consecMap['0'])) + '%';
 
   // ===== MODEL TAB =====
-  // Monte Carlo: 10000 simulations based on real frequency
+  // Monte Carlo（确定性实现）：直接按历史真实频率排序，等价于无限次模拟的期望，避免随机噪声
   var totalDraws = data.length * fCnt;
-  var weights = {};
-  for (var n = 1; n <= fMax; n++) weights[n] = (freqAll[n]||0) / totalDraws;
 
-  var mcResults = {};
-  for (var n = 1; n <= fMax; n++) mcResults[n] = 0;
-  var simCount = 10000;
-
-  // Simple Monte Carlo: weighted random sampling
-  function weightedSample(weights, fMax, fCnt) {
-    var pool = [];
-    for (var n = 1; n <= fMax; n++) { var w = weights[n] || 0.001; pool.push({num:n, w:w}); }
-    pool.sort(function(a,b){return a.w-b.w;});
-    var cum = [];
-    var total = 0;
-    for (var i = 0; i < pool.length; i++) { total += pool[i].w; cum.push({num:pool[i].num, cum:total}); }
-
-    var result = [];
-    for (var i = 0; i < fCnt; i++) {
-      var r = Math.random() * total;
-      var idx = 0;
-      while (idx < cum.length && cum[idx].cum < r) idx++;
-      var chosen = cum[Math.min(idx, cum.length-1)].num;
-      if (result.indexOf(chosen) >= 0) { i--; continue; }
-      result.push(chosen);
-    }
-    result.sort(function(a,b){return a-b;});
-    return result;
-  }
-
-  for (var s = 0; s < simCount; s++) {
-    var sample = weightedSample(weights, fMax, fCnt);
-    sample.forEach(function(n){ mcResults[n]++; });
-  }
-
-  // Normalize MC
+  // 确定性 MC：以历史出现次数（频率）排序，取 Top-fCnt，无需随机采样
   var mcNorm = [];
-  for (var n = 1; n <= fMax; n++) mcNorm.push({num:n, count:mcResults[n], rate:(mcResults[n]/simCount*100).toFixed(1)});
+  for (var n = 1; n <= fMax; n++) mcNorm.push({num:n, count:(freqAll[n]||0), rate:((freqAll[n]||0)/totalDraws*100).toFixed(1)});
   mcNorm.sort(function(a,b){return b.count-a.count;});
 
   var mcTop = mcNorm.slice(0, fCnt);
-  var mcScoreVal = (mcTop.reduce(function(s,n){return s+n.count;},0) / simCount / fCnt * 100).toFixed(1);
+  // 理论期望命中率：前区 fCnt 个号码被抽中的概率 ≈ fCnt/fMax（与回测超几何基线一致）
+  var mcScoreVal = (fCnt / fMax * 100).toFixed(1);
   document.getElementById('mc-score').textContent = mcScoreVal + '%';
   document.getElementById('mc-balls').innerHTML = mcTop.map(function(n){
     return '<span class="ball red">'+String(n.num).padStart(2,'0')+'</span>';
   }).join('');
   document.getElementById('mc-reason').textContent = '基于 ' + data.length +
-    ' 期真实频率分布做 ' + simCount.toLocaleString() + ' 次加权随机抽样，期望命中率 ' + mcScoreVal + '%';
+    ' 期真实频率确定性排序（等价于无限次模拟期望），理论期望命中率约 ' + mcScoreVal + '%';
 
   // Monte Carlo chart
   var mcChart = initChart('chart-mc');
@@ -1087,7 +1055,7 @@ function renderAll() {
       xAxis:{type:'category',data:mcNorm.map(function(d){return String(d.num).padStart(2,'0');}),axisLabel:{fontSize:10}},
       yAxis:{type:'value',name:'次'},
       series:[{type:'bar',data:mcNorm.map(function(d){
-        return {value:d.count,itemStyle:{color:d.count>simCount*fCnt/fMax*1.3?'#f85149':d.count>simCount*fCnt/fMax*0.7?'#d2991d':'#30363d'}};
+        return {value:d.count,itemStyle:{color:d.count>totalDraws/fMax*1.3?'#f85149':d.count>totalDraws/fMax*0.7?'#d2991d':'#30363d'}};
       }),barMaxWidth:12}]
     });
   }
@@ -1120,83 +1088,17 @@ function renderAll() {
   }).join('');
   document.getElementById('rf-reason').textContent = '综合频率权重 + 冷热调整 + 遗漏回补因子，加权评分最高号码组合';
 
-  document.getElementById('insight-mc').innerHTML = '<strong>洞察：</strong>' + simCount.toLocaleString() +
-    '次模拟中，号码 ' + mcNorm[0].num + ' 期望出现 ' + mcNorm[0].count + ' 次（' + mcNorm[0].rate + '%），远高于均匀期望 ' +
-    (simCount * fCnt / fMax).toFixed(0) + ' 次';
+  document.getElementById('insight-mc').innerHTML = '<strong>洞察：</strong>' + data.length +
+    ' 期历史中，号码 ' + mcNorm[0].num + ' 出现 ' + mcNorm[0].count + ' 次（' + mcNorm[0].rate + '%），高于均匀期望 ' +
+    (totalDraws / fMax).toFixed(0) + ' 次';
 
-  // ===== RECOMMEND TAB =====
-  var recBalls = mcTop.map(function(n){return n.num;});
-  // If mcTop matches rfTop on some numbers, keep; otherwise blend
-  var rfNums = rfTop.map(function(n){return n.num;});
-  var recSet = new Set();
-  // Pick consensus: numbers appearing in both top lists
-  mcTop.forEach(function(n){ if (rfNums.indexOf(n.num) >= 0 && recSet.size < fCnt) recSet.add(n.num); });
-  // Fill with RF top
-  rfTop.forEach(function(n){ if (recSet.size < fCnt) recSet.add(n.num); });
-  // Fill with MC top
-  mcTop.forEach(function(n){ if (recSet.size < fCnt) recSet.add(n.num); });
-  var recFinal = Array.from(recSet).slice(0, fCnt).sort(function(a,b){return a-b;});
-
-  // Back ball recommendation
-  var backFreq = {};
-  data.forEach(function(d){
-    if (currentGame === 'ssq') {
-      backFreq[d[bKey]] = (backFreq[d[bKey]]||0)+1;
-    } else {
-      d[bKey].forEach(function(n){ backFreq[n] = (backFreq[n]||0)+1; });
-    }
-  });
-  var backArr = [];
-  for (var n = 1; n <= bMax; n++) backArr.push({num:n, count:backFreq[n]||0});
-  backArr.sort(function(a,b){return b.count-a.count;});
-  // Weighted random pick for back numbers (same as front area logic)
-  var backWeights = backArr.map(function(d){ return Math.max(d.count, 1); });
-  var backTw = backWeights.reduce(function(a,b){return a+b;},0);
-  (function pickBackWeighted() {
-    var cnt = getBackCount(), picked = new Set(), safe = 0;
-    while (picked.size < cnt && safe < 1000) {
-      safe++;
-      var r = Math.random() * backTw, cum = 0;
-      for (var j = 0; j < backArr.length; j++) {
-        cum += backWeights[j];
-        if (r <= cum) { picked.add(backArr[j].num); break; }
-      }
-    }
-    var arr = Array.from(picked).sort(function(a,b){return a-b;});
-    if (arr.length < cnt) {
-      backArr.forEach(function(d) { if (arr.length < cnt && arr.indexOf(d.num) < 0) arr.push(d.num); });
-      arr.sort(function(a,b){return a-b;});
-    }
-    recBack = arr;
-  })();
-  var recBack;
-
-  var recHtml = '<div class="code-preview">';
-  recHtml += '<div style="color:var(--accent);margin-bottom:8px">';
-  recHtml += currentGame === 'ssq' ? '双色球推荐（前区6红 + 后区1蓝）' : '大乐透推荐（前区5 + 后区2）';
-  recHtml += '</div>';
-  recHtml += '<div class="ball-group" style="justify-content:center">';
-  recFinal.forEach(function(n){ recHtml += '<span class="ball red hot">'+String(n).padStart(2,'0')+'</span>'; });
-  if (currentGame === 'ssq') {
-    recHtml += '<span class="ball blue hot">'+String(recBack[0]).padStart(2,'0')+'</span>';
-  } else {
-    recBack.forEach(function(n){ recHtml += '<span class="ball blue hot">'+String(n).padStart(2,'0')+'</span>'; });
-  }
-  recHtml += '</div>';
-  recHtml += '<div style="font-size:12px;color:var(--text2);margin-top:12px;line-height:1.8">';
-  recHtml += '<strong>推荐理由：</strong><br>';
-  recHtml += '1. 蒙特卡洛 ' + simCount.toLocaleString() + ' 次模拟中期望频率最高号码集合<br>';
-  recHtml += '2. 随机森林加权模型综合频率/冷热/遗漏三维评分最优<br>';
-  recHtml += '3. 贝叶斯先验概率最高的号码组合<br>';
-  recHtml += '4. 后区推荐基于历史出现频率 TOP ' + getBackCount() + '（' + recBack.join(', ') + '）';
-  recHtml += '</div></div>';
-  document.getElementById('recommend-content').innerHTML = recHtml;
-
-  // Store for export/refresh
-  window._lastRecommend = [{nums: recFinal.slice(), backNums: recBack.slice(), score: (rfScoreVal||'N/A')}];
-  window._lastMcNorm = mcNorm.slice();
-  window._lastBackFreq = backFreq;
-  window._lastBackArr = backArr.slice();
+  // [已移除] 原前端 MC+RF+贝叶斯 随机混合推荐逻辑（含 Math.random 加权采样）。
+  // 主推荐区现统一由 renderConsensusRecommend() 基于 model.json 的确定性共识渲染（见下方 render 调用），
+  // 避免每次刷新生成不同号码、并消除导出 CSV 的随机噪声。
+  // 主推荐区：基于 model.json 的确定性共识（替代原前端 MC+RF+贝叶斯混合随机）
+  document.getElementById('recommend-content').innerHTML = renderConsensusRecommend();
+  // 注意：window._lastRecommend 由 renderConsensusRecommend() 内部基于确定性共识设置，
+  // 供“导出 CSV / 刷新”使用，切勿在此用随机值覆盖（曾因覆盖导致导出随机号码）。
 
   // Resize all
   // AI Model Tab (render if visible, but always compute consensus)
@@ -1206,43 +1108,7 @@ function renderAll() {
   // Always compute consensus for recommend tab
   renderConsensus();
 
-  // Add AI consensus to recommend tab
-  var recDiv = document.getElementById('recommend-content');
-  if (recDiv && window._aiConsensusMain && window._aiConsensusMain.length > 0) {
-    var consMain = window._aiConsensusMain;
-    var consBack = window._aiConsensusBack || [];
-    var mLabel = getModelMainLabel();
-    var bLabel = getModelBackLabel();
-    var bCnt = getBackCount();
-
-    var consHtml = '<div class="recommend-consensus">';
-    consHtml += '<h3>AI模型共识推荐</h3>';
-    consHtml += '<div class="ball-group" style="justify-content:center">';
-    consMain.slice(0, getFrontCount()).forEach(function(n){
-      consHtml += '<span class="ball red">'+String(n).padStart(2,'0')+'</span>';
-    });
-    // Show back consensus
-    if (currentGame === 'ssq' && consBack.length > 0) {
-      consHtml += '<span class="ball blue">'+String(consBack[0]).padStart(2,'0')+'</span>';
-    } else if (currentGame === 'dlt' && consBack.length >= 2) {
-      consBack.slice(0,2).forEach(function(n){
-        consHtml += '<span class="ball blue">'+String(n).padStart(2,'0')+'</span>';
-      });
-    }
-    consHtml += '</div>';
-    consHtml += '<div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:1.6">';
-    consHtml += '<strong>推荐理由：</strong>三模型（随机森林 + 朴素贝叶斯 + 蒙特卡洛）Top 15 交集共识号码，按三模型平均评分降序排列。' +
-      '这些号码在三个独立概率模型中均表现优异，具备较高的一致性置信度。';
-    if (consMain.length < getFrontCount()) {
-      consHtml += '<br><span style="color:var(--orange)">注意：共识号码不足 ' + getFrontCount() + ' 个（仅 ' + consMain.length + ' 个），建议结合各模型独立推荐综合判断。</span>';
-    }
-    consHtml += '</div></div>';
-
-    // Append to existing content
-    recDiv.innerHTML += consHtml;
-  } else if (recDiv && (window._aiConsensusMain || []).length === 0) {
-    recDiv.innerHTML += '<div class="recommend-consensus"><h3>AI模型共识推荐</h3><span class="consensus-empty">当前三模型观点分歧较大，暂无共识号码。</span></div>';
-  }
+  // 共识已在主推荐区通过 renderConsensusRecommend() 渲染，此处不再重复追加
 
   setTimeout(function(){
     Object.values(charts).forEach(function(c){c.resize();});
@@ -1308,96 +1174,62 @@ function refreshRecommend() {
     _doRefresh(); btn.textContent = '重新生成'; btn.disabled = false;
   }, 800);
 }
-function _doRefresh() {
-  var fCnt = getFrontCount(), fMax = getFrontMax(), bKey = getBackKey(), bMax = getBackMax();
-  var mcData = window._lastMcNorm, backArr = window._lastBackArr, data = getData();
-  if (!mcData || mcData.length === 0) {
-    var freqAll = {}; data.forEach(function(d){ d[getFrontKey()].forEach(function(n){ freqAll[n]=(freqAll[n]||0)+1; }); });
-    mcData = []; for (var n=1; n<=fMax; n++) mcData.push({num:n, rate:((freqAll[n]||0)/(data.length*fCnt)*100).toFixed(2)});
+// ============ 确定性共识推荐（基于 model.json consensus 字段）============
+function renderConsensusRecommend() {
+  var mData = getModelData();
+  if (!mData || !mData.consensus) {
+    return '<div class="recommend-consensus"><span class="consensus-empty">模型共识数据未加载，请等待数据加载完成</span></div>';
   }
-  var weights = mcData.map(function(d){ return Math.max(parseFloat(d.rate),0.01); });
-  var tw = weights.reduce(function(a,b){return a+b;},0);
-  function pick(cnt) {
-    var s = new Set(), safe=0;
-    while (s.size < cnt && safe < 1000) { safe++;
-      var r=Math.random()*tw, cum=0;
-      for (var j=0; j<mcData.length; j++) { cum+=weights[j]; if (r<=cum) { s.add(mcData[j].num); break; } }
-    }
-    var arr=Array.from(s).sort(function(a,b){return a-b;});
-    if (arr.length<cnt) { mcData.slice().sort(function(a,b){return parseFloat(b.rate)-parseFloat(a.rate);}).forEach(function(d){ if(arr.length<cnt && arr.indexOf(d.num)<0) arr.push(d.num); }); arr.sort(function(a,b){return a-b;}); }
-    return arr;
+  var mainKey = getModelMainKey(), backKey = getModelBackKey();
+  var mainLabel = getModelMainLabel(), backLabel = getModelBackLabel();
+  var cons = mData.consensus;
+  var main = cons[mainKey], back = cons[backKey];
+  if (!main || !back || !main.numbers || !back.numbers) {
+    return '<div class="recommend-consensus"><span class="consensus-empty">共识数据缺失</span></div>';
   }
-  if (!backArr) {
-    var bf={}; data.forEach(function(d){ if(currentGame==='ssq') bf[d[bKey]]=(bf[d[bKey]]||0)+1; else d[bKey].forEach(function(n){ bf[n]=(bf[n]||0)+1; }); });
-    backArr=[]; for (var n=1; n<=bMax; n++) backArr.push({num:n,count:bf[n]||0}); backArr.sort(function(a,b){return b.count-a.count;});
-  }
-  // Weighted random pick for back numbers — each group gets a different combination
-  var backWeights2 = backArr.map(function(d){ return Math.max(d.count, 1); });
-  var backTw2 = backWeights2.reduce(function(a,b){return a+b;},0);
-  function pickBack() {
-    var cnt = getBackCount(), picked = new Set(), safe = 0;
-    while (picked.size < cnt && safe < 1000) {
-      safe++;
-      var r = Math.random() * backTw2, cum = 0;
-      for (var j = 0; j < backArr.length; j++) {
-        cum += backWeights2[j];
-        if (r <= cum) { picked.add(backArr[j].num); break; }
-      }
-    }
-    var arr = Array.from(picked).sort(function(a,b){return a-b;});
-    if (arr.length < cnt) {
-      backArr.forEach(function(d) { if (arr.length < cnt && arr.indexOf(d.num) < 0) arr.push(d.num); });
-      arr.sort(function(a,b){return a-b;});
-    }
-    return arr;
-  }
-
-  // Build MC index for realistic scoring
-  var mcIndex = {};
-  mcData.forEach(function(d){ mcIndex[d.num] = parseFloat(d.rate); });
-  var maxRate = mcData[0] ? parseFloat(mcData[0].rate) : 10;
-
-  var gs = [];
-  for (var g=0; g<4; g++) {
-    var fn = pick(fCnt);
-    // Score based on average MC rate of drawn numbers (70% weight) + randomness (30% weight)
-    var avgRate = fn.reduce(function(s,n){return s+(mcIndex[n]||0);},0)/fn.length;
-    var score = Math.min(Math.round(avgRate/maxRate*65 + 20 + Math.random()*10), 95).toFixed(1);
-    var backNums = pickBack();
-    var allNums = fn.concat(backNums);
-    var sumVal = allNums.reduce(function(a,b){return a+b;},0);
-    var oddCnt = allNums.filter(function(n){return n%2===1;}).length;
-    var evenCnt = allNums.length - oddCnt;
-    gs.push({nums:fn, backNums:backNums, score:score, sum:sumVal, oddRatio:oddCnt+':'+evenCnt});
-  }
-  window._lastRecommend = gs;
-
-  // Render all 4 groups as individual cards in a 2x2 grid
-  var gameLabel = currentGame==='ssq'?'双色球推荐（前区6红 + 后区1蓝）':'大乐透推荐（前区5 + 后区2）';
-  var h = '<div style="color:var(--accent);margin-bottom:14px;font-weight:600;font-size:15px">'+gameLabel+'</div>';
-  h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px">';
-  for (var g=0; g<4; g++) {
-    var r = gs[g];
-    var starCount = r.score>80?5:r.score>65?4:r.score>50?3:r.score>35?2:1;
-    var stars=''; for (var s=0;s<5;s++) stars+=s<starCount?'★':'☆';
-    h += '<div class="model-card" style="padding:14px">';
-    h += '<div class="model-name">第 '+(g+1)+' 组</div>';
-    h += '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin:10px 0">';
-    r.nums.forEach(function(n){ h+='<span class="ball red hot">'+String(n).padStart(2,'0')+'</span>'; });
-    if (currentGame==='ssq') { h+='<span class="ball blue hot">'+String(r.backNums[0]).padStart(2,'0')+'</span>'; }
-    else { r.backNums.forEach(function(n){ h+='<span class="ball blue hot">'+String(n).padStart(2,'0')+'</span>'; }); }
-    h += '</div>';
-    h += '<div style="text-align:center;margin-top:6px"><span style="font-size:16px;color:#f0c000">'+stars+'</span><span style="color:var(--accent);font-size:14px;margin-left:6px">'+r.score+'分</span></div>';
-    h += '<div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:center">和值 '+r.sum+' | 奇偶 '+r.oddRatio+'</div>';
-    h += '</div>';
+  var gameLabel = currentGame === 'ssq'
+    ? '双色球推荐（6个红球 + 1个蓝球）'
+    : '大乐透推荐（前区5 + 后区2）';
+  var h = '<div style="color:var(--accent);margin-bottom:14px;font-weight:600;font-size:15px">' + gameLabel + '</div>';
+  h += '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:16px">';
+  main.numbers.forEach(function(n) {
+    var d = main.detail[String(n)] || {};
+    var sup = (d.in_top15 || 0) + '/3';
+    h += '<span class="ball red hot" title="' + mainLabel + ' ' + String(n).padStart(2, '0') +
+         '：' + sup + ' 模型进Top15，三模型均分 ' + (d.avg_score || 0) + '">' + String(n).padStart(2, '0') + '</span>';
+  });
+  if (currentGame === 'ssq') {
+    var bn = back.numbers[0];
+    var bd = back.detail[String(bn)] || {};
+    h += '<span class="ball blue hot" title="' + backLabel + ' ' + String(bn).padStart(2, '0') +
+         '：' + (bd.in_top15 || 0) + '/3 模型进Top15">' + String(bn).padStart(2, '0') + '</span>';
+  } else {
+    back.numbers.forEach(function(n) {
+      var bd = back.detail[String(n)] || {};
+      h += '<span class="ball blue hot" title="' + backLabel + ' ' + String(n).padStart(2, '0') +
+           '：' + (bd.in_top15 || 0) + '/3 模型进Top15">' + String(n).padStart(2, '0') + '</span>';
+    });
   }
   h += '</div>';
-  h += '<div style="font-size:12px;color:var(--text2);line-height:1.8"><strong>推荐理由：</strong><br>1. 基于蒙特卡洛 10000 次模拟加权随机采样重新组合<br>2. 保留高概率号码，模拟随机扰动<br>3. 后区推荐基于历史出现频率<br>4. 每次重新生成结果不同，仅供参考比较</div>';
+  var conf = ((main.confidence || 0) + (back.confidence || 0)) / 2;
+  h += '<div style="text-align:center;margin-bottom:6px"><span style="font-size:16px;color:#f0c000">共识置信度 ' + conf.toFixed(1) + ' 分</span></div>';
+  h += '<div style="font-size:12px;color:var(--text2);line-height:1.8"><strong>推荐依据（可量化追溯）：</strong><br>';
+  h += '1. 随机森林 / 朴素贝叶斯 / 蒙特卡洛三模型对每号码独立评分，取评分求和最高的前 ' + main.numbers.length + ' 个' + mainLabel + '号码<br>';
+  h += '2. ' + backLabel + '取评分求和最高的 ' + back.numbers.length + ' 个<br>';
+  h += '3. 每个球标注「x/3 模型进入 Top15」——即被几个模型共同看好；置信度综合三模型平均评分得出<br>';
+  h += '4. 纯确定性计算，刷新结果一致（不再随机扰动）</div>';
+
+  // 供 CSV 导出 / 刷新复用
+  window._lastRecommend = [{ nums: main.numbers.slice(), backNums: back.numbers.slice(), score: conf.toFixed(1) }];
+  return h;
+}
+
+function _doRefresh() {
+  var h = renderConsensusRecommend();
   document.getElementById('recommend-content').innerHTML = h;
 
-  // Update insight
   var ins = document.getElementById('insight-recommend');
-  if (ins) ins.innerHTML = '<strong>已重新生成：</strong>共 '+gs.length+' 组新推荐，点击"导出CSV"可保存全部。';
+  if (ins) ins.innerHTML = '<strong>已刷新：</strong>基于三模型确定性共识推荐，结果稳定可复现。点击"导出CSV"可保存。';
 }
 
 // ============ NUMBER DRILL DOWN ============

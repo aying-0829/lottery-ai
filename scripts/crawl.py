@@ -83,10 +83,14 @@ def parse_500_rows(html):
 
 def crawl_ssq(session):
     """
-    从 500.com 拉取最新双色球开奖数据（服务端渲染表格，海外 IP 可访问）。
-    返回: 新增期数列表 (period strings)
+    从 500.com 拉取双色球最新开奖（单次请求返回最新30期，海外 IP 可访问），
+    与本地已有期号去重后追加。
+
+    注意：500.com 的 history.shtml 忽略 start/end/page 等分页参数，始终只返回
+    最新30期；官方源(cwl/体彩)对 CI 海外 IP 返回 403。因此全量历史(≥1000期)
+    需在本地用官方源或公开数据集一次性回填，CI 仅做增量更新。
     """
-    print('[SSQ] 开始爬取双色球数据（数据源: 500.com）...')
+    print('[SSQ] 爬取双色球最新开奖（数据源: 500.com）...')
 
     existing_periods = set()
     existing_data = None
@@ -95,12 +99,10 @@ def crawl_ssq(session):
             existing_data = json.load(f)
         for p in existing_data.get('periods', []):
             existing_periods.add(p['period'])
-        print(f'[SSQ] 已有 {len(existing_periods)} 期数据，最新期号: {max(existing_periods) if existing_periods else "无"}')
+        print(f'[SSQ] 已有 {len(existing_periods)} 期数据')
 
-    # 500.com 双色球期号为 7 位（如 2026077），用 7 位范围覆盖整个 2026 年
-    params = {'start': '2026001', 'end': '2026200'}
     headers = get_headers(referer='https://datachart.500.com/ssq/')
-    resp = session.get(SSQ_API, params=params, headers=headers, timeout=20)
+    resp = session.get(SSQ_API, headers=headers, timeout=20)
     resp.raise_for_status()
     resp.encoding = 'gb2312'
     rows = parse_500_rows(resp.text)
@@ -158,10 +160,13 @@ DLT_API = 'https://datachart.500.com/dlt/history/history.shtml'
 
 def crawl_dlt(session):
     """
-    从 500.com 拉取最新大乐透开奖数据（服务端渲染表格，海外 IP 可访问）。
-    返回: 新增期数列表 (period strings)
+    从 500.com 拉取大乐透最新开奖（单次请求返回最新30期，海外 IP 可访问），
+    与本地已有期号去重后追加。
+
+    注意：500.com 始终只返回最新30期；官方源对 CI 海外 IP 返回 403。
+    全量历史(≥1000期)需本地一次性回填，CI 仅做增量更新。
     """
-    print('[DLT] 开始爬取大乐透数据（数据源: 500.com）...')
+    print('[DLT] 爬取大乐透最新开奖（数据源: 500.com）...')
 
     existing_periods = set()
     existing_data = None
@@ -170,11 +175,10 @@ def crawl_dlt(session):
             existing_data = json.load(f)
         for p in existing_data.get('periods', []):
             existing_periods.add(p['period'])
-        print(f'[DLT] 已有 {len(existing_periods)} 期数据，最新期号: {max(existing_periods) if existing_periods else "无"}')
+        print(f'[DLT] 已有 {len(existing_periods)} 期数据')
 
-    params = {'start': '26001', 'end': '26100'}
     headers = get_headers(referer='https://datachart.500.com/dlt/')
-    resp = session.get(DLT_API, params=params, headers=headers, timeout=20)
+    resp = session.get(DLT_API, headers=headers, timeout=20)
     resp.raise_for_status()
     resp.encoding = 'gb2312'
     rows = parse_500_rows(resp.text)
