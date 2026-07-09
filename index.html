@@ -451,7 +451,8 @@ function classifyConsec(arr) {
 
 function fetchWithRetry(url, retries) {
   retries = retries || 1;
-  return fetch(url).then(function(r) {
+  // no-store: 云端部署后避免浏览器/CDN 返回旧缓存，保证自动刷新能拿到最新数据
+  return fetch(url, { cache: 'no-store' }).then(function(r) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   }).catch(function(e) {
@@ -523,7 +524,9 @@ function initApp() {
   } catch(e) {
     showLoadError('渲染失败：' + e.message + '（请刷新页面重试，如持续出现请检查网络或反馈给开发者）');
     console.error('renderAll crashed:', e);
+    return;
   }
+  startAutoRefresh();
 }
 
 // ============ SWITCH ============
@@ -1439,6 +1442,43 @@ function closeDrillModal() {
   modal.style.opacity = '0';
   setTimeout(function(){ modal.style.display = 'none'; }, 300);
 }
+
+// ============ AUTO REFRESH (检测数据更新，自动重载) ============
+var AUTO_REFRESH_MS = 5 * 60 * 1000;  // 每 5 分钟检查一次
+var autoRefreshTimer = null;
+
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(checkForUpdates, AUTO_REFRESH_MS);
+}
+
+function checkForUpdates() {
+  if (document.hidden) return;  // 页面不可见时不打扰
+  var checks = DATA_FILES.map(function(item) {
+    return fetch(item.file + '?t=' + Date.now())
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(json) {
+        if (!json) return;
+        var oldJson = (item.key === 'ssq' || item.key === 'dlt') ? LOADED_DATA[item.key] : LOADED_MODEL[item.key];
+        if (!oldJson) return;
+        var newTs = json['last_updated'] || json['generated_at'];
+        var oldTs = oldJson['last_updated'] || oldJson['generated_at'];
+        if (newTs && oldTs && newTs !== oldTs) window._dataDirty = true;
+      })
+      .catch(function() {});
+  });
+  Promise.all(checks).then(function() {
+    if (window._dataDirty) {
+      window._dataDirty = false;
+      console.log('检测到数据更新，自动重新加载…');
+      loadAllData();
+    }
+  });
+}
+
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) checkForUpdates();
+});
 
 // ============ INIT ============
 window.addEventListener('resize', function(){

@@ -87,9 +87,10 @@ def build_features_dlt_back(periods, ball_pool):
 
 
 # ─── 蒙特卡洛模拟 ─────────────────────────────────────
-def mc_simulation(periods, ball_pool, is_front=True, n_sim=10000):
-    """蒙特卡洛加权抽样"""
+def mc_simulation(periods, ball_pool, is_front=True, n_sim=10000, seed=42):
+    """蒙特卡洛加权抽样（固定随机种子，保证同输入同输出，便于 CI 增量判断）"""
     pick_count = 6 if is_front else 1
+    rng = np.random.default_rng(seed)
     recent = min(50, len(periods))
     recent_periods = periods[:recent]
 
@@ -111,7 +112,7 @@ def mc_simulation(periods, ball_pool, is_front=True, n_sim=10000):
 
     scores = Counter()
     for _ in range(n_sim):
-        chosen = np.random.choice(
+        chosen = rng.choice(
             ball_pool,
             size=pick_count,
             replace=False,
@@ -181,6 +182,31 @@ def run_models(periods, ball_pool, is_front=True):
 # ═══════════════════════════════════════════════════════
 #  双色球
 # ═══════════════════════════════════════════════════════
+def save_model_if_changed(out_path, model):
+    """仅当评分内容（除 generated_at 外）真正变化时才写文件。
+
+    避免模型确定性后，云端 workflow 仍因时间戳变化每天无意义地
+    提交一次数据并触发 Pages 重新部署。
+    """
+    if os.path.exists(out_path):
+        try:
+            with open(out_path, "r", encoding="utf-8") as f:
+                old = json.load(f)
+            changed = False
+            for grp in ["red", "blue", "front", "back"]:
+                if grp in model and grp in old and model[grp] != old[grp]:
+                    changed = True
+                    break
+            if not changed:
+                print(f"[SKIP] 模型内容无变化，跳过写入: {out_path}")
+                return
+        except Exception:
+            pass  # 解析失败则直接重写
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(model, f, ensure_ascii=False)
+    print(f"[SAVE] 模型已保存: {out_path}")
+
+
 def process_ssq():
     ssq_file = os.path.join(DATA_DIR, "ssq_data.json")
     if not os.path.exists(ssq_file):
@@ -211,9 +237,7 @@ def process_ssq():
     }
 
     out = os.path.join(DATA_DIR, "ssq_model.json")
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(model, f, ensure_ascii=False)
-    print(f"[SSQ] 模型已保存: {out}")
+    save_model_if_changed(out, model)
 
 
 # ═══════════════════════════════════════════════════════
@@ -255,9 +279,7 @@ def process_dlt():
     }
 
     out = os.path.join(DATA_DIR, "dlt_model.json")
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(model, f, ensure_ascii=False)
-    print(f"[DLT] 模型已保存: {out}")
+    save_model_if_changed(out, model)
 
 
 # ═══════════════════════════════════════════════════════

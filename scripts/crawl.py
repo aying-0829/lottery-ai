@@ -246,29 +246,36 @@ def main():
     session = create_session()
 
     total_new = {}
+    failed = {}
 
     # 双色球
     try:
         rate_limit()
         new = crawl_ssq(session)
         total_new['ssq'] = new
+        failed['ssq'] = False
     except Exception as e:
         print(f'[SSQ] 爬取失败: {e}')
         total_new['ssq'] = []
+        failed['ssq'] = True
 
     # 大乐透
     try:
         rate_limit()
         new = crawl_dlt(session)
         total_new['dlt'] = new
+        failed['dlt'] = False
     except Exception as e:
         print(f'[DLT] 爬取失败: {e}')
         total_new['dlt'] = []
+        failed['dlt'] = True
 
-    # 汇总并写标记文件供 model.py 判断是否有新数据
+    # 汇总并写标记文件供 model.py / CI 判断是否有新数据、是否失败
     summary = {
         'ssq_new': len(total_new.get('ssq', [])),
         'dlt_new': len(total_new.get('dlt', [])),
+        'ssq_failed': failed.get('ssq', False),
+        'dlt_failed': failed.get('dlt', False),
         'timestamp': datetime.now(TZ).isoformat()
     }
 
@@ -277,12 +284,13 @@ def main():
         json.dump(summary, f, ensure_ascii=False)
 
     print(f'\n========== 爬取完成 ==========')
-    print(f'双色球新增: {summary["ssq_new"]} 期')
-    print(f'大乐透新增: {summary["dlt_new"]} 期')
+    print(f'双色球新增: {summary["ssq_new"]} 期' + (' [失败]' if summary['ssq_failed'] else ''))
+    print(f'大乐透新增: {summary["dlt_new"]} 期' + (' [失败]' if summary['dlt_failed'] else ''))
     print(f'时间戳: {summary["timestamp"]}')
 
-    # 返回 exit code: 有新增数据 → 0，无新增 → 0（正常退出，model.py 自行判断）
-    return 0
+    # 返回 exit code: 任何一档爬取失败 → 1（让调度器/CI 能感知到失败）；
+    # 全部成功（无论有无新数据）→ 0
+    return 1 if (failed.get('ssq') or failed.get('dlt')) else 0
 
 
 if __name__ == '__main__':
