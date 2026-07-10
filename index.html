@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>AI彩票分析工具 - 真实数据驱动</title>
+<script>
+// 新部署后首次访问自动跳过 GitHub Pages CDN 缓存（仅本会话一次）
+(function(){
+  if (location.search.indexOf('v=') === -1 && !sessionStorage.getItem('lottery_cb')) {
+    sessionStorage.setItem('lottery_cb', '1');
+    var sep = location.search ? '&' : '?';
+    location.replace(location.href + sep + 'v=2');
+  }
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script>
 // ── 启动 ──
@@ -344,7 +357,7 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 <div id="tab-recommend" class="tab-content">
   <button class="btn-refresh" id="btn-refresh" onclick="refreshRecommend()">重新生成</button>
   <div class="card">
-    <h3>综合推荐号码（基于三大模型加权 + 规则引擎）</h3>
+    <h3>综合推荐号码（基于多模型 Stacking 确定性共识）</h3>
     <div id="recommend-content"></div>
     <div class="insight" style="margin-top:16px" id="insight-recommend">
       <strong>免责声明：</strong>彩票开奖为完全随机事件，历史数据不能预测未来结果。本工具仅供娱乐参考，请理性购彩。
