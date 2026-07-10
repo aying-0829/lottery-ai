@@ -147,7 +147,7 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 
 <header>
   <div>
-    <h1>AI彩票分析工具<span class="subtitle">基于 500 期真实历史数据</span></h1>
+    <h1>AI彩票分析工具<span class="subtitle" id="header-subtitle">基于真实历史数据</span></h1>
   </div>
   <div class="toggle-group">
     <button id="btnSSQ" class="active" onclick="switchGame('ssq')">双色球</button>
@@ -179,7 +179,7 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   </div>
   <!-- 统计卡片 -->
   <div class="stat-row">
-    <div class="stat-card"><div class="num" id="stat-total">500</div><div class="label">历史总期数</div></div>
+    <div class="stat-card"><div class="num" id="stat-total">—</div><div class="label">历史总期数</div></div>
     <div class="stat-card"><div class="num" id="stat-latest"></div><div class="label">最新一期</div></div>
     <div class="stat-card"><div class="num" id="stat-avgsum"></div><div class="label">历史均值(前区)</div></div>
     <div class="stat-card"><div class="num" id="stat-hotball"></div><div class="label">最热号码</div></div>
@@ -244,7 +244,7 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 <div id="tab-model" class="tab-content">
   <div class="stat-row">
     <div class="stat-card"><div class="num" id="model-mc-total">10,000</div><div class="label">蒙特卡洛模拟次数</div></div>
-    <div class="stat-card"><div class="num" id="model-periods">500</div><div class="label">训练数据期数</div></div>
+    <div class="stat-card"><div class="num" id="model-periods">—</div><div class="label">训练数据期数</div></div>
   </div>
   <div class="grid-3">
     <div class="model-card">
@@ -376,15 +376,15 @@ var ssq = null, dlt = null;
 var SCHEMA_MAP = {
   'SSQ_DATA_V1': 'ssq_data.json',
   'DLT_DATA_V1': 'dlt_data.json',
-  'SSQ_MODEL_V1': 'ssq_model.json',
-  'DLT_MODEL_V1': 'dlt_model.json'
+  'SSQ_MODEL_V2': 'ssq_model.json',
+  'DLT_MODEL_V2': 'dlt_model.json'
 };
 
 var DATA_FILES = [
   { key: 'ssq', file: './data/ssq_data.json', schema: 'SSQ_DATA_V1' },
   { key: 'dlt', file: './data/dlt_data.json', schema: 'DLT_DATA_V1' },
-  { key: 'ssq_model', file: './data/ssq_model.json', schema: 'SSQ_MODEL_V1' },
-  { key: 'dlt_model', file: './data/dlt_model.json', schema: 'DLT_MODEL_V1' }
+  { key: 'ssq_model', file: './data/ssq_model.json', schema: 'SSQ_MODEL_V2' },
+  { key: 'dlt_model', file: './data/dlt_model.json', schema: 'DLT_MODEL_V2' }
 ];
 
 // ============ HELPERS ============
@@ -796,6 +796,7 @@ function renderAiModelAll() {
 // ============ RENDER ALL ============
 function renderAll() {
   var data = getData();
+  var mData = getModelData();
   var fKey = getFrontKey(), bKey = getBackKey();
   var fMax = getFrontMax(), fCnt = getFrontCount(), bMax = getBackMax();
   var primes = getPrimes();
@@ -804,6 +805,8 @@ function renderAll() {
   // --- Stats ---
   document.getElementById('stat-total').textContent = data.length;
   document.getElementById('stat-latest').textContent = latest.period;
+  document.getElementById('model-periods').textContent = mData.data_periods_used || data.length;
+  document.getElementById('header-subtitle').textContent = '基于 ' + data.length + ' 期真实历史数据';
   var allSums = data.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
   var sumMean = (allSums.reduce(function(a,b){return a+b;},0) / allSums.length).toFixed(1);
   document.getElementById('stat-avgsum').textContent = sumMean;
