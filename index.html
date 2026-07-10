@@ -364,6 +364,26 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     </div>
   </div>
 
+  <!-- 近期走势选号（启发式探索） -->
+  <div class="card" id="win-card">
+    <h3>近期走势选号（启发式探索）</h3>
+    <div class="insight" style="margin-bottom:10px">
+      基于所选窗口的真实历史，按 <strong>热度（近期出现频率）</strong> + <strong>遗漏回补（久未出现时长）</strong> 两项等权打分，取分数最高的号码。
+      此为<strong>透明启发式</strong>，非训练模型——<strong>不改变中奖概率</strong>，仅供对比娱乐。
+    </div>
+    <div style="margin:6px 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <label for="win-window" style="font-size:13px;color:var(--text2)">选号窗口：</label>
+      <select id="win-window" class="win-select" onchange="onWinWindowChange()">
+        <option value="full">全部历史（约 20 年）</option>
+        <option value="100">近 100 期</option>
+        <option value="50">近 50 期</option>
+      </select>
+      <span class="win-note" id="win-window-note"></span>
+    </div>
+    <div class="ball-group" id="win-balls"></div>
+    <div class="insight" id="win-detail" style="margin-top:12px"></div>
+  </div>
+
   <!-- 蒙特卡洛概率推演面板 -->
   <style>
     .mc-tickets{display:flex;flex-direction:column;gap:14px;margin:12px 0}
@@ -387,6 +407,8 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     .mc-results .ok{color:#3fb950;font-weight:700}
     .mc-best{margin-top:10px;font-size:13px;line-height:1.6}
     .mc-note{font-size:12px;color:var(--text2);line-height:1.7;margin-top:10px}
+    .win-select{padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:#0d1117;color:var(--text1);font-size:13px;font-weight:600}
+    .win-note{font-size:12px;color:var(--text2)}
   </style>
   <div class="card" id="mc-sim-card">
     <h3>蒙特卡洛概率推演（10 万次仿真）</h3>
@@ -1170,11 +1192,93 @@ function renderAll() {
   // 蒙特卡洛推演面板（切 tab 不重建以保留用户编辑；切游戏由 switchGame 重置）
   mcRenderPanel();
 
+  // 近期走势选号（启发式）：切 tab/切游戏均按当前 _winWindow 重算
+  renderWindowPick();
+
   // 共识已在主推荐区通过 renderConsensusRecommend() 渲染，此处不再重复追加
 
   setTimeout(function(){
     Object.values(charts).forEach(function(c){c.resize();});
   }, 100);
+}
+
+// ============ 近期走势选号（启发式探索） ============
+// 透明、可复现：基于真实历史窗口，对每球按「热度(频率) + 遗漏回补(遗漏时长)」等权归一化打分。
+// 注意：此为启发式探索，非训练模型，不改变中奖概率。
+var _winWindow = 'full';
+
+function onWinWindowChange() {
+  var s = document.getElementById('win-window');
+  if (s) _winWindow = s.value;
+  renderWindowPick();
+}
+
+// 计算某区(前区/红球 或 后区/蓝球)每球在窗口内的分数
+// 数据数组为最新在前，故取前 N 条 = 最近 N 期
+function _winScoresFor(game, key, maxNum) {
+  var raw = game === 'ssq' ? ssq : dlt;
+  var N = _winWindow === 'full' ? raw.length : parseInt(_winWindow, 10);
+  var win = raw.slice(0, N);
+  var wsize = win.length;
+  var rows = [];
+  var maxFreq = 0, maxDue = 0;
+  for (var n = 1; n <= maxNum; n++) {
+    var count = 0, lastIdx = -1;
+    for (var i = 0; i < wsize; i++) {
+      var val = win[i][key];
+      var arr = Array.isArray(val) ? val : [val];
+      if (arr.indexOf(n) >= 0) { count++; lastIdx = i; }
+    }
+    var freq = count / wsize;                       // 出现频率
+    var omission = (count === 0) ? wsize : lastIdx; // lastIdx: 0 = 最新一期
+    var due = (count === 0) ? 0 : omission / wsize; // 仅对出现过者计遗漏，避免未出现号码被高估
+    if (freq > maxFreq) maxFreq = freq;
+    if (due > maxDue) maxDue = due;
+    rows.push({ num: n, freq: freq, omission: omission, count: count, due: due });
+  }
+  // 两项等权、各自按全样本最大值归一化到 [0,1]，避免某项量级碾压
+  rows.forEach(function(r) {
+    var fN = maxFreq > 0 ? r.freq / maxFreq : 0;
+    var dN = maxDue > 0 ? r.due / maxDue : 0;
+    r.score = 0.5 * fN + 0.5 * dN;
+  });
+  rows.sort(function(a, b) { return b.score - a.score; });
+  return { rows: rows, wsize: wsize };
+}
+
+function renderWindowPick() {
+  if (!ssq || !dlt) return;
+  var game = currentGame;
+  var fKey = getFrontKey(), bKey = getBackKey();
+  var fMax = getFrontMax(), bMax = getBackMax();
+  var fCount = getFrontCount(), bCount = getBackCount();
+  var fRes = _winScoresFor(game, fKey, fMax);
+  var bRes = _winScoresFor(game, bKey, bMax);
+  var fPick = fRes.rows.slice(0, fCount);
+  var bPick = bRes.rows.slice(0, bCount);
+  var sel = document.getElementById('win-window');
+  if (sel) sel.value = _winWindow;
+  var fLabel = game === 'ssq' ? '红球' : '前区';
+  var bLabel = game === 'ssq' ? '蓝球' : '后区';
+  var h = '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px">';
+  fPick.forEach(function(r) {
+    h += '<span class="ball red" title="' + fLabel + ' ' + String(r.num).padStart(2, '0') +
+         '：窗口内出现 ' + r.count + ' 次，最近遗漏 ' + r.omission + ' 期">' + String(r.num).padStart(2, '0') + '</span>';
+  });
+  bPick.forEach(function(r) {
+    h += '<span class="ball blue" title="' + bLabel + ' ' + String(r.num).padStart(2, '0') +
+         '：窗口内出现 ' + r.count + ' 次，最近遗漏 ' + r.omission + ' 期">' + String(r.num).padStart(2, '0') + '</span>';
+  });
+  h += '</div>';
+  var balls = document.getElementById('win-balls');
+  if (balls) balls.innerHTML = h;
+  var note = document.getElementById('win-window-note');
+  if (note) note.textContent = '当前窗口：' + fRes.wsize + ' 期';
+  var detail = '<strong>选号依据（' + fRes.wsize + ' 期窗口）：</strong><br>' +
+    fLabel + ' Top' + fCount + '：' + fPick.map(function(r){ return String(r.num).padStart(2,'0') + '（出现' + r.count + '次/遗漏' + r.omission + '期）'; }).join('、') + '<br>' +
+    bLabel + ' Top' + bCount + '：' + bPick.map(function(r){ return String(r.num).padStart(2,'0') + '（出现' + r.count + '次/遗漏' + r.omission + '期）'; }).join('、');
+  var det = document.getElementById('win-detail');
+  if (det) det.innerHTML = detail;
 }
 
 // ============ 蒙特卡洛概率推演 ============
