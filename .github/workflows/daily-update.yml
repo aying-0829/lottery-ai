@@ -4,6 +4,14 @@ on:
   schedule:
     - cron: '30 15 * * *'      # UTC 15:30 = 北京时间 23:30（开奖后自动更新）
   workflow_dispatch:            # 也可在 Actions 页面手动点击运行
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - 'data/**'
+      - 'scripts/**'
+      - '.github/workflows/daily-update.yml'
 
 permissions:
   contents: write              # 提交更新后的数据回仓库
