@@ -229,24 +229,41 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 
 <!-- TAB: 走势分析 -->
 <div id="tab-trend" class="tab-content">
+  <div class="card trend-controls">
+    <h3>走势图表控制</h3>
+    <div class="trend-control-row">
+      <label for="trend-window-select">查询期数：</label>
+      <select id="trend-window-select" onchange="onTrendWindowChange(this.value)">
+        <option value="50">最近 50 期</option>
+        <option value="100">最近 100 期</option>
+        <option value="200">最近 200 期</option>
+        <option value="500">最近 500 期</option>
+        <option value="all">全部历史</option>
+        <option value="custom">自定义</option>
+      </select>
+      <input type="number" id="trend-window-input" min="10" max="10000" value="100" placeholder="输入期数" onchange="onTrendWindowInput(this.value)" style="display:none;width:100px">
+      <button class="btn-refresh" onclick="applyTrendWindow()">应用</button>
+      <span class="trend-hint">切换后下方 4 个图表与洞察会实时更新</span>
+    </div>
+  </div>
   <div class="grid-2">
     <div class="card">
-      <h3>和值走势（最近50期）</h3>
+      <h3 id="title-sumtrend">和值走势</h3>
       <div class="chart" id="chart-sumtrend"></div>
       <div class="insight" id="insight-sumtrend"></div>
     </div>
     <div class="card">
-      <h3>质合比走势（最近100期，每期质数个数）</h3>
+      <h3 id="title-primetrend">质合比走势</h3>
       <div class="chart" id="chart-primetrend"></div>
       <div class="insight" id="insight-primetrend"></div>
     </div>
     <div class="card">
-      <h3>AC 值走势（最近100期）</h3>
+      <h3 id="title-actrend">AC 值走势</h3>
       <div class="chart" id="chart-actrend"></div>
       <div class="insight" id="insight-actrend"></div>
     </div>
     <div class="card">
-      <h3>连号模式分布（最近100期）</h3>
+      <h3 id="title-consec">连号模式分布</h3>
       <div class="chart" id="chart-consec"></div>
       <div class="insight" id="insight-consec"></div>
     </div>
@@ -399,6 +416,14 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     .btn-primary:disabled{opacity:.5;cursor:default}
     .btn-random{padding:8px 20px;border:1px solid #3fb950;border-radius:8px;background:rgba(63,185,80,.1);color:#3fb950;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
     .btn-random:hover{background:rgba(63,185,80,.2)}
+    .trend-controls{padding:16px 20px;margin-bottom:16px}
+    .trend-controls h3{margin-bottom:12px;font-size:16px}
+    .trend-control-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .trend-control-row label{font-size:14px;color:var(--text1);white-space:nowrap}
+    .trend-control-row select,.trend-control-row input{padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:#0d1117;color:var(--text1);font-size:14px}
+    .trend-control-row select:focus,.trend-control-row input:focus{outline:none;border-color:var(--accent)}
+    .trend-control-row .btn-refresh{margin:0}
+    .trend-hint{font-size:12px;color:var(--text2);white-space:nowrap}
     .mc-progress{margin-top:12px}
     .mc-progress-bar{height:8px;background:linear-gradient(90deg,#58a6ff,#3fb950);border-radius:6px;width:0;transition:width .15s}
     .mc-progress-text{font-size:12px;color:var(--text2);margin-left:8px}
@@ -470,6 +495,7 @@ var DATA_FILES = [
 // ============ HELPERS ============
 var currentGame = 'ssq';
 var charts = {};
+var trendWindow = getTrendWindow();
 var dateFilter = { start: null, end: null };
 
 function getFrontKey() { return currentGame === 'ssq' ? 'red' : 'front'; }
@@ -503,6 +529,80 @@ function disposeAllCharts() {
   for (var k in charts) {
     if (charts[k]) { charts[k].dispose(); delete charts[k]; }
   }
+}
+
+// ============ TREND WINDOW STATE ============
+function getTrendWindow(){
+  var saved = null;
+  try { saved = localStorage.getItem('trendWindow_' + currentGame); } catch(e){}
+  if (saved) { var n = parseInt(saved, 10); if (!isNaN(n) && n >= 5) return n; }
+  return 100;
+}
+
+function setTrendWindow(n){
+  trendWindow = Math.max(5, Math.min(n, 10000));
+  try { localStorage.setItem('trendWindow_' + currentGame, String(trendWindow)); } catch(e){}
+}
+
+function syncTrendControls(){
+  var data = getData();
+  var total = data && data.length ? data.length : 0;
+  var sel = document.getElementById('trend-window-select');
+  var inp = document.getElementById('trend-window-input');
+  if (!sel || !inp) return;
+  var known = {'50':1,'100':1,'200':1,'500':1};
+  if (total > 0 && trendWindow >= total) {
+    sel.value = 'all';
+    inp.style.display = 'none';
+  } else if (known[String(trendWindow)]) {
+    sel.value = String(trendWindow);
+    inp.style.display = 'none';
+  } else {
+    sel.value = 'custom';
+    inp.value = trendWindow;
+    inp.style.display = 'inline-block';
+  }
+}
+
+function onTrendWindowChange(val){
+  var inp = document.getElementById('trend-window-input');
+  if (val === 'custom') {
+    if (inp) { inp.style.display = 'inline-block'; inp.focus(); }
+  } else {
+    if (inp) inp.style.display = 'none';
+    if (val === 'all') {
+      var data = getData();
+      if (data && data.length) setTrendWindow(data.length);
+    } else {
+      setTrendWindow(parseInt(val, 10) || 100);
+    }
+    applyTrendWindow();
+  }
+}
+
+function onTrendWindowInput(val){
+  var n = parseInt(val, 10);
+  if (!isNaN(n) && n >= 5) {
+    setTrendWindow(n);
+    applyTrendWindow();
+  }
+}
+
+function applyTrendWindow(){
+  var data = getData();
+  if (data && data.length) setTrendWindow(Math.min(trendWindow, data.length));
+  renderTrendCharts(trendWindow);
+}
+
+function movingAverage(vals, window){
+  var ma = [];
+  for (var i = 0; i < vals.length; i++){
+    var start = Math.max(0, i - window + 1);
+    var sum = 0;
+    for (var j = start; j <= i; j++) sum += vals[j];
+    ma.push((sum / (i - start + 1)).toFixed(2));
+  }
+  return ma;
 }
 
 /** 计算 AC 值（Arithmetic Complexity） */
@@ -612,6 +712,7 @@ function initApp() {
 // ============ SWITCH ============
 function switchGame(game) {
   currentGame = game;
+  trendWindow = getTrendWindow(); // 不同游戏可独立记忆期数窗口
   _mcRenderedGame = null; // 切换游戏时重建推演面板（号码范围/预填不同）
   document.getElementById('btnSSQ').className = game === 'ssq' ? 'active' : '';
   document.getElementById('btnDLT').className = game === 'dlt' ? 'active' : '';
@@ -1025,91 +1126,8 @@ function renderAll() {
     bestOE.key + ' 奇偶比出现最多（' + bestOE.count + '期，占' + (bestOE.count/data.length*100).toFixed(1) + '%）';
 
   // ===== TREND TAB =====
-  // --- Sum trend ---
-  var sumSlice = data.slice(0, 50).reverse();
-  var sumVals = sumSlice.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
-  var periods = sumSlice.map(function(d){ return d.period; });
-
-  var sumChart = initChart('chart-sumtrend');
-  if (sumChart) {
-    sumChart.setOption({
-      tooltip:{trigger:'axis'},
-      grid:{left:55,right:20,top:20,bottom:30},
-      xAxis:{type:'category',data:periods,axisLabel:{fontSize:9,rotate:45}},
-      yAxis:{type:'value',name:'和值'},
-      series:[{type:'line',data:sumVals,smooth:true,lineStyle:{color:'#58a6ff',width:2},
-        areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(88,166,255,.3)'},{offset:1,color:'rgba(88,166,255,0)'}]}},
-        markLine:{silent:true,data:[{yAxis:sumMean,label:{formatter:'均值 '+sumMean,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}}]
-    });
-  }
-  document.getElementById('insight-sumtrend').innerHTML = '<strong>洞察：</strong>近50期和值均值 ' +
-    (sumVals.reduce(function(a,b){return a+b;},0)/sumVals.length).toFixed(1) +
-    '，历史全局均值 ' + sumMean + '，当前和值水平' + (sumVals[sumVals.length-1] > parseFloat(sumMean) ? '偏高' : '偏低');
-
-  // --- Prime trend ---
-  var primeSlice = data.slice(0, 100).reverse();
-  var primeVals = primeSlice.map(function(d){ return d[fKey].filter(function(n){return primes.indexOf(n)>=0;}).length; });
-  var primePeriods = primeSlice.map(function(d){ return d.period; });
-  var primeAvg = (primeVals.reduce(function(a,b){return a+b;},0)/primeVals.length).toFixed(2);
-
-  var primeChart = initChart('chart-primetrend');
-  if (primeChart) {
-    primeChart.setOption({
-      tooltip:{trigger:'axis'},
-      grid:{left:50,right:20,top:20,bottom:30},
-      xAxis:{type:'category',data:primePeriods,axisLabel:{fontSize:9,rotate:45}},
-      yAxis:{type:'value',name:'质数个数',min:0,max:fCnt},
-      series:[{type:'line',data:primeVals,lineStyle:{color:'#a371f7',width:2},areaStyle:{color:'rgba(163,113,247,.15)'},
-        markLine:{silent:true,data:[{yAxis:primeAvg,label:{formatter:'均值 '+primeAvg,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}}]
-    });
-  }
-  document.getElementById('insight-primetrend').innerHTML = '<strong>洞察：</strong>近100期每期质数均值 ' + primeAvg +
-    ' 个，最新一期质数 ' + primeVals[primeVals.length-1] + ' 个';
-
-  // --- AC trend ---
-  var acSlice = data.slice(0, 100).reverse();
-  var acVals = acSlice.map(function(d){ return computeAC(d[fKey]); });
-  var acPeriods = acSlice.map(function(d){ return d.period; });
-  var acMean = (acVals.reduce(function(a,b){return a+b;},0)/acVals.length).toFixed(2);
-
-  var acChart = initChart('chart-actrend');
-  if (acChart) {
-    acChart.setOption({
-      tooltip:{trigger:'axis'},
-      grid:{left:50,right:20,top:20,bottom:30},
-      xAxis:{type:'category',data:acPeriods,axisLabel:{fontSize:9,rotate:45}},
-      yAxis:{type:'value',name:'AC值'},
-      series:[{type:'line',data:acVals,lineStyle:{color:'#39d353',width:2},areaStyle:{color:'rgba(57,211,83,.15)'},
-        markLine:{silent:true,data:[{yAxis:acMean,label:{formatter:'均值 '+acMean,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}}]
-    });
-  }
-  document.getElementById('insight-actrend').innerHTML = '<strong>洞察：</strong>近100期AC值均值 ' + acMean +
-    '，最新一期AC值 ' + acVals[acVals.length-1] + '。AC值越大号码离散度越高';
-
-  // --- Consec ---
-  var consecData = data.slice(0, 100);
-  var consecMap = {'0':0,'2连':0,'3连':0,'两组2连':0,'其他':0};
-  consecData.forEach(function(d){
-    var g = classifyConsec(d[fKey]);
-    if (g.length === 0) consecMap['0']++;
-    else if (g.length === 1) { if (g[0]===2) consecMap['2连']++; else if (g[0]===3) consecMap['3连']++; else consecMap['其他']++; }
-    else if (g.length === 2 && g[0]===2 && g[1]===2) consecMap['两组2连']++;
-    else consecMap['其他']++;
-  });
-
-  var consecChart = initChart('chart-consec');
-  if (consecChart) {
-    var cKeys = ['0','2连','3连','两组2连','其他'];
-    var cVals = cKeys.map(function(k){return consecMap[k];});
-    consecChart.setOption({
-      tooltip:{trigger:'item',formatter:'{b}: {c} 期 ({d}%)'},
-      series:[{type:'pie',radius:'60%',center:['50%','55%'],
-        data:cKeys.map(function(k,i){return {name:k,value:cVals[i]};}),
-        label:{fontSize:11}}]
-    });
-  }
-  document.getElementById('insight-consec').innerHTML = '<strong>洞察：</strong>近100期中 ' +
-    consecMap['0'] + ' 期无连号，' + (100-consecMap['0']) + ' 期出现连号，连号出现率 ' + ((100-consecMap['0'])) + '%';
+  syncTrendControls();
+  renderTrendCharts(trendWindow);
 
   // ===== MODEL TAB =====
   // Monte Carlo（确定性实现）：直接按历史真实频率排序，等价于无限次模拟的期望，避免随机噪声
@@ -1203,6 +1221,139 @@ function renderAll() {
   setTimeout(function(){
     Object.values(charts).forEach(function(c){c.resize();});
   }, 100);
+}
+
+// ============ 走势分析图表（带可调期数窗口） ============
+function lineLabelCfg(show){
+  return show ? { show: true, position: 'top', fontSize: 9, color: '#8b949e', distance: 4, formatter: '{c}' } : { show: false };
+}
+
+function renderTrendCharts(N){
+  var data = getData();
+  if (!data || !data.length) return;
+  N = Math.min(N, data.length);
+  if (N < 5) return;
+
+  var fKey = getFrontKey();
+  var fCnt = getFrontCount();
+  var primes = getPrimes();
+  var allSums = data.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
+  var sumMean = (allSums.reduce(function(a,b){return a+b;},0) / allSums.length).toFixed(1);
+  var showLabels = N <= 100;
+
+  // 动态标题
+  document.getElementById('title-sumtrend').textContent = '和值走势（最近' + N + '期）';
+  document.getElementById('title-primetrend').textContent = '质合比走势（最近' + N + '期，每期质数个数）';
+  document.getElementById('title-actrend').textContent = 'AC 值走势（最近' + N + '期）';
+  document.getElementById('title-consec').textContent = '连号模式分布（最近' + N + '期）';
+
+  // --- 和值走势 ---
+  var sumSlice = data.slice(0, N).reverse();
+  var sumVals = sumSlice.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
+  var periods = sumSlice.map(function(d){ return d.period; });
+  var sumMA = movingAverage(sumVals, 5);
+  var sumAvg = (sumVals.reduce(function(a,b){return a+b;},0)/sumVals.length).toFixed(1);
+
+  var sumChart = initChart('chart-sumtrend');
+  if (sumChart) {
+    sumChart.setOption({
+      tooltip:{trigger:'axis'},
+      legend:{data:['和值','5期移动平均'],textStyle:{fontSize:11},top:0},
+      grid:{left:55,right:20,top:40,bottom:50},
+      xAxis:{type:'category',data:periods,axisLabel:{fontSize:9,rotate:45}},
+      yAxis:{type:'value',name:'和值'},
+      series:[
+        {name:'和值',type:'line',data:sumVals,smooth:true,lineStyle:{color:'#58a6ff',width:2},
+          areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(88,166,255,.3)'},{offset:1,color:'rgba(88,166,255,0)'}]}},
+          label:lineLabelCfg(showLabels),
+          markLine:{silent:true,data:[{yAxis:sumMean,label:{formatter:'均值 '+sumMean,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}},
+        {name:'5期移动平均',type:'line',data:sumMA,smooth:true,lineStyle:{color:'#f0883e',width:2,type:'dashed'},symbol:'none'}
+      ]
+    });
+  }
+  document.getElementById('insight-sumtrend').innerHTML = '<strong>洞察：</strong>近' + N + '期和值均值 ' + sumAvg +
+    '，历史全局均值 ' + sumMean + '，当前和值水平' + (sumVals[sumVals.length-1] > parseFloat(sumMean) ? '偏高' : '偏低');
+
+  // --- 质数走势 ---
+  var primeSlice = data.slice(0, N).reverse();
+  var primeVals = primeSlice.map(function(d){ return d[fKey].filter(function(n){return primes.indexOf(n)>=0;}).length; });
+  var primePeriods = primeSlice.map(function(d){ return d.period; });
+  var primeAvg = (primeVals.reduce(function(a,b){return a+b;},0)/primeVals.length).toFixed(2);
+  var primeMA = movingAverage(primeVals, 5);
+
+  var primeChart = initChart('chart-primetrend');
+  if (primeChart) {
+    primeChart.setOption({
+      tooltip:{trigger:'axis'},
+      legend:{data:['质数个数','5期移动平均'],textStyle:{fontSize:11},top:0},
+      grid:{left:50,right:20,top:40,bottom:50},
+      xAxis:{type:'category',data:primePeriods,axisLabel:{fontSize:9,rotate:45}},
+      yAxis:{type:'value',name:'质数个数',min:0,max:fCnt},
+      series:[
+        {name:'质数个数',type:'line',data:primeVals,lineStyle:{color:'#a371f7',width:2},areaStyle:{color:'rgba(163,113,247,.15)'},
+          label:lineLabelCfg(showLabels),
+          markLine:{silent:true,data:[{yAxis:primeAvg,label:{formatter:'均值 '+primeAvg,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}},
+        {name:'5期移动平均',type:'line',data:primeMA,smooth:true,lineStyle:{color:'#f0883e',width:2,type:'dashed'},symbol:'none'}
+      ]
+    });
+  }
+  document.getElementById('insight-primetrend').innerHTML = '<strong>洞察：</strong>近' + N + '期每期质数均值 ' + primeAvg +
+    ' 个，最新一期质数 ' + primeVals[primeVals.length-1] + ' 个';
+
+  // --- AC 值走势 ---
+  var acSlice = data.slice(0, N).reverse();
+  var acVals = acSlice.map(function(d){ return computeAC(d[fKey]); });
+  var acPeriods = acSlice.map(function(d){ return d.period; });
+  var acMean = (acVals.reduce(function(a,b){return a+b;},0)/acVals.length).toFixed(2);
+  var acMA = movingAverage(acVals, 5);
+
+  var acChart = initChart('chart-actrend');
+  if (acChart) {
+    acChart.setOption({
+      tooltip:{trigger:'axis'},
+      legend:{data:['AC值','5期移动平均'],textStyle:{fontSize:11},top:0},
+      grid:{left:50,right:20,top:40,bottom:50},
+      xAxis:{type:'category',data:acPeriods,axisLabel:{fontSize:9,rotate:45}},
+      yAxis:{type:'value',name:'AC值'},
+      series:[
+        {name:'AC值',type:'line',data:acVals,lineStyle:{color:'#39d353',width:2},areaStyle:{color:'rgba(57,211,83,.15)'},
+          label:lineLabelCfg(showLabels),
+          markLine:{silent:true,data:[{yAxis:acMean,label:{formatter:'均值 '+acMean,fontSize:10},lineStyle:{color:'#d2991d',type:'dashed'}}]}},
+        {name:'5期移动平均',type:'line',data:acMA,smooth:true,lineStyle:{color:'#f0883e',width:2,type:'dashed'},symbol:'none'}
+      ]
+    });
+  }
+  document.getElementById('insight-actrend').innerHTML = '<strong>洞察：</strong>近' + N + '期AC值均值 ' + acMean +
+    '，最新一期AC值 ' + acVals[acVals.length-1] + '。AC值越大号码离散度越高';
+
+  // --- 连号模式分布 ---
+  var consecData = data.slice(0, N);
+  var consecMap = {'0':0,'2连':0,'3连':0,'两组2连':0,'其他':0};
+  consecData.forEach(function(d){
+    var g = classifyConsec(d[fKey]);
+    if (g.length === 0) consecMap['0']++;
+    else if (g.length === 1) { if (g[0]===2) consecMap['2连']++; else if (g[0]===3) consecMap['3连']++; else consecMap['其他']++; }
+    else if (g.length === 2 && g[0]===2 && g[1]===2) consecMap['两组2连']++;
+    else consecMap['其他']++;
+  });
+
+  var consecChart = initChart('chart-consec');
+  if (consecChart) {
+    var cKeys = ['0','2连','3连','两组2连','其他'];
+    var cVals = cKeys.map(function(k){return consecMap[k];});
+    var colors = ['#58a6ff','#a371f7','#39d353','#d2991d','#f85149'];
+    consecChart.setOption({
+      tooltip:{trigger:'item',formatter:'{b}: {c} 期 ({d}%)'},
+      legend:{orient:'vertical',left:'left',top:'center',textStyle:{fontSize:11}},
+      series:[{type:'pie',radius:['45%','70%'],center:['60%','55%'],
+        data:cKeys.map(function(k,i){return {name:k,value:cVals[i],itemStyle:{color:colors[i]}};}),
+        label:{formatter:'{b}\n{c}期 ({d}%)',fontSize:11},
+        emphasis:{label:{fontSize:13}}}]
+    });
+  }
+  var nonZero = N - consecMap['0'];
+  document.getElementById('insight-consec').innerHTML = '<strong>洞察：</strong>近' + N + '期中 ' +
+    consecMap['0'] + ' 期无连号，' + nonZero + ' 期出现连号，连号出现率 ' + ((nonZero/N*100)).toFixed(1) + '%';
 }
 
 // ============ 近期走势选号（启发式探索） ============
