@@ -154,6 +154,89 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .modal-history-table td{padding:4px 8px;border-bottom:1px solid rgba(48,54,61,.5);color:var(--text)}
 .bar-clickable{cursor:pointer}
 
+/* ═══════════════ 彩圣榜 / AI数字人 ═══════════════ */
+.sage-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sage-header h3{font-size:16px;color:var(--accent);margin:0}
+.sage-game-tabs{display:flex;gap:4px;background:var(--card-bg);border-radius:8px;padding:3px;border:1px solid var(--border)}
+.sage-game-tab{padding:6px 16px;border:none;border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+.sage-game-tab.active{background:var(--accent);color:#fff;font-weight:600}
+.sage-view-toggle{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);padding:0 4px}
+.sage-view-btn{padding:10px 24px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-weight:500}
+.sage-view-btn.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:700;font-size:15px}
+.sage-view-btn:hover:not(.active){color:var(--text)}
+
+/* 榜单列表 */
+.sage-rank-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.sage-rank-tab{flex:1;padding:10px 0;text-align:center;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.sage-rank-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.sage-list{display:flex;flex-direction:column;gap:0}
+.sage-rank-item{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(48,54,61,.5);transition:background .15s;cursor:pointer}
+.sage-rank-item:hover{background:rgba(88,166,255,.06)}
+.sage-rank-item .rank-num{width:28px;font-size:16px;font-weight:700;color:var(--text2);flex-shrink:0}
+.sage-rank-item .rank-1{color:#ffd700;font-size:18px}
+.sage-rank-item .rank-2{color:#c0c0c0;font-size:17px}
+.sage-rank-item .rank-3{#cd7f32;font-size:17px}
+.sage-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin-right:12px;flex-shrink:0;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.15)}
+.sage-info{flex:1;display:flex;align-items:center;gap:8px}
+.sage-name{font-size:15px;font-weight:600;color:var(--text)}
+.sage-tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.sage-tag-hot{background:rgba(248,81,73,.12);color:var(--red)}
+.sage-tag-cold{background:rgba(63,185,80,.12);color:var(--green)}
+.sage-tag-balanced{background:rgba(88,166,255,.12);color:var(--accent)}
+.sage-tag-wild{background:rgba(210,153,29,.12);color:var(--orange)}
+.sage-value{text-align:right;font-size:17px;font-weight:700;color:var(--orange);flex-shrink:0;min-width:80px}
+
+/* AI推荐卡片 */
+.sage-cards{display:flex;flex-direction:column;gap:16px}
+.sage-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:16px 18px;transition:border-color .2s}
+.sage-card:hover{border-color:rgba(88,166,255,.3)}
+.sage-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sage-card-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;background:linear-gradient(135deg,rgba(88,166,255,.12),rgba(163,113,247,.08));border:1px solid rgba(88,166,255,.2)}
+.sage-card-name{font-size:16px;font-weight:700;color:var(--text)}
+.sage-card-title{font-size:12px;color:var(--text2);margin-left:4px}
+.sage-card-badge{margin-left:auto;font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;background:linear-gradient(135deg,#f85149,#d2991d);color:#fff}
+.sage-card-period{font-size:12px;color:var(--text2);margin-left:8px}
+.sage-predict-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+.sage-predict-label{font-size:13px;font-weight:600;color:var(--text2);min-width:36px}
+.sage-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.sage-chip-red{background:rgba(231,76,60,.12);color:#e74c3c;border:1px solid rgba(231,76,60,.2)}
+.sage-chip-blue{background:rgba(52,152,219,.12);color:#3498db;border:1px solid rgba(52,152,219,.2)}
+.sage-chip-percent{color:var(--text2);font-size:10px;margin-left:2px}
+.sage-chip-hint{font-size:10px;color:var(--text2);margin-left:4px;font-weight:400}
+.sage-strategy-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.sage-strategy-chip{padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600}
+.sage-strategy-hot{background:rgba(248,81,73,.1);color:var(--red)}
+.sage-strategy-cold{background:rgba(63,185,80,.1);color:var(--green)}
+.sage-strategy-neutral{background:rgba(88,166,255,.08);color:var(--accent)}
+.sage-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(48,54,61,.5)}
+.sage-countdown{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}
+.sage-countdown .cd-box{background:rgba(88,166,255,.1);color:var(--accent);padding:2px 8px;border-radius:4px;font-weight:700;font-family:'Courier New',monospace;font-size:14px}
+.sage-quote{font-size:12px;color:var(--text2);font-style:italic;margin-top:6px;padding:6px 10px;background:rgba(210,153,29,.05);border-left:3px solid var(--orange);border-radius:0 6px 6px 0}
+
+/* 数字人详情弹窗 */
+.sage-detail-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:10000;justify-content:center;align-items:center}
+.sage-detail-overlay.show{display:flex}
+.sage-detail-box{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:24px 28px;max-width:480px;width:90%;max-height:85vh;overflow-y:auto}
+.sage-detail-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.sage-detail-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:linear-gradient(135deg,rgba(88,166,255,.15),rgba(163,113,247,.1));border:2px solid rgba(88,166,255,.25)}
+.sage-detail-name{font-size:22px;font-weight:700;color:var(--text)}
+.sage-detail-title{font-size:13px;color:var(--orange);margin-top:2px}
+.sage-detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.sage-detail-stat{background:rgba(88,166,255,.06);border-radius:10px;padding:12px;text-align:center}
+.sage-detail-stat .ds-label{font-size:11px;color:var(--text2)}
+.sage-detail-stat .ds-val{font-size:18px;font-weight:700;color:var(--orange);margin-top:4px}
+.sage-detail-desc{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px}
+.sage-detail-rec{background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.15);border-radius:10px;padding:14px;margin-bottom:12px}
+.sage-detail-rec h4{font-size:14px;color:var(--green);margin-bottom:8px}
+.sage-detail-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;line-height:1}
+
+@media(max-width:768px){
+  .sage-detail-stats{grid-template-columns:1fr 1fr}
+  .sage-predict-row{gap:4px}
+  .sage-chip{padding:2px 6px;font-size:11px}
+  .sage-card-header{flex-wrap:wrap}
+}
+
 </style>
 </head>
 <body>
@@ -175,6 +258,7 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   <button class="tab-btn" onclick="switchTab('model')">概率模型</button>
   <button class="tab-btn" onclick="switchTab('ai-model')">AI 概率模型</button>
   <button class="tab-btn" onclick="switchTab('recommend')">推荐号码</button>
+  <button class="tab-btn" onclick="switchTab('sages')" style="color:var(--orange)">🏆 彩圣榜</button>
 </div>
 
 <main>
@@ -457,6 +541,43 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   </div>
 </div>
 
+<!-- TAB: 彩圣榜 / AI数字人 -->
+<div id="tab-sages" class="tab-content">
+  <div class="sage-header">
+    <h3>🏆 AI 彩圣榜</h3>
+    <div style="font-size:12px;color:var(--text2);margin-left:8px">各路历史人物基于不同策略给出的独立预测</div>
+  </div>
+
+  <!-- 彩种切换 + 子视图切换 -->
+  <div class="sage-game-tabs" id="sage-game-tabs">
+    <button class="sage-game-tab active" onclick="switchSageGame('ssq')">双色球</button>
+    <button class="sage-game-tab" onclick="switchSageGame('dlt')">大乐透</button>
+  </div>
+
+  <!-- 子视图：榜单 / 推荐 -->
+  <div class="sage-view-toggle" id="sage-view-toggle">
+    <button class="sage-view-btn" onclick="switchSageView('rank')" id="sage-btn-rank">📊 榜单</button>
+    <button class="sage-view-btn active" onclick="switchSageView('predict')" id="sage-btn-predict">🎯 AI 推荐</button>
+  </div>
+
+  <!-- ===== 榜单视图 ===== -->
+  <div id="sage-view-rank" style="display:none">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="sage-rank-tabs">
+        <button class="sage-rank-tab active" onclick="switchRankTab('prize',this)">💰 总奖金</button>
+        <button class="sage-rank-tab" onclick="switchRankTab('accuracy',this)">🎯 高命中</button>
+        <button class="sage-rank-tab" onclick="switchRankTab('streak',this)">🔥 连红</button>
+      </div>
+      <div id="sage-rank-list" class="sage-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== AI 推荐视图 ===== -->
+  <div id="sage-view-predict">
+    <div id="sage-cards-container" class="sage-cards"></div>
+  </div>
+</div>
+
 </main>
 
 <!-- ── 骨架屏加载层 ── -->
@@ -721,12 +842,17 @@ function switchGame(game) {
 }
 
 function switchTab(tab) {
-  ['overview','trend','model','ai-model','recommend'].forEach(function(t) {
-    document.getElementById('tab-'+t).className = 'tab-content' + (t===tab?' active':'');
+  var allTabs = ['overview','trend','model','ai-model','recommend','sages'];
+  allTabs.forEach(function(t) {
+    var el = document.getElementById('tab-'+t);
+    if (el) el.className = 'tab-content' + (t===tab?' active':'');
   });
   var btns = document.querySelectorAll('.tab-btn');
-  btns.forEach(function(b,i) {
-    b.className = 'tab-btn' + (['overview','trend','model','ai-model','recommend'].indexOf(tab)===i?' active':'');
+  btns.forEach(function(b){
+    b.className = 'tab-btn';
+    // 从 onclick 提取参数
+    var m = b.getAttribute('onclick') && b.getAttribute('onclick').match(/switchTab\(['"](\w+)['"]\)/);
+    if (m && m[1] === tab) b.className += ' active';
   });
   disposeAllCharts();
   setTimeout(renderAll, 50);
@@ -1952,6 +2078,450 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('resize', function(){
   Object.values(charts).forEach(function(c){c.resize();});
 });
+
+// ============ 彩圣榜 / AI 数字人系统 ============
+
+// ── 角色数据库 ──
+var SAGES_DATA = [
+  { id:'zhugeliang',   name:'诸葛亮', emoji:'🧙‍♂️', title:'卧龙先生',    strategy:'balanced', tag:'均衡型', tagClass:'balanced', quote:'运筹帷幄之中，决胜千里之外。此号组合经八阵图推演，稳中求胜。' },
+  { id:'jiangziya',   name:'姜子牙', emoji:'👴',     title:'太公望',      strategy:'cold',     tag:'遗漏回补', tagClass:'cold',     quote:'姜太公钓鱼，愿者上钩。冷门久不出，回补正当时。' },
+  { id:'gongsunsheng',name:'公孙胜', emoji:'🧙',     title:'入云龙',      strategy:'hot',      tag:'追热型',   tagClass:'hot',      quote:'道法自然，顺势而为。热号势头正盛，当借力打力。' },
+  { id:'chaogai',     name:'晁盖',   emoji:'👑',     title:'托塔天王',   strategy:'aggressive',tag:'胆拖型',   tagClass:'wild',     quote:'托塔天王，胆识过人！重仓出击，富贵险中求。' },
+  { id:'simaqian',    name:'司马迁', emoji:'📚',     title:'太史公',      strategy:'analysis', tag:'统计派',   tagClass:'balanced', quote:'究天人之际，通古今之变。数据不会说谎。' },
+  { id:'zongzongtang',name:'左宗棠', emoji:'⚔️',     title:'楚勇统帅',    strategy:'aggressive',tag:'激进型',   tagClass:'wild',     quote:'身无半亩，心忧天下。敢为人先，方得天下。' },
+  { id:'sushi',       name:'苏轼',   emoji:'✍️',     title:'东坡居士',    strategy:'random',   tag:'随缘型',   tagClass:'neutral',  quote:'人生如梦，一尊还酹江月。随遇而安，便是好号。' },
+  { id:'lvqinghou',  name:'吕轻侯', emoji:'📖',     title:'同福秀才',    strategy:'conservative',tag:'保守型', tagClass:'cold',     quote:'子曰：君子固穷。稳字当头，小赢即安。' },
+  { id:'zhangfei',    name:'张飞',   emoji:'💪',     title:'燕人张翼德',  strategy:'wild',     tag:'冲动型',   tagClass:'wild',     quote:'俺也一样！管他什么策略，直觉就是力量！' },
+  { id:'guofurong',  name:'郭芙蓉', emoji:'🔥',     title:'同福侠女',    strategy:'wild',     tag:'暴力型',   tagClass:'wild',     quote：‘排山倒海’！谁挡我的号，我就……我就哭给你看！' },
+  { id:'taoyuanming', name:'陶渊明', emoji:'🌾',     title:'五柳先生',    strategy:'random',   tag:'佛系型',   tagClass:'neutral',  quote:'采菊东篱下，悠然见南山。随缘就好，不强求。' },
+  { id:'luobinwang',  name:'骆宾王', emoji:'🦢',     title:'咏鹅神童',    strategy:'balanced', tag:'才子型',   tagClass:'balanced', quote:'鹅鹅鹅，曲项向天歌。白毛浮绿水，红掌拨清波——红球要选好！' },
+  { id:'zhangqian',   name:'张骞',   emoji:'🐫',     title:'博望侯',      strategy:'explorer', tag:'探索型',   tagClass:'neutral',  quote:'凿空西域，开辟新途。不走寻常路，方能得奇号。' },
+  { id:'cailun',      name:'蔡伦',   emoji:'📄',     title:'龙亭侯',      strategy:'innovation',tag:'创新型', tagClass:'hot',      quote:'造纸之法，在于创新。另辟蹊径，方显匠心。' },
+  { id:'shenkuo',     name:'沈括',   emoji:'🔬',     title:'梦溪笔谈',    strategy:'science',   tag:'科学派',   tagClass:'balanced', quote:'凡物理之学，必以实测为本。数据为王，推演为后。' },
+  { id:'liubei',      name:'刘备',   emoji:'👑',     title:'昭烈帝',      strategy:'kind',     tag:'仁德型',   tagClass:'neutral',  quote:'勿以善小而不为。每注都是诚意，中奖靠缘分。' },
+  { id:'guanyu',      name:'关羽',   emoji:'⚔️',     title:'武圣',        strategy:'loyal',    tag:'固执型',   tagClass:'hot',      quote:'义薄云天，从一而终。认准了就坚持，绝不改口！' },
+  { id:'huajing',     name:'花荣',   emoji:'🏹',     title:'小李广',      strategy:'precision',tag:'精准型',   tagClass:'balanced', quote:'百步穿杨，箭无虚发。精准定位，一击即中。' }
+];
+
+var _sageCurrentGame = 'ssq';
+var _sageCurrentRankTab = 'prize';
+var _sageCurrentView = 'predict';
+
+// ── 确定性种子随机（用于生成模拟战绩）──
+function _sageSeedRandom(seed) {
+  var x = seed >>> 0;
+  return function() {
+    x = (x + 0x6D2B79F5) | 0;
+    var t = Math.imul(x ^ (x >>> 15), 1 | x);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// 为每个人物生成确定性模拟战绩（基于日期+ID）
+function _sageGenerateStats(sage, game) {
+  var today = new Date();
+  var seed = parseInt(today.getFullYear().toString() + ('0'+(today.getMonth()+1)).slice(-2) + ('0'+today.getDate()).slice(-2));
+  var rng = _sageSeedRandom(seed + sage.id.charCodeAt(0) * 137 + game.charCodeAt(0) * 41);
+  // 总奖金（万）— 范围 1000~1600
+  var prize = Math.floor(1000 + rng() * 600);
+  // 高命中 — 如 "近4中3"
+  var totalGuess = Math.floor(4 + rng() * 4); // 4~7
+  var hitCount = Math.max(1, Math.floor(totalGuess * (0.5 + rng() * 0.4))); // 命中50%~90%
+  var accuracy = '近' + totalGuess + '中' + hitCount;
+  // 连红 — 3~8
+  var streak = Math.floor(3 + rng() * 6);
+  return { prize: prize, accuracy: accuracy, streak: streak };
+}
+
+// ── 策略引擎：根据人物策略从模型数据生成推荐 ──
+function _sagePickNumbers(sage, game) {
+  var modelKey = game === 'ssq' ? 'ssq_model' : 'dlt_model';
+  var model = LOADED_MODEL[modelKey];
+  if (!model || !model.red) return null;
+
+  var redModel = model.red;
+  var blueModel = model.blue;
+
+  // 获取模型共识 Top 列表
+  function getTopFromModel(modelData, count) {
+    if (!modelData || !modelData.rf) return [];
+    // 合并 rf + nb 的评分
+    var scores = {};
+    (modelData.rf || []).forEach(function(item){ scores[item[0]] = (scores[item[0]]||0) + parseFloat(item[1]); });
+    (modelData.nb || []).forEach(function(item){ scores[item[0]] = (scores[item[0]]||0) + parseFloat(item[1]); });
+    (modelData.mc || []).forEach(function(item){ scores[item[0]] = (scores[item[0]]||0) + parseFloat(item[1]) * 0.5; }); // mc 权重减半
+
+    return Object.keys(scores).map(function(k){ return { num: k, score: scores[k] }; })
+      .sort(function(a,b){ return b.score - a.score; }).slice(0, count).map(function(x){ return x.num; });
+  }
+
+  var allRedTop = getTopFromModel(redModel, 20);
+  var allBlueTop = getTopFromModel(blueModel, 8);
+
+  var frontCount = game === 'ssq' ? 6 : 5;
+  var backCount = game === 'ssq' ? 1 : 2;
+  var maxRed = game === 'ssq' ? 33 : 35;
+  var maxBlue = game === 'ssq' ? 16 : 12;
+
+  // 根据策略类型选号
+  var pickedRed = [], pickedBlue = [];
+  var rng = _sageSeedRandom(Date.now() + sage.id.length * 997);
+
+  switch(sage.strategy) {
+    case 'hot': // 追热号：优先取 Top 中排名靠前的
+      pickedRed = allRedTop.slice(0, frontCount);
+      pickedBlue = allBlueTop.slice(0, backCount);
+      break;
+
+    case 'cold': // 遗漏回补：从 Top 列表尾部和中间取
+      pickedRed = allRedTop.slice(-frontCount);
+      if (pickedRed.length < frontCount) {
+        var extra = allRedTop.slice(Math.floor(allRedTop.length/2)-2, Math.floor(allRedTop.length/2)+4);
+        pickedRed = extra.slice(0, frontCount);
+      }
+      pickedBlue = allBlueTop.slice(-backCount) || allBlueTop.slice(0, backCount);
+      break;
+
+    case 'balanced': // 均衡：前+中+尾混合
+      pickedRed = [allRedTop[0], allRedTop[2], allRedTop[Math.floor(allRedTop.length/2)],
+                   allRedTop[Math.floor(allRedTop.length/2)+2], allRedTop[allRedTop.length-3], allRedTop[allRedTop.length-1]]
+                  .filter(Boolean).slice(0, frontCount);
+      pickedBlue = [allBlueTop[0], allBlueTop[Math.floor(allBlueTop.length/2)]].filter(Boolean).slice(0, backCount);
+      break;
+
+    case 'aggressive': // 激进/胆拖：重点押 Top 1-3
+      var coreRed = allRedTop.slice(0, 3);
+      pickedRed = coreRed.slice();
+      while (pickedRed.length < frontCount) {
+        var pick = allRedTop[Math.floor(rng() * Math.min(10, allRedTop.length))];
+        if (pickedRed.indexOf(pick) < 0) pickedRed.push(pick);
+      }
+      pickedBlue = [allBlueTop[0]].filter(Boolean);
+      if (backCount === 2 && allBlueTop[1]) pickedBlue.push(allBlueTop[1]);
+      break;
+
+    case 'conservative': // 保守：取中间段
+      var midStart = Math.floor(allRedTop.length / 2) - 3;
+      pickedRed = allRedTop.slice(Math.max(0, midStart), midStart + frontCount);
+      if (pickedRed.length < frontCount) pickedRed = allRedTop.slice(0, frontCount);
+      pickedBlue = allBlueTop.slice(Math.floor(allBlueTop.length/2) - 1, Math.floor(allBlueTop.length/2) + backCount - 1).filter(Boolean);
+      if (pickedBlue.length < backCount) pickedBlue = allBlueTop.slice(0, backCount);
+      break;
+
+    case 'random':
+    default: // 随机/其他：从 Top15 内随机抽取
+      var poolRed = allRedTop.slice(0, 15);
+      while (pickedRed.length < frontCount && poolRed.length > 0) {
+        var idx = Math.floor(rng() * poolRed.length);
+        pickedRed.push(poolRed.splice(idx, 1)[0]);
+      }
+      var poolBlue = allBlueTop.slice(0, 6);
+      while (pickedBlue.length < backCount && poolBlue.length > 0) {
+        var idx2 = Math.floor(rng() * poolBlue.length);
+        pickedBlue.push(poolBlue.splice(idx2, 1)[0]);
+      }
+      break;
+  }
+
+  // 确保号码有效且去重
+  pickedRed = pickedRed.filter(function(n){ return n && !isNaN(n); }).map(String);
+  pickedBlue = pickedBlue.filter(function(n){ return n && !isNaN(n); }).map(String);
+
+  // 补足数量（兜底）
+  while (pickedRed.length < frontCount) {
+    var n = String(Math.floor(rng() * maxRed) + 1);
+    if (pickedRed.indexOf(n) < 0) pickedRed.push(n);
+  }
+  while (pickedBlue.length < backCount) {
+    var n2 = String(Math.floor(rng() * maxBlue) + 1);
+    if (pickedBlue.indexOf(n2) < 0) pickedBlue.push(n2);
+  }
+
+  // 排序
+  pickedRed.sort(function(a,b){ return a-b; });
+  pickedBlue.sort(function(a,b){ return a-b; });
+
+  // 生成标签描述
+  var redHints = _sageGenRedHints(pickedRed, sage.strategy, game);
+  var blueHint = _sageGenBlueHint(pickedBlue, sage.strategy, game);
+  var strategies = _sageGenStrategyTags(sage.strategy);
+
+  return { red: pickedRed, blue: pickedBlue, redHints: redHints, blueHint: blueHint, strategies: strategies };
+}
+
+function _sageGenRedHint(ball, idx, strategy) {
+  var hints = [
+    { text: '任意' + (3 + idx%3) + '连', cls: 'hot' },
+    { text: (idx < 2 ? '胆' : '拖'), cls: 'hot' },
+    { text: '012路比', cls: 'neutral' },
+    { text: '大小比', cls: 'neutral' },
+    { text: '奇偶比', cls: 'neutral' },
+    { text: '龙头', cls: 'hot' },
+    { text: '凤尾', cls: 'hot' }
+  ];
+  var h = hints[idx % hints.length];
+  return { text: h.text, percent: Math.floor(18 + Math.random() * 25), cls: h.cls };
+}
+
+function _sageGenRedHints(balls, strategy, game) {
+  return balls.map(function(b, i){ return _sageGenRedHint(b, i, strategy); });
+}
+
+function _sageGenBlueHint(balls, strategy, game) {
+  var hints = ['任意1码','任意2码','独胆','012路','奇偶偏好'];
+  return hints[Math.abs(strategy.charCodeAt(0) + balls.length) % hints.length];
+}
+
+function _sageGenStrategyTags(strategy) {
+  var map = {
+    hot:          [{text:'🔥 热态',cls:'hot'},     {text:'大偏差',cls:'neutral'}],
+    cold:         [{text:'❄️ 冷态',cls:'cold'},    {text:'大遗漏',cls:'cold'}],
+    balanced:     [{text:'⚖️ 热态',cls:'hot'},      {text:'小遗漏',cls:'neutral'}],
+    aggressive:   [{text:'🔥 极热',cls:'hot'},      {text:'大偏差',cls:'neutral'}],
+    conservative:  [{text:'❄️ 冷态',cls:'cold'},    {text:'小偏差',cls:'neutral'}],
+    random:       [{text:'⚖️ 回补态',cls:'neutral'},{text:'适中',cls:'neutral'}],
+    analysis:     [{text:'📊 统计态',cls:'neutral'},{text:'均值回归',cls:'cold'}],
+    wild:         [{text:'🔥 热爆',cls:'hot'},      {text:'极限偏',cls:'hot'}],
+    science:      [{text:'📐 正态',cls:'neutral'},   {text:'置信高',cls:'hot'}],
+    explorer:     [{text:'🧪 冷门',cls:'cold'},      {text:'异动',cls:'hot'}],
+    innovation:   [{text:'💡 新颖',cls:'hot'},       {text:'反众',cls:'cold'}],
+    loyal:        [{text:'🔥 固守',cls:'hot'},       {text:'不漂移',cls:'neutral'}],
+    kind:         [{text:'🌱 平和',cls:'neutral'},   {text:'随缘',cls:'cold'}],
+    precision:    [{text:'🎯 精准',cls:'hot'},       {text:'低偏差',cls:'neutral'}]
+  };
+  return map[strategy] || map.random;
+}
+
+// ── 渲染榜单 ──
+function renderSageRankList(game) {
+  var container = document.getElementById('sage-rank-list');
+  if (!container) return;
+  var sagesWithStats = SAGES_DATA.map(function(sage){
+    var stats = _sageGenerateStats(sage, game);
+    return Object.assign({}, sage, stats);
+  });
+
+  // 根据 tab 排序
+  sagesWithStats.sort(function(a,b){
+    if (_sageCurrentRankTab === 'prize') return b.prize - a.prize;
+    if (_sageCurrentRankTab === 'accuracy') return a.accuracy.localeCompare(b.accuracy) || b.prize - a.prize;
+    if (_sageCurrentRankTab === 'streak') return b.streak - a.streak;
+    return 0;
+  });
+
+  var html = '';
+  sagesWithStats.forEach(function(sage, i){
+    var rankClass = i === 0 ? 'rank-1' : (i === 1 ? 'rank-2' : (i === 2 ? 'rank-3' : ''));
+    var valueText = '';
+    if (_sageCurrentRankTab === 'prize') valueText = sage.prize + '万';
+    else if (_sageCurrentRankTab === 'accuracy') valueText = sage.accuracy;
+    else valueText = sage.streak + '连红';
+
+    html += '<div class="sage-rank-item" onclick="showSageDetail(\'' + sage.id + '\',\'' + game + '\')">' +
+      '<span class="rank-num ' + rankClass + '">' + (i+1) + '</span>' +
+      '<div class="sage-avatar">' + sage.emoji + '</div>' +
+      '<div class="sage-info">' +
+        '<span class="sage-name">' + sage.name + '</span>' +
+        '<span class="sage-tag sage-tag-' + sage.tagClass + '">' + sage.tag + '</span>' +
+      '</div>' +
+      '<span class="sage-value">' + valueText + '</span>' +
+    '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ── 渲染 AI 推荐卡片 ──
+function renderSageCards(game) {
+  var container = document.getElementById('sage-cards-container');
+  if (!container) return;
+
+  // 获取当前期号
+  var data = getData();
+  var latestPeriod = data && data.length > 0 ? data[data.length-1].period : '—';
+  var nextPeriod = latestPeriod !== '—' ? String(parseInt(latestPeriod) + 1) : '—';
+
+  var html = '';
+  SAGES_DATA.forEach(function(sage) {
+    var pred = _sagePickNumbers(sage, game);
+    if (!pred) return;
+
+    // 红球 chip HTML
+    var redChipsHtml = pred.red.map(function(ball, i) {
+      var hint = pred.redHints[i] || {};
+      return '<span class="sage-chip sage-chip-red">' + ball.padStart(2,'0') +
+        '<span class="sage-chip-percent">' + (hint.percent || Math.floor(18+Math.random()*25)) + '%</span>' +
+        '<span class="sage-chip-hint">' + (hint.text || '') + '</span></span>';
+    }).join('');
+
+    // 蓝球 chip HTML
+    var blueChipsHtml = pred.blue.map(function(ball) {
+      return '<span class="sage-chip sage-chip-blue">' + ball.padStart(2,'0') + '</span>';
+    }).join(' ');
+
+    // 策略倾向
+    var stratHtml = pred.strategies.map(function(s){
+      return '<span class="sage-strategy-chip sage-strategy-' + s.cls + '">' + s.text + '</span>';
+    }).join('');
+
+    // 倒计时
+    var now = new Date();
+    var deadline = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 15, 0); // 21:15 截止
+    if (now > deadline) deadline.setDate(deadline.getDate() + 1);
+    var diffMs = deadline - now;
+    var hh = String(Math.floor(diffMs / 3600000)).padStart(2,'0');
+    var mm = String(Math.floor((diffMs % 3600000) / 60000)).padStart(2,'0');
+    var ss = String(Math.floor((diffMs % 60000) / 1000)).padStart(2,'0');
+
+    html += '<div class="sage-card" id="sage-card-' + sage.id + '">' +
+      '<div class="sage-card-header">' +
+        '<div class="sage-card-avatar">' + sage.emoji + '</div>' +
+        '<div>' +
+          '<span class="sage-card-name">' + sage.name + '</span>' +
+          '<span class="sage-card-title">' + sage.title + ' · ' + sage.tag + '</span>' +
+        '</div>' +
+        '<span class="sage-card-badge">💰 ' + _sageGenerateStats(sage, game).prize + '万 · ' + _sageGenerateStats(sage, game).streak + '连红</span>' +
+        '<span class="sage-card-period">第 ' + nextPeriod + ' 期</span>' +
+      '</div>' +
+
+      '<div class="sage-predict-row"><span class="sage-predict-label">红球</span>' + redChipsHtml + '</div>' +
+      '<div class="sage-predict-row"><span class="sage-predict-label">' + (game==='ssq'?'蓝球':'后区') + '</span>' + blueChipsHtml + '  ' +
+        '<span style="font-size:11px;color:var(--text2)">' + pred.blueHint + '</span>' +
+      '</div>' +
+
+      '<div class="sage-predict-row" style="margin-top:8px"><span class="sage-predict-label">策略倾向</span></div>' +
+      '<div class="sage-strategy-row">' + stratHtml + '</div>' +
+
+      '<div class="sage-footer">' +
+        '<div class="sage-countdown">' +
+          '⏰ 倒计时 <span class="cd-box" id="cd-' + sage.id + '">' + hh + ':' + mm + ':' + ss + '</span>' +
+          '<span style="color:var(--text2);font-size:11px;margin-left:4px">(原价38彩钻)</span> ' +
+          '<span style="font-weight:700;font-size:16px;color:var(--orange)">28 💎</span> ›' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="sage-quote">"' + sage.quote + '"</div>' +
+    '</div>';
+  });
+
+  container.innerHTML = html;
+
+  // 启动倒计时
+  _startSageCountdown();
+}
+
+// 倒计时器
+var _sageCDTimer = null;
+function _startSageCountdown() {
+  if (_sageCDTimer) clearInterval(_sageCDTimer);
+  _sageCDTimer = setInterval(function(){
+    var now = new Date();
+    var deadline = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 15, 0);
+    if (now > deadline) deadline.setDate(deadline.getDate() + 1);
+    var diffMs = deadline - now;
+    if (diffMs <= 0) { diffMs = 86400000; }
+    var hh = String(Math.floor(diffMs / 3600000)).padStart(2,'0');
+    var mm = String(Math.floor((diffMs % 3600000) / 60000)).padStart(2,'0');
+    var ss = String(Math.floor((diffMs % 60000) / 1000)).padStart(2,'0');
+    var cdStr = hh + ':' + mm + ':' + ss;
+    SAGES_DATA.forEach(function(sage){
+      var el = document.getElementById('cd-' + sage.id);
+      if (el) el.textContent = cdStr;
+    });
+  }, 1000);
+}
+
+// ── 人物详情弹窗 ──
+window.showSageDetail = function(sageId, game) {
+  var sage = SAGES_DATA.find(function(s){ return s.id === sageId; });
+  if (!sage) return;
+  var stats = _sageGenerateStats(sage, game);
+  var pred = _sagePickNumbers(sage, game);
+
+  var overlay = document.getElementById('sage-detail-overlay');
+  if (!overlay) {
+    // 动态创建弹窗
+    overlay = document.createElement('div');
+    overlay.className = 'sage-detail-overlay';
+    overlay.id = 'sage-detail-overlay';
+    overlay.onclick = function(){ overlay.classList.remove('show'); };
+    document.body.appendChild(overlay);
+  }
+
+  var redBallsHtml = (pred ? pred.red.map(function(b){ return '<span class="ball red" style="width:32px;height:32px;font-size:13px">'+b.padStart(2,'0')+'</span>'; }).join('') : '');
+  var blueBallsHtml = (pred ? pred.blue.map(function(b){ return '<span class="ball blue" style="width:32px;height:32px;font-size:13px">'+b.padStart(2,'0')+'</span>'; }).join('') : '');
+
+  overlay.innerHTML =
+    '<div class="sage-detail-box" style="position:relative" onclick="event.stopPropagation()">' +
+      '<button class="sage-detail-close" onclick="this.parentElement.parentElement.classList.remove(\'show\')">&times;</button>' +
+      '<div class="sage-detail-header">' +
+        '<div class="sage-detail-avatar">' + sage.emoji + '</div>' +
+        '<div><div class="sage-detail-name">' + sage.name + '</div><div class="sage-detail-title">' + sage.title + ' · ' + sage.tag + '</div></div>' +
+      '</div>' +
+      '<div class="sage-detail-stats">' +
+        '<div class="sage-detail-stat"><div class="ds-label">累计奖金</div><div class="ds-val">' + stats.prize + ' 万</div></div>' +
+        '<div class="sage-detail-stat"><div class="ds-label">近期命中</div><div class="ds-val">' + stats.accuracy + '</div></div>' +
+        '<div class="sage-detail-stat"><div class="ds-label">最高连红</div><div class="ds-val">' + stats.streak + ' 连红</div></div>' +
+      '</div>' +
+      '<div class="sage-detail-desc">' + sage.quote + '</div>' +
+      '<div class="sage-detail-rec"><h4>本期推荐</h4>' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">' +
+          '<span style="font-size:12px;color:var(--text2)">红球：</span>' + redBallsHtml +
+        '</div>' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+          '<span style="font-size:12px;color:var(--text2)">' + (game==='ssq'?'蓝球':'后区') + '：</span>' + blueBallsHtml +
+        '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text2);line-height:1.6;padding:10px;background:rgba(136,136,136,.06);border-radius:8px">' +
+        '<strong>策略风格：</strong>' + sage.tag + ' — ' +
+        { hot:'偏向近期高频热号', cold:'偏向长期未出的冷门号码', balanced:'综合热号与冷号的平衡选择', aggressive:'集中火力押注少数热门号码',
+           conservative:'稳健策略避免极端选择', random:'接近均匀随机分布', analysis:'基于历史数据的统计分析',
+           wild:'大胆冒险的非传统选号', science:'科学方法的严谨推导', explorer:'探索非常规冷门组合',
+           innovation:'突破常规的创新选号', loyal:'坚持己见不改口的执着选择', kind:'温和理性的低风险选择',
+           precision:'精确计算的最优组合' }[sage.strategy] ||
+        '独特策略' +
+        '<br><br><em>免责声明：以上推荐基于历史数据的策略模拟，仅供娱乐参考。彩票开奖为完全随机事件，任何方法都无法改变中奖概率。</em>' +
+      '</div>' +
+    '</div>';
+
+  overlay.classList.add('show');
+};
+
+// ── 交互切换函数 ──
+window.switchSageGame = function(game) {
+  _sageCurrentGame = game;
+  var tabs = document.querySelectorAll('#sage-game-tabs .sage-game-tab');
+  tabs.forEach(function(t){ t.classList.toggle('active', t.textContent.trim().indexOf(game==='ssq'?'双色':'大乐') >= 0); });
+  renderSageRankList(game);
+  renderSageCards(game);
+};
+
+window.switchSageView = function(view) {
+  _sageCurrentView = view;
+  document.getElementById('sage-btn-rank').classList.toggle('active', view === 'rank');
+  document.getElementById('sage-btn-predict').classList.toggle('active', view === 'predict');
+  document.getElementById('sage-view-rank').style.display = view === 'rank' ? '' : 'none';
+  document.getElementById('sage-view-predict').style.display = view === 'predict' ? '' : 'none';
+  if (view === 'rank') renderSageRankList(_sageCurrentGame);
+};
+
+window.switchRankTab = function(tab, btn) {
+  _sageCurrentRankTab = tab;
+  document.querySelectorAll('.sage-rank-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderSageRankList(_sageCurrentGame);
+};
+
+// initApp 完成后自动渲染彩圣榜
+var _sageOrigInitApp = window.initApp;
+window.initApp = function() {
+  if (_sageOrigInitApp) _sageOrigInitApp.apply(this, arguments);
+  // 延迟一点等数据加载完再渲染
+  setTimeout(function(){
+    renderSageRankList('ssq');
+    renderSageCards('ssq');
+  }, 200);
+};
 
 // initApp() will call renderAll() after data loads via loadAllData()
 </script>
