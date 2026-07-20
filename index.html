@@ -2467,10 +2467,12 @@ function renderSageCards(game) {
   var container = document.getElementById('sage-cards-container');
   if (!container) return;
 
-  // 检查模型数据是否可用
+  // 检查模型数据是否可用（大乐透键名 front/back，双色球 red/blue）
   var modelKey = game === 'ssq' ? 'ssq_model' : 'dlt_model';
   var model = LOADED_MODEL[modelKey];
-  if (!model || !model.red || !model.blue) {
+  var redKey = game === 'ssq' ? 'red' : 'front';
+  var blueKey = game === 'ssq' ? 'blue' : 'back';
+  if (!model || !model[redKey] || !model[blueKey]) {
     container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text2)">' +
       '<div style="font-size:48px;margin-bottom:16px">⏳</div>' +
       '<div style="font-size:15px">模型数据加载中…</div>' +
