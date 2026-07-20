@@ -70,6 +70,12 @@ jobs:
       - name: Archive daily predictions + backfill hits
         run: python scripts/save_predict.py
 
+      - name: Generate 彩圣榜 daily recommendations (sage)
+        run: python scripts/sage_predict.py
+
+      - name: Backtest 彩圣榜 real performance (sage)
+        run: python scripts/sage_backtest.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"

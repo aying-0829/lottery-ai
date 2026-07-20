@@ -1,0 +1,776 @@
+{
+  "generated_at": "2026-07-20T22:21:58.551335+08:00",
+  "games": [
+    {
+      "game": "ssq",
+      "theoretical_win_rate": 0.0675,
+      "n_total_evaluated": 900,
+      "sages": [
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 225,
+          "win_rate": 0.1,
+          "win_rate_ci": [
+            0.0435,
+            0.2136
+          ],
+          "win_count": 5,
+          "avg_hit_red": 1.16,
+          "avg_hit_blue": 0.1,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "simaqian",
+          "name": "司马迁",
+          "strategy": "analysis"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 45,
+          "win_rate": 0.16,
+          "win_rate_ci": [
+            0.0834,
+            0.2851
+          ],
+          "win_count": 8,
+          "avg_hit_red": 1.3,
+          "avg_hit_blue": 0.16,
+          "max_streak": 2,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "guanyu",
+          "name": "关羽",
+          "strategy": "loyal"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 35,
+          "win_rate": 0.12,
+          "win_rate_ci": [
+            0.0562,
+            0.2381
+          ],
+          "win_count": 6,
+          "avg_hit_red": 0.98,
+          "avg_hit_blue": 0.12,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "guofurong",
+          "name": "郭芙蓉",
+          "strategy": "wild"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 35,
+          "win_rate": 0.1,
+          "win_rate_ci": [
+            0.0435,
+            0.2136
+          ],
+          "win_count": 5,
+          "avg_hit_red": 1.16,
+          "avg_hit_blue": 0.1,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "huajing",
+          "name": "花荣",
+          "strategy": "precision"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.1,
+          "win_rate_ci": [
+            0.0435,
+            0.2136
+          ],
+          "win_count": 5,
+          "avg_hit_red": 1.36,
+          "avg_hit_blue": 0.1,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "lvqinghou",
+          "name": "吕轻侯",
+          "strategy": "conservative"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 25,
+          "win_rate": 0.06,
+          "win_rate_ci": [
+            0.0206,
+            0.1622
+          ],
+          "win_count": 3,
+          "avg_hit_red": 1.3,
+          "avg_hit_blue": 0.06,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "sushi",
+          "name": "苏轼",
+          "strategy": "random"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 25,
+          "win_rate": 0.1,
+          "win_rate_ci": [
+            0.0435,
+            0.2136
+          ],
+          "win_count": 5,
+          "avg_hit_red": 1.18,
+          "avg_hit_blue": 0.1,
+          "max_streak": 2,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zhangfei",
+          "name": "张飞",
+          "strategy": "wild"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 20,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.36,
+          "avg_hit_blue": 0.0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zongzongtang",
+          "name": "左宗棠",
+          "strategy": "aggressive"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.06,
+          "win_rate_ci": [
+            0.0206,
+            0.1622
+          ],
+          "win_count": 3,
+          "avg_hit_red": 1.32,
+          "avg_hit_blue": 0.06,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "liubei",
+          "name": "刘备",
+          "strategy": "kind"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 10,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 1.2,
+          "avg_hit_blue": 0.0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zhugeliang",
+          "name": "诸葛亮",
+          "strategy": "balanced"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 10,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.18,
+          "avg_hit_blue": 0.04,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "jiangziya",
+          "name": "姜子牙",
+          "strategy": "cold"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 10,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 1.3,
+          "avg_hit_blue": 0.0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "chaogai",
+          "name": "晁盖",
+          "strategy": "aggressive"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 10,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 1.2,
+          "avg_hit_blue": 0.0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "luobinwang",
+          "name": "骆宾王",
+          "strategy": "balanced"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 10,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.16,
+          "avg_hit_blue": 0.04,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "cailun",
+          "name": "蔡伦",
+          "strategy": "innovation"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 10,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.28,
+          "avg_hit_blue": 0.04,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "shenkuo",
+          "name": "沈括",
+          "strategy": "science"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 5,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 1.16,
+          "avg_hit_blue": 0.02,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "taoyuanming",
+          "name": "陶渊明",
+          "strategy": "random"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 5,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 1.08,
+          "avg_hit_blue": 0.02,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zhangqian",
+          "name": "张骞",
+          "strategy": "explorer"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 0,
+          "win_rate": 0.0,
+          "win_rate_ci": [
+            0.0,
+            0.0714
+          ],
+          "win_count": 0,
+          "avg_hit_red": 1.26,
+          "avg_hit_blue": 0.0,
+          "max_streak": 0,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "回溯近似·仅供参考",
+          "id": "gongsunsheng",
+          "name": "公孙胜",
+          "strategy": "hot"
+        }
+      ]
+    },
+    {
+      "game": "dlt",
+      "theoretical_win_rate": 0.02,
+      "n_total_evaluated": 900,
+      "sages": [
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 330,
+          "win_rate": 0.06,
+          "win_rate_ci": [
+            0.0206,
+            0.1622
+          ],
+          "win_count": 3,
+          "avg_hit_red": 1.0,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zhangqian",
+          "name": "张骞",
+          "strategy": "explorer"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 315,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.94,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "guofurong",
+          "name": "郭芙蓉",
+          "strategy": "wild"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 45,
+          "win_rate": 0.06,
+          "win_rate_ci": [
+            0.0206,
+            0.1622
+          ],
+          "win_count": 3,
+          "avg_hit_red": 0.92,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "shenkuo",
+          "name": "沈括",
+          "strategy": "science"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.88,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zhugeliang",
+          "name": "诸葛亮",
+          "strategy": "balanced"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.92,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "gongsunsheng",
+          "name": "公孙胜",
+          "strategy": "hot"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.98,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "chaogai",
+          "name": "晁盖",
+          "strategy": "aggressive"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.96,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zongzongtang",
+          "name": "左宗棠",
+          "strategy": "aggressive"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.88,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "luobinwang",
+          "name": "骆宾王",
+          "strategy": "balanced"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.86,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "cailun",
+          "name": "蔡伦",
+          "strategy": "innovation"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.8,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "guanyu",
+          "name": "关羽",
+          "strategy": "loyal"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 30,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.011,
+            0.1346
+          ],
+          "win_count": 2,
+          "avg_hit_red": 0.94,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "huajing",
+          "name": "花荣",
+          "strategy": "precision"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 0.56,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "jiangziya",
+          "name": "姜子牙",
+          "strategy": "cold"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 0.9,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "sushi",
+          "name": "苏轼",
+          "strategy": "random"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 0.94,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "lvqinghou",
+          "name": "吕轻侯",
+          "strategy": "conservative"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.02,
+          "win_rate_ci": [
+            0.0035,
+            0.105
+          ],
+          "win_count": 1,
+          "avg_hit_red": 1.0,
+          "avg_hit_blue": 0,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "taoyuanming",
+          "name": "陶渊明",
+          "strategy": "random"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 0,
+          "win_rate": 0.0,
+          "win_rate_ci": [
+            0.0,
+            0.0714
+          ],
+          "win_count": 0,
+          "avg_hit_red": 0.98,
+          "avg_hit_blue": 0,
+          "max_streak": 0,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "simaqian",
+          "name": "司马迁",
+          "strategy": "analysis"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 0,
+          "win_rate": 0.0,
+          "win_rate_ci": [
+            0.0,
+            0.0714
+          ],
+          "win_count": 0,
+          "avg_hit_red": 0.84,
+          "avg_hit_blue": 0,
+          "max_streak": 0,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "zhangfei",
+          "name": "张飞",
+          "strategy": "wild"
+        },
+        {
+          "n_evaluated": 50,
+          "live_count": 0,
+          "backfill_count": 50,
+          "total_prize": 0,
+          "win_rate": 0.0,
+          "win_rate_ci": [
+            0.0,
+            0.0714
+          ],
+          "win_count": 0,
+          "avg_hit_red": 0.84,
+          "avg_hit_blue": 0,
+          "max_streak": 0,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.02,
+          "verdict": "回溯近似·仅供参考",
+          "id": "liubei",
+          "name": "刘备",
+          "strategy": "kind"
+        }
+      ]
+    }
+  ],
+  "disclaimer": "战绩基于每位人物历史推荐的实测命中，按奖级表折算模拟奖金。彩票开奖近似独立随机，任何策略均无法稳定提升中奖概率；榜单仅作娱乐性「实战 PK」，样本越少越可能受随机波动影响。"
+}
