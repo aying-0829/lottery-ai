@@ -8,14 +8,17 @@
 <meta http-equiv="Expires" content="0">
 <title>AI彩票分析工具 - 真实数据驱动</title>
 <script>
-// 新部署后首次访问自动跳过 GitHub Pages CDN 缓存（仅本会话一次）
+// 缓存破坏脚本已禁用（COS/部分浏览器环境下 location.replace 会触发下载而非导航）
+// 原功能：首次访问自动加 ?v=2 参数绕过 CDN 缓存
+// 如需恢复，取消下方注释
+/*
 (function(){
   if (location.search.indexOf('v=') === -1 && !sessionStorage.getItem('lottery_cb')) {
     sessionStorage.setItem('lottery_cb', '1');
     var sep = location.search ? '&' : '?';
     location.replace(location.href + sep + 'v=2');
-  }
-})();
+  })();
+*/
 </script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script>
