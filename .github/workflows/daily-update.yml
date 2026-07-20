@@ -115,8 +115,8 @@ jobs:
           fi
           pip install -q coscmd
           coscmd config -a "$COS_SECRET_ID" -s "$COS_SECRET_KEY" -b lottery-ai-1305455466 -r ap-shanghai
-          coscmd upload -r data/ /data/
-          coscmd upload index.html /
+          coscmd upload -H "{'Content-Type':'application/json'}" -r data/ /data/
+          coscmd upload -H "{'Content-Type':'text/html'}" index.html /
         env:
           COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
           COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
