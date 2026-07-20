@@ -107,11 +107,13 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Sync to Tencent COS (mirror, optional)
-        # 需在仓库 Settings → Secrets 配置 COS_SECRET_ID / COS_SECRET_KEY（腾讯云子账号 API 密钥，已授权 QcloudCOSFullAccess）
-        if: ${{ secrets.COS_SECRET_ID != '' && secrets.COS_SECRET_KEY != '' }}
         continue-on-error: true
         run: |
-          pip install coscmd
+          if [ -z "$COS_SECRET_ID" ] || [ -z "$COS_SECRET_KEY" ]; then
+            echo "COS secrets not set, skipping sync"
+            exit 0
+          fi
+          pip install -q coscmd
           coscmd config -a "$COS_SECRET_ID" -s "$COS_SECRET_KEY" -b lottery-ai-1305455466 -r ap-shanghai
           coscmd upload -r data/ /data/
           coscmd upload index.html /
