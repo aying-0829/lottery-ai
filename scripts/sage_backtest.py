@@ -275,6 +275,39 @@ def main():
             "sages": sages_out,
         })
 
+    # ── 一等奖中奖事件收集（用于打开网站自动弹窗）──
+    jackpot_events = []
+    for r in history:
+        if r.get("drawn") is None:
+            continue
+        game = r.get("game")
+        hit = {
+            "hit_red": r.get("hit_red") or 0,
+            "hit_blue": r.get("hit_blue") or 0,
+            "hit_front": r.get("hit_front") or 0,
+            "hit_back": r.get("hit_back") or 0,
+        }
+        is_jackpot = (
+            game == "ssq" and hit["hit_red"] == 6 and hit["hit_blue"] == 1
+        ) or (
+            game == "dlt" and hit["hit_front"] == 5 and hit["hit_back"] == 2
+        )
+        if is_jackpot:
+            jackpot_events.append({
+                "game": game,
+                "sage_id": r.get("sage_id"),
+                "sage_name": r.get("sage_name"),
+                "strategy": r.get("strategy"),
+                "target_period": r.get("target_period"),
+                "prize": prize_of(game, hit),
+                "method": r.get("method"),
+            })
+    report["jackpot_events"] = jackpot_events
+    if jackpot_events:
+        print(f"\n🎉 检测到一等奖中奖事件 {len(jackpot_events)} 条:")
+        for ev in jackpot_events:
+            print(f"   {ev['sage_name']}({ev['strategy']}) 第{ev['target_period']}期 {ev['game']} 一等奖 {ev['prize']}元")
+
     with open(RESULT_FILE, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     print(f"\n[DONE] 彩圣榜回测结果已写入: {RESULT_FILE}")

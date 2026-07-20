@@ -238,6 +238,21 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   .sage-card-header{flex-wrap:wrap}
 }
 
+/* 彩圣榜一等奖弹窗 */
+.jackpot-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.jackpot-overlay.show{display:flex}
+.jackpot-box{background:#fff;border-radius:18px;padding:30px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);animation:jackpotPop .45s cubic-bezier(.18,.89,.32,1.28)}
+@keyframes jackpotPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.jackpot-emoji{font-size:60px;line-height:1;animation:jackpotBounce 1s ease infinite}
+@keyframes jackpotBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.jackpot-title{font-size:24px;font-weight:800;margin:10px 0 6px;color:#e63946}
+.jackpot-sub{font-size:13px;color:#888;margin-bottom:14px}
+.jackpot-body{font-size:15px;line-height:1.8;color:#222}
+.jackpot-body b{color:#e63946}
+.jackpot-note{font-size:11px;color:#aaa;margin-top:12px;line-height:1.6}
+.jackpot-close{margin-top:18px;padding:11px 32px;border:none;border-radius:24px;background:linear-gradient(135deg,#ff6b6b,#e63946);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.jackpot-close:active{transform:scale(.96)}
+
 </style>
 </head>
 <body>
@@ -848,6 +863,7 @@ function initApp() {
   setTimeout(function() {
     try { if (typeof renderSageRankList === 'function') renderSageRankList('ssq'); } catch(e) { console.warn('sage rank init:', e); }
     try { if (typeof renderSageCards === 'function') renderSageCards('ssq'); } catch(e) { console.warn('sage init:', e); }
+    try { if (typeof checkSageJackpot === 'function') checkSageJackpot(); } catch(e) { console.warn('jackpot init:', e); }
   }, 200);
 }
 
@@ -2675,6 +2691,51 @@ window.switchRankTab = function(tab, btn) {
   if (btn) btn.classList.add('active');
   renderSageRankList(_sageCurrentGame);
 };
+
+// ── 彩圣榜一等奖自动弹窗 ──
+function showJackpotModal(ev) {
+  var gameName = ev.game === 'ssq' ? '双色球' : '大乐透';
+  var overlay = document.getElementById('jackpot-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'jackpot-overlay';
+    overlay.className = 'jackpot-overlay';
+    overlay.onclick = function(e){ if (e.target === overlay) overlay.classList.remove('show'); };
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML =
+    '<div class="jackpot-box" onclick="event.stopPropagation()">' +
+      '<div class="jackpot-emoji">🎉</div>' +
+      '<div class="jackpot-title">恭喜中奖！</div>' +
+      '<div class="jackpot-sub">彩圣榜 · 真实回测战报</div>' +
+      '<div class="jackpot-body">人物 <b>' + ev.sage_name + '</b>（' + ev.strategy + ' 策略）<br>' +
+        '在第 <b>' + ev.target_period + '</b> 期 ' + gameName + '<br>推演命中 <b>一等奖</b>（约 ' + fmtPrize(ev.prize) + '）！</div>' +
+      '<div class="jackpot-note">* 基于历史回测真实命中；开奖为完全随机事件，仅供娱乐参考。</div>' +
+      '<button class="jackpot-close" onclick="document.getElementById(\'jackpot-overlay\').classList.remove(\'show\')">太棒了 🎊</button>' +
+    '</div>';
+  overlay.classList.add('show');
+}
+
+// 打开网站时检查未读的一等奖事件，自动弹出（已读过的记 localStorage 不再重复弹）
+function checkSageJackpot() {
+  try {
+    var report = LOADED_SAGE_BACKTEST;
+    if (!report || !report.jackpot_events || !report.jackpot_events.length) return;
+    var seen = {};
+    try { seen = JSON.parse(localStorage.getItem('sage_jackpot_seen') || '{}') || {}; } catch(e) {}
+    var pending = report.jackpot_events.filter(function(ev){
+      var id = ev.game + '-' + ev.sage_id + '-' + ev.target_period;
+      return !seen[id];
+    });
+    if (!pending.length) return;
+    var ev = pending[pending.length - 1];
+    showJackpotModal(ev);
+    var id = ev.game + '-' + ev.sage_id + '-' + ev.target_period;
+    seen[id] = 1;
+    try { localStorage.setItem('sage_jackpot_seen', JSON.stringify(seen)); } catch(e) {}
+  } catch(e) { console.warn('jackpot check:', e); }
+}
+window.checkSageJackpot = checkSageJackpot;
 
 // initApp 完成后自动渲染彩圣榜（已在 initApp 末尾调用 renderSageCards）
 
