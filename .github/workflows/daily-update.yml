@@ -107,6 +107,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Sync to Tencent COS (mirror, optional)
+        # 需在仓库 Settings → Secrets 配置 COS_SECRET_ID / COS_SECRET_KEY（腾讯云子账号 API 密钥，已授权 QcloudCOSFullAccess）
         if: ${{ secrets.COS_SECRET_ID != '' && secrets.COS_SECRET_KEY != '' }}
         continue-on-error: true
         run: |
