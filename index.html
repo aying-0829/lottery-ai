@@ -828,6 +828,8 @@ function initApp() {
     return;
   }
   startAutoRefresh();
+  // 渲染彩圣榜（独立功能，失败不影响主流程）
+  try { if (typeof renderSageCards === 'function') renderSageCards('ssq'); } catch(e) { console.warn('sage init:', e); }
 }
 
 // ============ SWITCH ============
@@ -842,17 +844,12 @@ function switchGame(game) {
 }
 
 function switchTab(tab) {
-  var allTabs = ['overview','trend','model','ai-model','recommend','sages'];
-  allTabs.forEach(function(t) {
-    var el = document.getElementById('tab-'+t);
-    if (el) el.className = 'tab-content' + (t===tab?' active':'');
+  ['overview','trend','model','ai-model','recommend','sages'].forEach(function(t) {
+    document.getElementById('tab-'+t).className = 'tab-content' + (t===tab?' active':'');
   });
   var btns = document.querySelectorAll('.tab-btn');
-  btns.forEach(function(b){
-    b.className = 'tab-btn';
-    // 从 onclick 提取参数
-    var m = b.getAttribute('onclick') && b.getAttribute('onclick').match(/switchTab\(['"](\w+)['"]\)/);
-    if (m && m[1] === tab) b.className += ' active';
+  btns.forEach(function(b,i) {
+    b.className = 'tab-btn' + (['overview','trend','model','ai-model','recommend','sages'].indexOf(tab)===i?' active':'');
   });
   disposeAllCharts();
   setTimeout(renderAll, 50);
@@ -2512,16 +2509,7 @@ window.switchRankTab = function(tab, btn) {
   renderSageRankList(_sageCurrentGame);
 };
 
-// initApp 完成后自动渲染彩圣榜
-var _sageOrigInitApp = window.initApp;
-window.initApp = function() {
-  if (_sageOrigInitApp) _sageOrigInitApp.apply(this, arguments);
-  // 延迟一点等数据加载完再渲染
-  setTimeout(function(){
-    renderSageRankList('ssq');
-    renderSageCards('ssq');
-  }, 200);
-};
+// initApp 完成后自动渲染彩圣榜（已在 initApp 末尾调用 renderSageCards）
 
 // initApp() will call renderAll() after data loads via loadAllData()
 </script>
