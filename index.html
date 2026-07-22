@@ -2240,6 +2240,111 @@ function renderConsensusRecommend() {
 
   // 供 CSV 导出 / 刷新复用
   window._lastRecommend = [{ nums: main.numbers.slice(), backNums: back.numbers.slice(), score: conf.toFixed(1) }];
+  // 追加：多模型综合融合 Top-5 区块
+  h += renderFusionTop5();
+  return h;
+}
+
+// ============ 多模型概率融合 Top-5 ============
+// 把 RF / 朴素贝叶斯 / 蒙特卡洛 / XGBoost 四模型的号码级概率核算到一起，
+// 用固定种子做确定性加权采样，生成 5 组偏向高分球的完整号码。
+// 诚实说明：开奖为独立随机事件，融合不改变中奖概率，长期与随机选号一致。
+function _fusionBallScore(modelData) {
+  var sums = {};
+  ['rf', 'nb', 'mc', 'xgb'].forEach(function(m) {
+    (modelData[m] || []).forEach(function(it) {
+      var b = String(it[0]); var s = parseFloat(it[1]) || 0;
+      sums[b] = (sums[b] || 0) + s;
+    });
+  });
+  var keys = Object.keys(sums);
+  if (keys.length === 0) return {};
+  var vals = keys.map(function(k) { return sums[k]; });
+  var mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+  var norm = {};
+  keys.forEach(function(k) {
+    norm[k] = (mx > mn) ? (sums[k] - mn) / (mx - mn) : 1;
+  });
+  return norm;
+}
+
+function _fusionRange(a, b) {
+  var arr = [];
+  for (var i = a; i <= b; i++) arr.push(i);
+  return arr;
+}
+
+function _fusionPickGroup(scoreMap, pool, count, groupSeed) {
+  var rng = _sageSeedRandom(groupSeed);
+  var arr = pool.map(function(n) {
+    var sc = (scoreMap[n] != null) ? scoreMap[n] : 0;
+    var noise = (rng() - 0.5) * 0.18; // 小幅确定性扰动，制造差异但偏向高分
+    return { n: n, key: sc + noise };
+  });
+  arr.sort(function(a, b) { return b.key - a.key; });
+  return arr.slice(0, count).map(function(x) { return Number(x.n); });
+}
+
+function renderFusionTop5() {
+  var mData = getModelData();
+  if (!mData) return '<div class="consensus-empty" style="margin-top:18px">模型数据未加载，暂无法生成融合推荐</div>';
+  var redKey = getModelMainKey(), blueKey = getModelBackKey();
+  var redModel = mData[redKey], blueModel = mData[blueKey];
+  if (!redModel || !blueModel) return '<div class="consensus-empty" style="margin-top:18px">模型分区数据缺失</div>';
+
+  var isSsq = currentGame === 'ssq';
+  var maxRed = isSsq ? 33 : 35;
+  var maxBlue = isSsq ? 16 : 12;
+  var frontCount = isSsq ? 6 : 5;
+  var backCount = isSsq ? 1 : 2;
+
+  var redScore = _fusionBallScore(redModel);
+  var blueScore = _fusionBallScore(blueModel);
+
+  var base = isSsq ? 20260722 : 20260723; // 固定种子，保证可复现
+  var groups = [];
+  var keySet = {};
+  var guard = 0;
+  while (groups.length < 5 && guard < 60) {
+    guard++;
+    var gs = base + groups.length * 1009 + guard; // 每组独立确定性种子
+    var reds = _fusionPickGroup(redScore, _fusionRange(1, maxRed), frontCount, gs);
+    var blues = _fusionPickGroup(blueScore, _fusionRange(1, maxBlue), backCount, gs + 7);
+    var sig = reds.join(',') + '|' + blues.join(',');
+    if (keySet[sig]) continue; // 去重
+    keySet[sig] = true;
+    var rScore = reds.reduce(function(a, n) { return a + (redScore[n] != null ? redScore[n] : 0); }, 0) / frontCount;
+    var bScore = blues.reduce(function(a, n) { return a + (blueScore[n] != null ? blueScore[n] : 0); }, 0) / backCount;
+    var total = (rScore * frontCount + bScore * backCount) / (frontCount + backCount) * 100;
+    groups.push({ red: reds, blue: blues, score: total.toFixed(1) });
+  }
+
+  // 覆盖 _lastRecommend 为 5 组，供「导出CSV」使用
+  window._lastRecommend = groups.map(function(g) {
+    return { nums: g.red.slice(), backNums: g.blue.slice(), score: g.score };
+  });
+
+  var h = '<div style="margin-top:20px;padding-top:16px;border-top:1px dashed var(--border)">';
+  h += '<h3 style="font-size:15px;color:var(--orange);margin-bottom:6px">多模型综合融合 Top-5（四模型概率加权）</h3>';
+  h += '<div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px">';
+  h += '将 <strong>随机森林 / 朴素贝叶斯 / 蒙特卡洛 / XGBoost</strong> 四模型的号码级概率核算后加权融合，按融合概率确定性生成 5 组。';
+  h += '<span style="color:var(--orange)">提醒：开奖为独立随机事件，融合不提升中奖概率，长期与随机选号一致，仅供娱乐参考。</span></div>';
+
+  groups.forEach(function(g, i) {
+    h += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;background:rgba(88,166,255,.03)">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h += '<span style="font-size:13px;font-weight:700;color:var(--accent)">第 ' + (i + 1) + ' 组</span>';
+    h += '<span style="font-size:12px;color:#f0c000">综合融合评分 ' + g.score + '</span></div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
+    g.red.forEach(function(n) {
+      h += '<span class="ball red hot">' + String(n).padStart(2, '0') + '</span>';
+    });
+    g.blue.forEach(function(n) {
+      h += '<span class="ball blue hot">' + String(n).padStart(2, '0') + '</span>';
+    });
+    h += '</div></div>';
+  });
+  h += '</div>';
   return h;
 }
 
