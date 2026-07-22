@@ -98,7 +98,20 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .badge.green{background:rgba(63,185,80,.15);color:var(--green)}
 .badge.red{background:rgba(248,81,73,.15);color:var(--red)}
 .badge.orange{background:rgba(210,153,29,.15);color:var(--orange)}
-@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+/* Probability Truth / Math Popularization */
+.math-intro{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;line-height:1.7}
+.math-intro .disclaimer{color:var(--orange);font-size:13px;margin-top:8px}
+.math-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px}
+.math-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.math-card .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.math-card h4{font-size:15px;color:var(--accent);margin:0;line-height:1.4;flex:1}
+.math-card .formula{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:'Times New Roman','Georgia',serif;font-size:17px;color:#e6edf3;text-align:center;letter-spacing:.5px;overflow-x:auto}
+.math-card .desc{font-size:12px;color:var(--text);line-height:1.7;margin:10px 0}
+.math-card .value{font-size:12px;color:var(--text2);background:rgba(88,166,255,.06);border-radius:6px;padding:8px 10px;margin-top:10px;line-height:1.6}
+.math-card .value strong{color:var(--accent)}
+.math-card .warn{color:var(--orange)}
+.math-card .bad{color:var(--red)}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.math-grid{grid-template-columns:1fr}}
 
 /* AI Model Panel Styles */
 .sub-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
@@ -277,6 +290,7 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   <button class="tab-btn" onclick="switchTab('model')">概率模型</button>
   <button class="tab-btn" onclick="switchTab('ai-model')">AI 概率模型</button>
   <button class="tab-btn" onclick="switchTab('recommend')">推荐号码</button>
+  <button class="tab-btn" onclick="switchTab('math')">概率真相</button>
   <button class="tab-btn" onclick="switchTab('sages')" style="color:var(--orange)">🏆 彩圣榜</button>
 </div>
 
@@ -597,6 +611,29 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   </div>
 </div>
 
+<!-- TAB: 概率真相 / 数学科普 -->
+<div id="tab-math" class="tab-content">
+  <div class="math-intro">
+    <h3 style="margin:0 0 8px 0;color:var(--accent)">🧮 概率真相：彩票背后的数学</h3>
+    <div style="font-size:13px;color:var(--text2)">
+      下面这 12 个公式来自一段热门"数学科普"视频。它们有的货真价实、有的被误用、有的则是用真公式包装错误结论。
+      我们把你项目自己的真实历史数据代入，算给你看——这些公式到底在说什么、以及它们**为什么不能预测中奖号码**。
+    </div>
+    <div class="disclaimer">
+      ⚠️ 核心结论：开奖是近似独立随机事件。概率公式可以描述"中奖有多难"，但无法告诉下一期出什么号码。
+    </div>
+  </div>
+
+  <div class="sage-game-tabs" style="margin-bottom:16px">
+    <button class="sage-game-tab active" id="math-tab-ssq" onclick="switchMathGame('ssq')">双色球</button>
+    <button class="sage-game-tab" id="math-tab-dlt" onclick="switchMathGame('dlt')">大乐透</button>
+  </div>
+
+  <div class="math-grid" id="math-grid">
+    <!-- 由 renderMathTruth() 动态生成 -->
+  </div>
+</div>
+
 </main>
 
 <!-- ── 骨架屏加载层 ── -->
@@ -882,12 +919,12 @@ function switchGame(game) {
 }
 
 function switchTab(tab) {
-  ['overview','trend','model','ai-model','recommend','sages'].forEach(function(t) {
+  ['overview','trend','model','ai-model','recommend','math','sages'].forEach(function(t) {
     document.getElementById('tab-'+t).className = 'tab-content' + (t===tab?' active':'');
   });
   var btns = document.querySelectorAll('.tab-btn');
   btns.forEach(function(b,i) {
-    b.className = 'tab-btn' + (['overview','trend','model','ai-model','recommend','sages'].indexOf(tab)===i?' active':'');
+    b.className = 'tab-btn' + (['overview','trend','model','ai-model','recommend','math','sages'].indexOf(tab)===i?' active':'');
   });
   disposeAllCharts();
   setTimeout(renderAll, 50);
@@ -898,6 +935,184 @@ function switchTab(tab) {
       renderSageCards(_sageCurrentGame);
     }, 100);
   }
+  // 概率真相需要独立渲染
+  if (tab === 'math' && typeof renderMathTruth === 'function') {
+    setTimeout(function() { renderMathTruth(); }, 80);
+  }
+}
+
+// ============ PROBABILITY TRUTH / MATH POPULARIZATION ============
+var _mathGame = 'ssq';
+function switchMathGame(game) {
+  _mathGame = game;
+  document.getElementById('math-tab-ssq').className = game === 'ssq' ? 'sage-game-tab active' : 'sage-game-tab';
+  document.getElementById('math-tab-dlt').className = game === 'dlt' ? 'sage-game-tab active' : 'sage-game-tab';
+  renderMathTruth();
+}
+
+function renderMathTruth() {
+  var game = _mathGame;
+  var data = game === 'ssq' ? ssq : dlt;
+  if (!data || data.length === 0) return;
+  var isSSQ = game === 'ssq';
+  var redCount = isSSQ ? 6 : 5;
+  var redMax = isSSQ ? 33 : 35;
+  var blueCount = isSSQ ? 1 : 2;
+  var blueMax = isSSQ ? 16 : 12;
+  var fKey = isSSQ ? 'red' : 'front';
+  var bKey = isSSQ ? 'blue' : 'back';
+
+  // helper: factorial
+  function fact(n){ var r=1; for(var i=2;i<=n;i++) r*=i; return r; }
+  function C(n,k){ return fact(n)/(fact(k)*fact(n-k)); }
+  function fmt(n){ return Number(n).toLocaleString('zh-CN',{maximumFractionDigits:4}); }
+
+  var totalComb = C(redMax, redCount) * C(blueMax, blueCount);
+  var jackpotProb = 1 / totalComb;
+
+  // Frequency stats over last 100 draws
+  var windowSize = Math.min(100, data.length);
+  var recent = data.slice(0, windowSize);
+  var freq = {};
+  for(var i=1;i<=redMax;i++) freq[i]=0;
+  recent.forEach(function(d){ d[fKey].forEach(function(n){ freq[n]++; }); });
+  var freqArr = Object.keys(freq).map(function(k){ return freq[Number(k)]; });
+  var meanF = freqArr.reduce(function(a,b){return a+b;},0) / freqArr.length;
+  var varianceF = freqArr.reduce(function(a,b){return a+Math.pow(b-meanF,2);},0) / freqArr.length;
+  var madF = freqArr.reduce(function(a,b){return a+Math.abs(b-meanF);},0) / freqArr.length;
+
+  // Shannon entropy of frequency distribution
+  var entropy = 0;
+  freqArr.forEach(function(c){ if(c>0){ var p=c/(windowSize*redCount); entropy -= p*Math.log(p); } });
+
+  // High-low balance (recent 30 draws)
+  var recent30 = data.slice(0, Math.min(30, data.length));
+  var mid = Math.ceil(redMax/2);
+  var high=0, low=0;
+  recent30.forEach(function(d){ d[fKey].forEach(function(n){ if(n>mid) high++; else low++; }); });
+  var balanceK = (high - low) / (high + low);
+
+  // Sum range
+  var sums = data.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
+  var minSum = Math.min.apply(null, sums), maxSum = Math.max.apply(null, sums);
+
+  // Weighted frequency example (exponential decay weights, recent draws weight more)
+  var wSum=0, wfSum=0;
+  recent.forEach(function(d, idx){ var w = Math.exp(-idx/30); wSum += w; d[fKey].forEach(function(n){ wfSum += w*n/redMax; }); });
+  var weightedFreq = wfSum / wSum;
+
+  // Meaningless least-squares on sum over time (demonstrates fallacy of "trend")
+  var n = Math.min(50, data.length);
+  var xMean = (n-1)/2, yMean = data.slice(0,n).map(function(d){return d[fKey].reduce(function(a,b){return a+b;},0);}).reduce(function(a,b){return a+b;},0)/n;
+  var sxy=0, sxx=0;
+  data.slice(0,n).forEach(function(d, i){ var y = d[fKey].reduce(function(a,b){return a+b;},0); sxy += (i-xMean)*(y-yMean); sxx += (i-xMean)*(i-xMean); });
+  var slope = sxx>0 ? sxy/sxx : 0;
+  var intercept = yMean - slope*xMean;
+  var rss = 0;
+  data.slice(0,n).forEach(function(d, i){ var y=d[fKey].reduce(function(a,b){return a+b;},0); var yhat=slope*i+intercept; rss += Math.pow(y-yhat,2); });
+
+  // P_all example: buy 10 random tickets, prob at least one hit any prize (simplified: use theoretical any-prize rate)
+  // We'll use a rough estimate: for SSQ any prize ~ 1/32, for DLT any prize ~ 1/20
+  var anyPrizeRate = isSSQ ? 1/32 : 1/20;
+  var pAll10 = 1 - Math.pow(1-anyPrizeRate, 10);
+
+  var cards = [
+    {
+      title: '组合开奖总注数公式',
+      badge: ['green','真数学'],
+      formula: 'C(m,n) = m! / [ n! · (m-n)! ]',
+      desc: '组合数是算彩票的根基。它回答：从 m 个号码里选 n 个，一共有多少种不重复的选法。',
+      value: '<strong>双色球红球组合</strong>：C(33,6) = ' + fmt(C(33,6)) + '；<strong>蓝球</strong>：C(16,1) = 16。<br>头奖总组合 = ' + fmt(totalComb) + '，所以中头奖概率 ≈ 1/' + fmt(totalComb) + '。'
+    },
+    {
+      title: '开奖数据离散方差公式',
+      badge: ['green','真数学'],
+      formula: 'D = Σ (x<sub>k</sub> - E)<sup>2</sup> · P<sub>k</sub>',
+      desc: '方差衡量每个号码在近期的出现次数偏离平均值的程度。它只描述历史分布的"散不散"，不预测下一期。',
+      value: '近 ' + windowSize + ' 期红球出现次数的方差 = <strong>' + fmt(varianceF) + '</strong>。方差大说明某些号码近期热、某些冷；但冷热不决定未来。'
+    },
+    {
+      title: '连续多期未出号衰减模型',
+      badge: ['red','伪科学 / 赌徒谬误'],
+      formula: 'N(t) = N<sub>0</sub> · e<sup>-αt</sup>',
+      desc: '这是物理里的指数衰减公式（如放射性衰变），被视频硬说成"冷号出现概率回升规律"。<br><strong>错误核心</strong>：开奖相互独立，一个号码多久没出，不会让它"该出了"。',
+      value: '<span class="bad">不会加入预测模型。</span> 如果真按这个逻辑，上期没出的号码下期概率会回升——但实际每期每个号码概率都不变。'
+    },
+    {
+      title: '全事件对立概率求解式',
+      badge: ['green','真数学'],
+      formula: 'P<sub>all</sub> = 1 - Π<sub>i=1</sub><sup>n</sup> (1 - P<sub>i</sub>)',
+      desc: '计算"多组号码至少中一组"的概率。它是补集思想：先算全部不中的概率，再用 1 减。',
+      value: '假设单张随机票中任意奖概率约 ' + (isSSQ?'1/32':'1/20') + '，买 10 组不同号码，至少中一次任意奖的概率 ≈ <strong>' + (pAll10*100).toFixed(2) + '%</strong>。'
+    },
+    {
+      title: '开奖序列平均偏差公式',
+      badge: ['green','真数学'],
+      formula: 'e = (1/n) · Σ |x<sub>i</sub> - x̄|',
+      desc: '平均绝对偏差是方差的"亲戚"，也是描述历史数据波动大小的工具。同样只描述过去。',
+      value: '近 ' + windowSize + ' 期红球出现次数的平均绝对偏差 = <strong>' + fmt(madF) + '</strong>。'
+    },
+    {
+      title: '随机事件信息熵计算公式',
+      badge: ['green','真数学'],
+      formula: 'H = - Σ P<sub>i</sub> · ln P<sub>i</sub>',
+      desc: '信息熵衡量开奖号码分布的"混乱/均匀程度"。熵越大，号码分布越接近平均；熵越小，某些号码越集中。',
+      value: '近 ' + windowSize + ' 期红球频率分布的香农熵 ≈ <strong>' + fmt(entropy) + '</strong>。熵高≠好预测，只能说明近期号码没有极端冷热。'
+    },
+    {
+      title: '高低区号码均衡配比式',
+      badge: ['green','真数学'],
+      formula: 'K = (N<sub>high</sub> - N<sub>low</sub>) / (N<sub>high</sub> + N<sub>low</sub>)',
+      desc: '统计近期开奖号码偏向大号还是小号。K 在 -1 到 1 之间，0 表示均衡。这是描述性统计，不能预测。',
+      value: '近 30 期：大号 ' + high + ' 个，小号 ' + low + ' 个，K = <strong>' + fmt(balanceK) + '</strong>。'
+    },
+    {
+      title: '概率边界约束不等式',
+      badge: ['green','真数学（公理）'],
+      formula: '0 < Σ P<sub>i</sub> ≤ 1',
+      desc: '概率论最基本规则：所有可能结果的概率之和不能超过 1。视频里把它包装得很高深，其实就像"1+1=2"。',
+      value: '所有号码被抽中的概率之和 = <strong>1</strong>（红球区每次必出 ' + redCount + ' 个）。'
+    },
+    {
+      title: '历史频次加权概率公式',
+      badge: ['orange','数学真，但标签误导'],
+      formula: 'P<sub>w</sub> = Σ w<sub>i</sub>f<sub>i</sub> / Σ w<sub>i</sub>',
+      desc: '加权平均是合法操作。但视频叫它"预判概率"会让人误以为历史频率能预测未来。<br>项目中已用这种思想做"热度"特征，但我们会诚实标注：它只是特征，不是中奖概率。',
+      value: '用指数衰减权重（近期权重高）计算的红球加权频率指标 ≈ <strong>' + fmt(weightedFreq) + '</strong>。'
+    },
+    {
+      title: '号码和值波动范围公式',
+      badge: ['green','真数学'],
+      formula: 'S<sub>min</sub> ≤ Σ a<sub>i</sub> ≤ S<sub>max</sub>',
+      desc: '开奖号码之和必然落在最小值与最大值之间。这是必然成立的约束，不是预测。',
+      value: '历史 ' + data.length + ' 期红球和值范围：<strong>' + minSum + '</strong> ~ <strong>' + maxSum + '</strong>。'
+    },
+    {
+      title: '最小二乘趋势拟合公式',
+      badge: ['orange','数学真，但此处无意义'],
+      formula: 'Q = Σ (y<sub>i</sub> - kx<sub>i</sub> - b)<sup>2</sup>',
+      desc: '最小二乘是回归分析的标配。但强行给"彩票和值"拟合一条趋势线没有意义——独立随机数没有趋势。视频用这个公式制造"走势可预测"的错觉。',
+      value: '近 ' + n + ' 期和值强行拟合：斜率 ≈ ' + fmt(slope) + '，残差平方和 Q ≈ <strong>' + fmt(rss) + '</strong>。<br><span class="warn">这个 k 和 b 对未来开奖没有预测力。</span>'
+    },
+    {
+      title: '隔期重现概率估算公式',
+      badge: ['red','伪科学 / 赌徒谬误'],
+      formula: 'P<sub>re</sub> = P<sub>0</sub> · e<sup>-βd</sup>',
+      desc: '和公式 #3 一回事：用指数函数假装"某个号码隔了多少期后重新出现的概率会变化"。<br><strong>错误核心</strong>：每次开奖独立，号码的"间隔期数"不影响下一次出现概率。',
+      value: '<span class="bad">不会加入预测模型。</span> 某个号码已经 20 期没出，下一期它出现的概率仍然是 ' + fmt(1/redMax) + '，不会因为 d 变大就自动回升。'
+    }
+  ];
+
+  var html = cards.map(function(c){
+    return '<div class="math-card">' +
+      '<div class="card-header"><h4>' + c.title + '</h4><span class="badge ' + c.badge[0] + '">' + c.badge[1] + '</span></div>' +
+      '<div class="formula">' + c.formula + '</div>' +
+      '<div class="desc">' + c.desc + '</div>' +
+      '<div class="value">' + c.value + '</div>' +
+      '</div>';
+  }).join('');
+
+  document.getElementById('math-grid').innerHTML = html;
 }
 
 
