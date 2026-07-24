@@ -103,6 +103,19 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .math-intro .disclaimer{color:var(--orange);font-size:13px;margin-top:8px}
 .math-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px}
 .math-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.formula-sim-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)}
+.formula-sim-card .sim-desc{font-size:13px;color:var(--text2);margin:8px 0 12px;line-height:1.6}
+.sim-btn{background:linear-gradient(90deg,#3b82f6,#06b6d4);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.sim-btn:disabled{opacity:.6;cursor:default}
+.sim-progress{margin-top:12px;max-width:460px}
+.sim-bar{height:10px;background:#e5e7eb;border-radius:6px;overflow:hidden}
+.sim-fill{height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#06b6d4);transition:width .12s}
+#formula-sim-status{display:inline-block;margin-top:6px;font-size:12px;color:var(--text2)}
+.formula-sim-result{margin-top:14px}
+.sim-group{padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;background:var(--bg)}
+.sim-rank{font-weight:700;color:var(--accent);margin-bottom:6px}
+.sim-detail{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5}
+.disclaimer-inline{color:#b45309;font-weight:600}
 .math-card .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .math-card h4{font-size:15px;color:var(--accent);margin:0;line-height:1.4;flex:1}
 .math-card .formula{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:'Times New Roman','Georgia',serif;font-size:17px;color:#e6edf3;text-align:center;letter-spacing:.5px;overflow-x:auto}
@@ -638,6 +651,22 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   <div class="math-grid" id="math-grid">
     <!-- 由 renderMathTruth() 动态生成 -->
   </div>
+
+  <!-- 百万次公式加权推演 -->
+  <div class="formula-sim-card">
+    <h3 style="margin:0 0 4px 0;color:var(--accent)">🎲 百万次公式加权推演（输出 3 组）</h3>
+    <div class="sim-desc">
+      把上面 12 个公式里<strong>真正可用</strong>的偏好——热号频率、高低均衡、和值中段、分布分散、频率平稳——变成评分规则，
+      用固定种子做 <strong>100 万次</strong>随机选号推演，最后挑出综合得分最高的 3 组给你看。
+      <span class="disclaimer-inline">⚠️ 这只是"公式视角下比较好看"的 3 组，不代表中奖率高于随机选号，仅供娱乐参考。</span>
+    </div>
+    <button class="sim-btn" id="btn-formula-sim" onclick="runFormulaSim()">▶ 开始 100 万次推演</button>
+    <div class="sim-progress" id="formula-sim-progress" style="display:none">
+      <div class="sim-bar"><div class="sim-fill" id="formula-sim-fill"></div></div>
+      <span id="formula-sim-status">准备中…</span>
+    </div>
+    <div class="formula-sim-result" id="formula-sim-result"></div>
+  </div>
 </div>
 
 </main>
@@ -954,6 +983,8 @@ function switchMathGame(game) {
   document.getElementById('math-tab-ssq').className = game === 'ssq' ? 'sage-game-tab active' : 'sage-game-tab';
   document.getElementById('math-tab-dlt').className = game === 'dlt' ? 'sage-game-tab active' : 'sage-game-tab';
   renderMathTruth();
+  var _fsr = document.getElementById('formula-sim-result'); if (_fsr) _fsr.innerHTML = '';
+  var _fsp = document.getElementById('formula-sim-progress'); if (_fsp) _fsp.style.display = 'none';
 }
 
 function renderMathTruth() {
@@ -1119,6 +1150,120 @@ function renderMathTruth() {
   }).join('');
 
   document.getElementById('math-grid').innerHTML = html;
+}
+
+// ============ 百万次公式加权推演 ============
+var FORMULA_SIM_SEED = 20260724;
+var FORMULA_SIM_TOTAL = 1000000;
+
+// 预计算历史统计，供评分规则使用
+function precomputeFormulaStats(game, data, fMax, bMax, fKey){
+  var sums = data.map(function(d){ return d[fKey].reduce(function(a,b){return a+b;},0); });
+  var minSum = Math.min.apply(null, sums), maxSum = Math.max.apply(null, sums);
+  var fw = new Array(fMax+1).fill(0);
+  data.forEach(function(p){ p[fKey].forEach(function(n){ if(n>=1 && n<=fMax) fw[n]++; }); });
+  var maxFrontW = Math.max.apply(null, fw.slice(1));
+  var meanFrontW = fw.slice(1).reduce(function(a,b){return a+b;},0) / fMax;
+  return { fMax:fMax, bMax:bMax, minSum:minSum, maxSum:maxSum, maxFrontW:maxFrontW, meanFrontW:meanFrontW };
+}
+
+// 用 12 个公式里"真数学/可用"的偏好给一组号码打分（0~1，越高越符合公式偏好）
+// 规则：热号频率(公式9)、高低均衡(公式7)、和值中段(公式10)、分布分散(公式6)、频率平稳(公式2/5)
+// 注：公式3/12(赌徒谬误)、公式4(P_all 多组并集)、公式8(公理恒1)、公式11(无意义拟合)不计入评分
+function formulaScore(game, f, b, stats, w){
+  var fMax = stats.fMax;
+  // 规则D 热号偏好：前区号码历史频率之和（归一化）
+  var heat = 0;
+  for (var i=0;i<f.length;i++) heat += w.frontW[f[i]];
+  heat = heat / (f.length * (stats.maxFrontW || 1));
+  // 规则C 高低均衡：大号小号数量越均衡越好
+  var mid = Math.ceil(fMax/2);
+  var high=0, low=0;
+  for (i=0;i<f.length;i++){ if(f[i]>mid) high++; else low++; }
+  var K = (high-low)/(f.length);
+  var balance = 1 - Math.abs(K);
+  // 规则E 和值中段：和值越接近历史中位越好
+  var sum = 0; for(i=0;i<f.length;i++) sum += f[i];
+  var midSum = (stats.minSum + stats.maxSum)/2;
+  var halfRange = (stats.maxSum - stats.minSum)/2 || 1;
+  var sumScore = 1 - Math.abs(sum - midSum)/halfRange;
+  // 规则B 分布分散：前区号码在号码轴上的跨度（越大越分散）
+  var spread = (f[f.length-1] - f[0]) / (fMax - 1);
+  // 规则A 频率平稳：前区号码频率标准差越小越稳
+  var varF = 0; for(i=0;i<f.length;i++) varF += Math.pow(w.frontW[f[i]] - stats.meanFrontW, 2);
+  varF = Math.sqrt(varF / f.length);
+  var steady = 1 - Math.min(1, varF / (stats.maxFrontW || 1));
+  // 综合（等权加权，可解释）
+  var score = heat*0.25 + balance*0.20 + sumScore*0.25 + spread*0.15 + steady*0.15;
+  return { score: score, f: f.slice(), b: b.slice(), detail: { heat:heat, balance:balance, sumScore:sumScore, spread:spread, steady:steady, sum:sum } };
+}
+
+function runFormulaSim(){
+  var game = _mathGame;
+  var data = game === 'ssq' ? ssq : dlt;
+  if (!data || data.length === 0){ alert('数据尚未加载，请稍候重试'); return; }
+  var isSSQ = game === 'ssq';
+  var fMax = isSSQ ? 33 : 35;
+  var bMax = isSSQ ? 16 : 12;
+  var fCount = isSSQ ? 6 : 5;
+  var bCount = isSSQ ? 1 : 2;
+  var fKey = isSSQ ? 'red' : 'front';
+  var bKey = isSSQ ? 'blue' : 'back';
+  var stats = precomputeFormulaStats(game, data, fMax, bMax, fKey);
+  var w = mcGetWeights(game);
+  var btn = document.getElementById('btn-formula-sim');
+  var prog = document.getElementById('formula-sim-progress');
+  var fill = document.getElementById('formula-sim-fill');
+  var status = document.getElementById('formula-sim-status');
+  var result = document.getElementById('formula-sim-result');
+  btn.disabled = true;
+  prog.style.display = 'block';
+  result.innerHTML = '';
+  fill.style.width = '0%';
+  status.textContent = '推演中… 0 / 100万';
+  var rng = mcMulberry32(FORMULA_SIM_SEED);
+  var top3 = [];
+  var CHUNK = 50000;
+  var done = 0;
+  var TOTAL = FORMULA_SIM_TOTAL;
+  function maintainTop(r){
+    if (top3.length < 3){ top3.push(r); top3.sort(function(a,b){return b.score-a.score;}); }
+    else if (r.score > top3[2].score){ top3[2] = r; top3.sort(function(a,b){return b.score-a.score;}); }
+  }
+  function chunk(){
+    var end = Math.min(done + CHUNK, TOTAL);
+    for (; done < end; done++){
+      var f = mcSampleWithoutReplacement(w.frontW, fCount, rng).sort(function(a,b){return a-b;});
+      var b = mcSampleWithoutReplacement(w.backW, bCount, rng).sort(function(a,b){return a-b;});
+      maintainTop(formulaScore(game, f, b, stats, w));
+    }
+    var pct = Math.floor(done / TOTAL * 100);
+    fill.style.width = pct + '%';
+    status.textContent = '推演中… ' + (done/10000).toFixed(0) + '万 / 100万 (' + pct + '%)';
+    if (done < TOTAL){ setTimeout(chunk, 0); }
+    else {
+      finishFormulaSim(game, top3, stats);
+      btn.disabled = false;
+      prog.style.display = 'none';
+    }
+  }
+  setTimeout(chunk, 0);
+}
+
+function finishFormulaSim(game, top3, stats){
+  var isSSQ = game === 'ssq';
+  var html = '<h4 style="margin:14px 0 8px">📊 推演结果：100 万次里综合得分最高的 3 组</h4>';
+  top3.forEach(function(r, idx){
+    var fb = r.f.map(function(n){ return '<span class="ball red">'+String(n).padStart(2,'0')+'</span>'; }).join('');
+    var bb = r.b.map(function(n){ return '<span class="ball blue">'+String(n).padStart(2,'0')+'</span>'; }).join('');
+    html += '<div class="sim-group">' +
+      '<div class="sim-rank">第 '+(idx+1)+' 组　综合得分 '+(r.score*100).toFixed(1)+' / 100</div>' +
+      '<div class="ball-row">'+fb+bb+'</div>' +
+      '<div class="sim-detail">热号偏好 '+ (r.detail.heat*100).toFixed(0) +'% ｜ 高低均衡 '+ (r.detail.balance*100).toFixed(0) +'% ｜ 和值中段 '+ (r.detail.sumScore*100).toFixed(0) +'% ｜ 分布分散 '+ (r.detail.spread*100).toFixed(0) +'% ｜ 频率平稳 '+ (r.detail.steady*100).toFixed(0) +'%（和值 '+r.detail.sum+'）</div>' +
+      '</div>';
+  });
+  html += '<div class="disclaimer" style="margin-top:10px">⚠️ 这 3 组是 100 万次随机推演中"公式综合得分最高"的，<strong>不代表中奖率高于随机选号</strong>。开奖为近似独立随机事件，本推演仅供娱乐参考，请勿据此购彩。</div>';
+  document.getElementById('formula-sim-result').innerHTML = html;
 }
 
 
