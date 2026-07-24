@@ -398,18 +398,24 @@ main{padding:24px;max-width:1400px;margin:0 auto}
       <div class="model-name">蒙特卡洛模拟</div>
       <div class="score good" id="mc-score">--</div>
       <div class="ball-row" id="mc-balls"></div>
+      <div class="sub-label" style="font-size:12px;color:#8b949e;margin:6px 0 2px;">蓝球 / 后区</div>
+      <div class="ball-row" id="mc-blue"></div>
       <div class="reason" id="mc-reason"></div>
     </div>
     <div class="model-card">
       <div class="model-name">频率贝叶斯</div>
       <div class="score mid" id="bayes-score">--</div>
       <div class="ball-row" id="bayes-balls"></div>
+      <div class="sub-label" style="font-size:12px;color:#8b949e;margin:6px 0 2px;">蓝球 / 后区</div>
+      <div class="ball-row" id="bayes-blue"></div>
       <div class="reason" id="bayes-reason"></div>
     </div>
     <div class="model-card">
       <div class="model-name">随机森林加权</div>
       <div class="score good" id="rf-score">--</div>
       <div class="ball-row" id="rf-balls"></div>
+      <div class="sub-label" style="font-size:12px;color:#8b949e;margin:6px 0 2px;">蓝球 / 后区</div>
+      <div class="ball-row" id="rf-blue"></div>
       <div class="reason" id="rf-reason"></div>
     </div>
   </div>
@@ -1423,6 +1429,25 @@ function renderAll() {
   // --- Freq Top 10 ---
   var freqAll = {};
   data.forEach(function(d){ d[fKey].forEach(function(n){ freqAll[n] = (freqAll[n]||0)+1; }); });
+
+  // --- 蓝球/后区统计（确定性，供概率模型 tab 展示）---
+  var freqAllBlue = {};
+  data.forEach(function(d){
+    var arr = Array.isArray(d[bKey]) ? d[bKey] : [d[bKey]];
+    arr.forEach(function(n){ if (n>=1 && n<=bMax) freqAllBlue[n] = (freqAllBlue[n]||0)+1; });
+  });
+  var missingBlue = {}, maxMissingBlue = {}, hotMapBlue = {};
+  var curMissB = {};
+  for (var bn=1; bn<=bMax; bn++){ curMissB[bn]=0; missingBlue[bn]=0; maxMissingBlue[bn]=0; hotMapBlue[bn]=0; }
+  data.forEach(function(d){
+    var arr = Array.isArray(d[bKey]) ? d[bKey] : [d[bKey]];
+    for (var bn=1; bn<=bMax; bn++){
+      if (arr.indexOf(bn)>=0){ missingBlue[bn]=curMissB[bn]; maxMissingBlue[bn]=Math.max(maxMissingBlue[bn],curMissB[bn]); hotMapBlue[bn]=(hotMapBlue[bn]||0)+1; curMissB[bn]=0; }
+      else { curMissB[bn]++; }
+    }
+  });
+  var bCnt = (bKey === 'blue') ? 1 : 2;
+
   var freqArr = [];
   for (var n = 1; n <= fMax; n++) freqArr.push({num:n, count:freqAll[n]||0});
   freqArr.sort(function(a,b){return b.count-a.count;});
@@ -1528,6 +1553,12 @@ function renderAll() {
   document.getElementById('mc-balls').innerHTML = mcTop.map(function(n){
     return '<span class="ball red">'+String(n.num).padStart(2,'0')+'</span>';
   }).join('');
+  var mcBlueTop = [];
+  for (var n=1; n<=bMax; n++) mcBlueTop.push({num:n, count:freqAllBlue[n]||0});
+  mcBlueTop.sort(function(a,b){return b.count-a.count;});
+  document.getElementById('mc-blue').innerHTML = mcBlueTop.slice(0, bCnt).map(function(n){
+    return '<span class="ball blue">'+String(n.num).padStart(2,'0')+'</span>';
+  }).join('');
   document.getElementById('mc-reason').textContent = '基于 ' + data.length +
     ' 期真实频率确定性排序（等价于无限次模拟期望），理论期望命中率约 ' + mcScoreVal + '%';
 
@@ -1552,6 +1583,10 @@ function renderAll() {
   document.getElementById('bayes-balls').innerHTML = bayesTop.map(function(n){
     return '<span class="ball red">'+String(n.num).padStart(2,'0')+'</span>';
   }).join('');
+  // 贝叶斯先验即历史频率，蓝球与 MC 同逻辑（频率排序）
+  document.getElementById('bayes-blue').innerHTML = mcBlueTop.slice(0, bCnt).map(function(n){
+    return '<span class="ball blue">'+String(n.num).padStart(2,'0')+'</span>';
+  }).join('');
   document.getElementById('bayes-reason').textContent = '以 ' + data.length + ' 期历史频率为先验，贝叶斯推断最可能号码集合';
 
   // Random Forest weighted
@@ -1570,6 +1605,17 @@ function renderAll() {
   document.getElementById('rf-score').textContent = rfScoreVal + '%';
   document.getElementById('rf-balls').innerHTML = rfTop.map(function(n){
     return '<span class="ball red" style="background:linear-gradient(135deg,'+(n.w>0.02?'#e74c3c':'#d2991d')+','+(n.w>0.02?'#c0392b':'#b8860b')+')">'+String(n.num).padStart(2,'0')+'</span>';
+  }).join('');
+  var rfBlueArr = [];
+  for (var n=1; n<=bMax; n++){
+    var w = (freqAllBlue[n]||0) / data.length;
+    var missPenalty = Math.min((missingBlue[n]||0) / Math.max(maxMissingBlue[n]||1, 1), 1) * 0.3;
+    var hotBonus = ((hotMapBlue[n]||0) / 30 / Math.max(bCnt,1)) * 0.2;
+    rfBlueArr.push({num:n, w: w * (1 + hotBonus - missPenalty)});
+  }
+  rfBlueArr.sort(function(a,b){return b.w-a.w;});
+  document.getElementById('rf-blue').innerHTML = rfBlueArr.slice(0, bCnt).map(function(n){
+    return '<span class="ball blue" style="background:linear-gradient(135deg,'+(n.w>0.02?'#4980e0':'#3880c9')+','+(n.w>0.02?'#2f6fd0':'#2a6bb8')+')">'+String(n.num).padStart(2,'0')+'</span>';
   }).join('');
   document.getElementById('rf-reason').textContent = '综合频率权重 + 冷热调整 + 遗漏回补因子，加权评分最高号码组合';
 
