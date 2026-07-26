@@ -656,9 +656,9 @@ main{padding:24px;max-width:1400px;margin:0 auto}
   <div class="formula-sim-card">
     <h3 style="margin:0 0 4px 0;color:var(--accent)">🎲 百万次公式加权推演（输出 3 组）</h3>
     <div class="sim-desc">
-      把上面 12 个公式里<strong>真正可用</strong>的偏好——热号频率、高低均衡、和值中段、分布分散、频率平稳——变成评分规则，
-      用指定种子做 <strong>100 万次</strong>随机选号推演，最后挑出综合得分最高、且彼此差异足够的 3 组给你看。
-      <span class="disclaimer-inline">⚠️ 这只是"公式视角下比较好看"的 3 组，不代表中奖率高于随机选号，仅供娱乐参考。</span>
+      把上面 12 个公式里<strong>真正可用</strong>的偏好——热号频率、高低均衡、和值中段、分布分散、频率平稳——变成评分规则。
+      每个种子会轻微扰动抽样偏好（评分仍统一用历史频率），做 <strong>100 万次</strong>随机选号推演后，挑出综合得分最高、且前区最多 1 个相同 / 后区完全不同的 3 组给你看。
+      <span class="disclaimer-inline">⚠️ 这只是"公式视角下比较好看"的 3 组，不代表中奖率高于随机选号，仅供娱乐参考。换种子会让号码更分散，但仍受历史频率约束。</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
       <button class="sim-btn" id="btn-formula-sim" onclick="runFormulaSim()">▶ 开始 100 万次推演</button>
@@ -1225,7 +1225,7 @@ function runFormulaSim(){
   var fKey = isSSQ ? 'red' : 'front';
   var bKey = isSSQ ? 'blue' : 'back';
   var stats = precomputeFormulaStats(game, data, fMax, bMax, fKey);
-  var w = mcGetWeights(game);
+  var baseW = mcGetWeights(game);              // 评分用原始历史权重
   var btn = document.getElementById('btn-formula-sim');
   var prog = document.getElementById('formula-sim-progress');
   var fill = document.getElementById('formula-sim-fill');
@@ -1234,20 +1234,28 @@ function runFormulaSim(){
   var seedEl = document.getElementById('formula-sim-seed');
   var seed = seedEl ? parseInt(seedEl.value || '20260724', 10) : FORMULA_SIM_SEED;
   if (isNaN(seed)) seed = FORMULA_SIM_SEED;
+  // 用种子派生权重扰动：不同种子会改变抽样偏好，让每批结果更分散；评分仍用原始权重，保证可比性
+  var prng = mcMulberry32(seed);
+  function perturb(arr){
+    var out = arr.slice();
+    for (var i = 1; i < out.length; i++) out[i] = out[i] * (0.70 + prng() * 0.60); // 0.70~1.30
+    return out;
+  }
+  var sampleW = { frontW: perturb(baseW.frontW), backW: perturb(baseW.backW) };
+  var rng = mcMulberry32(seed + 1);            // 采样用独立 RNG
   btn.disabled = true;
   prog.style.display = 'block';
   result.innerHTML = '';
   fill.style.width = '0%';
   status.textContent = '推演中… 0 / 100万';
-  var rng = mcMulberry32(seed);
   var top3 = [];
   var CHUNK = 50000;
   var done = 0;
   var TOTAL = FORMULA_SIM_TOTAL;
-  // 多样性门槛：与已保留组相比，前区至少差 2 个、后区至少差 1 个
+  // 多样性门槛：与已保留组相比，前区最多 1 个号码相同、后区必须完全不同
   function maintainTop(r){
-    var fThresh = r.f.length - 2; // 前区最多允许相同 f.length-2 个
-    var bThresh = r.b.length - 1; // 后区至少差 1 个（SSQ 蓝球则必须不同）
+    var fThresh = 1; // 前区最多允许 1 个号码相同
+    var bThresh = 0; // 后区必须完全不同
     for (var i = 0; i < top3.length; i++) {
       if (overlapCount(r.f, top3[i].f) > fThresh || overlapCount(r.b, top3[i].b) > bThresh) return;
     }
@@ -1257,9 +1265,9 @@ function runFormulaSim(){
   function chunk(){
     var end = Math.min(done + CHUNK, TOTAL);
     for (; done < end; done++){
-      var f = mcSampleWithoutReplacement(w.frontW, fCount, rng).sort(function(a,b){return a-b;});
-      var b = mcSampleWithoutReplacement(w.backW, bCount, rng).sort(function(a,b){return a-b;});
-      maintainTop(formulaScore(game, f, b, stats, w));
+      var f = mcSampleWithoutReplacement(sampleW.frontW, fCount, rng).sort(function(a,b){return a-b;});
+      var b = mcSampleWithoutReplacement(sampleW.backW, bCount, rng).sort(function(a,b){return a-b;});
+      maintainTop(formulaScore(game, f, b, stats, baseW));
     }
     var pct = Math.floor(done / TOTAL * 100);
     fill.style.width = pct + '%';
@@ -1286,7 +1294,7 @@ function finishFormulaSim(game, top3, stats){
       '<div class="sim-detail">热号偏好 '+ (r.detail.heat*100).toFixed(0) +'% ｜ 高低均衡 '+ (r.detail.balance*100).toFixed(0) +'% ｜ 和值中段 '+ (r.detail.sumScore*100).toFixed(0) +'% ｜ 分布分散 '+ (r.detail.spread*100).toFixed(0) +'% ｜ 频率平稳 '+ (r.detail.steady*100).toFixed(0) +'%（和值 '+r.detail.sum+'）</div>' +
       '</div>';
   });
-  html += '<div class="disclaimer" style="margin-top:10px">⚠️ 这 ' + top3.length + ' 组是 100 万次随机推演中"公式综合得分最高且彼此差异足够"的（已按多样性过滤），<strong>不代表中奖率高于随机选号</strong>。开奖为近似独立随机事件，本推演仅供娱乐参考，请勿据此购彩。</div>';
+  html += '<div class="disclaimer" style="margin-top:10px">⚠️ 这 ' + top3.length + ' 组是 100 万次随机推演中"公式综合得分最高"的，且已强制过滤：前区任意两组最多 1 个相同、后区完全不同。<strong>不代表中奖率高于随机选号</strong>。开奖为近似独立随机事件，本推演仅供娱乐参考，请勿据此购彩。</div>';
   document.getElementById('formula-sim-result').innerHTML = html;
 }
 
