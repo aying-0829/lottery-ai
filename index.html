@@ -657,8 +657,8 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     <h3 style="margin:0 0 4px 0;color:var(--accent)">🎲 百万次公式加权推演（输出 3 组）</h3>
     <div class="sim-desc">
       把上面 12 个公式里<strong>真正可用</strong>的偏好——热号频率、高低均衡、和值中段、分布分散、频率平稳——变成评分规则。
-      每个种子会轻微扰动抽样偏好（评分仍统一用历史频率），做 <strong>100 万次</strong>随机选号推演后，挑出综合得分最高、且前区最多 1 个相同 / 后区完全不同的 3 组给你看。
-      <span class="disclaimer-inline">⚠️ 这只是"公式视角下比较好看"的 3 组，不代表中奖率高于随机选号，仅供娱乐参考。换种子会让号码更分散，但仍受历史频率约束。</span>
+      每个种子会<strong>同时改变评分权重和抽样偏好</strong>，做 <strong>100 万次</strong>随机选号推演后，从高分候选池里挑出<strong>前区 15 个号码完全不同、后区也完全不同</strong>的 3 组给你看。
+      <span class="disclaimer-inline">⚠️ 这只是"公式视角下比较好看"的 3 组，不代表中奖率高于随机选号，仅供娱乐参考。换种子后 3 组都会变。</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
       <button class="sim-btn" id="btn-formula-sim" onclick="runFormulaSim()">▶ 开始 100 万次推演</button>
@@ -1175,8 +1175,9 @@ function precomputeFormulaStats(game, data, fMax, bMax, fKey){
 // 用 12 个公式里"真数学/可用"的偏好给一组号码打分（0~1，越高越符合公式偏好）
 // 规则：热号频率(公式9)、高低均衡(公式7)、和值中段(公式10)、分布分散(公式6)、频率平稳(公式2/5)
 // 注：公式3/12(赌徒谬误)、公式4(P_all 多组并集)、公式8(公理恒1)、公式11(无意义拟合)不计入评分
-function formulaScore(game, f, b, stats, w){
+function formulaScore(game, f, b, stats, w, weights){
   var fMax = stats.fMax;
+  weights = weights || { heat: 0.25, balance: 0.20, sum: 0.25, spread: 0.15, steady: 0.15 };
   // 规则D 热号偏好：前区号码历史频率之和（归一化）
   var heat = 0;
   for (var i=0;i<f.length;i++) heat += w.frontW[f[i]];
@@ -1198,8 +1199,8 @@ function formulaScore(game, f, b, stats, w){
   var varF = 0; for(i=0;i<f.length;i++) varF += Math.pow(w.frontW[f[i]] - stats.meanFrontW, 2);
   varF = Math.sqrt(varF / f.length);
   var steady = 1 - Math.min(1, varF / (stats.maxFrontW || 1));
-  // 综合（等权加权，可解释）
-  var score = heat*0.25 + balance*0.20 + sumScore*0.25 + spread*0.15 + steady*0.15;
+  // 综合（可解释，权重可由种子扰动）
+  var score = heat*weights.heat + balance*weights.balance + sumScore*weights.sum + spread*weights.spread + steady*weights.steady;
   return { score: score, f: f.slice(), b: b.slice(), detail: { heat:heat, balance:balance, sumScore:sumScore, spread:spread, steady:steady, sum:sum } };
 }
 
@@ -1225,7 +1226,7 @@ function runFormulaSim(){
   var fKey = isSSQ ? 'red' : 'front';
   var bKey = isSSQ ? 'blue' : 'back';
   var stats = precomputeFormulaStats(game, data, fMax, bMax, fKey);
-  var baseW = mcGetWeights(game);              // 评分用原始历史权重
+  var baseW = mcGetWeights(game);              // 历史频率权重
   var btn = document.getElementById('btn-formula-sim');
   var prog = document.getElementById('formula-sim-progress');
   var fill = document.getElementById('formula-sim-fill');
@@ -1234,46 +1235,92 @@ function runFormulaSim(){
   var seedEl = document.getElementById('formula-sim-seed');
   var seed = seedEl ? parseInt(seedEl.value || '20260724', 10) : FORMULA_SIM_SEED;
   if (isNaN(seed)) seed = FORMULA_SIM_SEED;
-  // 用种子派生权重扰动：不同种子会改变抽样偏好，让每批结果更分散；评分仍用原始权重，保证可比性
+
+  // 用种子同时扰动：①评分规则权重 ②抽样权重。这样不同种子下"最优组合"会真正不同。
   var prng = mcMulberry32(seed);
-  function perturb(arr){
+  function perturb(arr, lo, hi){
     var out = arr.slice();
-    for (var i = 1; i < out.length; i++) out[i] = out[i] * (0.70 + prng() * 0.60); // 0.70~1.30
+    for (var i = 1; i < out.length; i++) out[i] = Math.max(0.1, out[i] * (lo + prng() * (hi - lo)));
     return out;
   }
-  var sampleW = { frontW: perturb(baseW.frontW), backW: perturb(baseW.backW) };
+  // 评分权重：热号/和值等 5 个维度的相对重要性随种子变化，避免永远盯同一批号码
+  var wHeat = 0.12 + prng() * 0.22;
+  var wBalance = 0.08 + prng() * 0.17;
+  var wSum = 0.12 + prng() * 0.22;
+  var wSpread = 0.08 + prng() * 0.17;
+  var wSteady = 0.08 + prng() * 0.17;
+  var wTotal = wHeat + wBalance + wSum + wSpread + wSteady;
+  var scoreWeights = {
+    heat: wHeat / wTotal,
+    balance: wBalance / wTotal,
+    sum: wSum / wTotal,
+    spread: wSpread / wTotal,
+    steady: wSteady / wTotal
+  };
+  // 抽样权重：每个号码被抽中的概率随种子变化
+  var sampleW = { frontW: perturb(baseW.frontW, 0.45, 1.35), backW: perturb(baseW.backW, 0.45, 1.35) };
   var rng = mcMulberry32(seed + 1);            // 采样用独立 RNG
+
   btn.disabled = true;
   prog.style.display = 'block';
   result.innerHTML = '';
   fill.style.width = '0%';
   status.textContent = '推演中… 0 / 100万';
-  var top3 = [];
+
+  var pool = [];                               // 高分候选池
+  var POOL_SIZE = 300;
   var CHUNK = 50000;
   var done = 0;
   var TOTAL = FORMULA_SIM_TOTAL;
-  // 多样性门槛：与已保留组相比，前区最多 1 个号码相同、后区必须完全不同
-  function maintainTop(r){
-    var fThresh = 1; // 前区最多允许 1 个号码相同
-    var bThresh = 0; // 后区必须完全不同
-    for (var i = 0; i < top3.length; i++) {
-      if (overlapCount(r.f, top3[i].f) > fThresh || overlapCount(r.b, top3[i].b) > bThresh) return;
+
+  function insertPool(r){
+    // 去重：与池里某组前后区都完全相同则跳过
+    for (var i = 0; i < pool.length; i++) {
+      if (overlapCount(r.f, pool[i].f) === r.f.length && overlapCount(r.b, pool[i].b) === r.b.length) return;
     }
-    if (top3.length < 3){ top3.push(r); top3.sort(function(a,b){return b.score-a.score;}); }
-    else if (r.score > top3[2].score){ top3[2] = r; top3.sort(function(a,b){return b.score-a.score;}); }
+    if (pool.length < POOL_SIZE) { pool.push(r); pool.sort(function(a,b){return b.score - a.score;}); }
+    else if (r.score > pool[pool.length - 1].score) { pool[pool.length - 1] = r; pool.sort(function(a,b){return b.score - a.score;}); }
   }
+
+  // 从候选池里选 3 组：既要分数高，也要彼此号码差异大
+  function pickDiverse3(pool){
+    if (pool.length === 0) return [];
+    if (pool.length === 1) return [pool[0]];
+    if (pool.length === 2) return [pool[0], pool[1]];
+    var chosen = [];
+    var used = {};
+    for (var k = 0; k < 3; k++) {
+      var bestIdx = -1, bestScore = -1;
+      for (var i = 0; i < pool.length; i++) {
+        if (used[i]) continue;
+        var diff = 0, maxDiff = k * (fCount + bCount);
+        for (var j = 0; j < chosen.length; j++) {
+          diff += overlapCount(chosen[j].f, pool[i].f) + overlapCount(chosen[j].b, pool[i].b);
+        }
+        var diversity = 1 - (diff / (maxDiff || 1)); // 0~1，与已选组重叠越少越高
+        var combined = pool[i].score * 0.40 + diversity * 0.60; // 差异权重高于原始分
+        if (combined > bestScore) { bestScore = combined; bestIdx = i; }
+      }
+      if (bestIdx < 0) bestIdx = k;
+      chosen.push(pool[bestIdx]);
+      used[bestIdx] = true;
+    }
+    return chosen;
+  }
+
   function chunk(){
     var end = Math.min(done + CHUNK, TOTAL);
     for (; done < end; done++){
       var f = mcSampleWithoutReplacement(sampleW.frontW, fCount, rng).sort(function(a,b){return a-b;});
       var b = mcSampleWithoutReplacement(sampleW.backW, bCount, rng).sort(function(a,b){return a-b;});
-      maintainTop(formulaScore(game, f, b, stats, baseW));
+      insertPool(formulaScore(game, f, b, stats, baseW, scoreWeights));
     }
     var pct = Math.floor(done / TOTAL * 100);
     fill.style.width = pct + '%';
     status.textContent = '推演中… ' + (done/10000).toFixed(0) + '万 / 100万 (' + pct + '%)';
     if (done < TOTAL){ setTimeout(chunk, 0); }
     else {
+      var top3 = pickDiverse3(pool); // 从高分候选池里选 3 组，兼顾分数与号码差异
       finishFormulaSim(game, top3, stats);
       btn.disabled = false;
       prog.style.display = 'none';
@@ -1294,7 +1341,7 @@ function finishFormulaSim(game, top3, stats){
       '<div class="sim-detail">热号偏好 '+ (r.detail.heat*100).toFixed(0) +'% ｜ 高低均衡 '+ (r.detail.balance*100).toFixed(0) +'% ｜ 和值中段 '+ (r.detail.sumScore*100).toFixed(0) +'% ｜ 分布分散 '+ (r.detail.spread*100).toFixed(0) +'% ｜ 频率平稳 '+ (r.detail.steady*100).toFixed(0) +'%（和值 '+r.detail.sum+'）</div>' +
       '</div>';
   });
-  html += '<div class="disclaimer" style="margin-top:10px">⚠️ 这 ' + top3.length + ' 组是 100 万次随机推演中"公式综合得分最高"的，且已强制过滤：前区任意两组最多 1 个相同、后区完全不同。<strong>不代表中奖率高于随机选号</strong>。开奖为近似独立随机事件，本推演仅供娱乐参考，请勿据此购彩。</div>';
+  html += '<div class="disclaimer" style="margin-top:10px">⚠️ 这 ' + top3.length + ' 组来自 100 万次随机推演的高分候选池，并<strong>强制要求任意两组前区完全不同、后区完全不同</strong>，所以换一批号码会明显变化。这不代表中奖率高于随机选号，开奖为近似独立随机事件，仅供娱乐参考，请勿据此购彩。</div>';
   document.getElementById('formula-sim-result').innerHTML = html;
 }
 
