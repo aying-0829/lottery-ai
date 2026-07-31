@@ -67,6 +67,12 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .ball.blue{background:linear-gradient(135deg,#3498db,#2980b9)}
 .ball.hot{box-shadow:0 0 12px rgba(231,76,60,.5)}
 .ball.cold{opacity:.5}
+.latest-list{max-height:360px;overflow-y:auto;padding-right:4px}
+.latest-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.latest-row:last-child{border-bottom:none}
+.latest-info{flex:0 0 110px;font-size:12px;color:var(--text2);line-height:1.5}
+.latest-info .period{font-weight:700;color:var(--accent);font-size:13px}
+.latest-balls{flex:1;display:flex;gap:8px;flex-wrap:wrap}
 .model-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
 /* ── 骨架屏 ── */
 @keyframes skeleton-shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
@@ -327,10 +333,10 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     <div class="stat-card"><div class="num" id="stat-avgsum"></div><div class="label">历史均值(前区)</div></div>
     <div class="stat-card"><div class="num" id="stat-hotball"></div><div class="label">最热号码</div></div>
   </div>
-  <!-- 最新开奖 -->
+  <!-- 所选期数开奖号码 -->
   <div class="card" style="margin-bottom:16px">
-    <h3>最新开奖号码</h3>
-    <div id="latest-balls"></div>
+    <h3>所选期数开奖号码</h3>
+    <div id="latest-balls" class="latest-list"></div>
   </div>
   <!-- 图表行 -->
   <div class="grid-2">
@@ -1625,17 +1631,23 @@ function renderAll() {
   var sumMean = (allSums.reduce(function(a,b){return a+b;},0) / allSums.length).toFixed(1);
   document.getElementById('stat-avgsum').textContent = sumMean;
 
-  // --- Latest balls ---
-  var ballsHtml = '<div class="ball-group">';
-  latest[fKey].forEach(function(n){ ballsHtml += '<span class="ball red">'+String(n).padStart(2,'0')+'</span>'; });
-  if (currentGame === 'ssq') {
-    ballsHtml += '<span class="ball blue">'+String(latest[bKey]).padStart(2,'0')+'</span>';
-  } else {
-    latest[bKey].forEach(function(n){ ballsHtml += '<span class="ball blue">'+String(n).padStart(2,'0')+'</span>'; });
-  }
-  ballsHtml += '</div><div style="font-size:12px;color:var(--text2);margin-top:4px">'
-    + latest.period + '期 | ' + latest.date + '</div>';
-  document.getElementById('latest-balls').innerHTML = ballsHtml;
+  // --- Latest balls (按所选期数全部展示) ---
+  var listHtml = '';
+  data.forEach(function(d){
+    var row = '<div class="latest-row">';
+    row += '<div class="latest-info"><div class="period">' + d.period + '期</div><div>' + d.date + '</div></div>';
+    row += '<div class="latest-balls">';
+    d[fKey].forEach(function(n){ row += '<span class="ball red">'+String(n).padStart(2,'0')+'</span>'; });
+    if (currentGame === 'ssq') {
+      row += '<span class="ball blue">'+String(d[bKey]).padStart(2,'0')+'</span>';
+    } else {
+      d[bKey].forEach(function(n){ row += '<span class="ball blue">'+String(n).padStart(2,'0')+'</span>'; });
+    }
+    row += '</div></div>';
+    listHtml += row;
+  });
+  if (data.length === 0) listHtml = '<div style="color:var(--text2);font-size:13px">当前筛选范围内无数据</div>';
+  document.getElementById('latest-balls').innerHTML = listHtml;
 
   // --- Hot/Cold: last 30 ---
   var hotMap = {};
