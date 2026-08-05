@@ -130,6 +130,25 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .sim-group .ball-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .sim-detail{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5}
 .disclaimer-inline{color:#b45309;font-weight:600}
+/* Drum / Lottery Machine */
+.drum-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)}
+.drum-card .sim-desc{font-size:13px;color:var(--text2);margin:8px 0 16px;line-height:1.6}
+.drum-stage{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0}
+.drum{width:320px;height:120px;border-radius:60px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:2px solid rgba(255,255,255,.15);box-shadow:inset 0 10px 30px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.3);position:relative;overflow:hidden}
+.drum.shaking{animation:drumShake .12s infinite}
+@keyframes drumShake{0%,100%{transform:rotate(0) translateX(0)}20%{transform:rotate(-3deg) translateX(-3px)}40%{transform:rotate(3deg) translateX(3px)}60%{transform:rotate(-2deg)}80%{transform:rotate(2deg)}}
+.drum-ball{position:absolute;width:20px;height:20px;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4);animation:drumRollX 2.6s ease-in-out infinite alternate,drumRollY 1.9s ease-in-out infinite alternate}
+.drum-ball.red{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.drum-ball.blue{background:linear-gradient(135deg,#3498db,#2980b9)}
+@keyframes drumRollX{0%{transform:translateX(0)}100%{transform:translateX(180px)}}
+@keyframes drumRollY{0%{transform:translateY(0)}100%{transform:translateY(70px)}}
+.drum-chute{width:36px;height:36px;border-radius:50% 50% 50% 0;background:linear-gradient(135deg,#374151,#1f2937);border:2px solid rgba(255,255,255,.2);transform:rotate(-45deg);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.drum-result{display:flex;gap:10px;justify-content:center;align-items:center;min-height:54px;margin-top:16px;flex-wrap:wrap}
+.drum-result-ball{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 12px rgba(0,0,0,.3);transform:scale(0);animation:drumPop .4s forwards}
+.drum-result-ball.red{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.drum-result-ball.blue{background:linear-gradient(135deg,#3498db,#2980b9)}
+@keyframes drumPop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@media(max-width:480px){.drum{width:260px;height:100px}@keyframes drumRollX{0%{transform:translateX(0)}100%{transform:translateX(150px)}}@keyframes drumRollY{0%{transform:translateY(0)}100%{transform:translateY(50px)}}}
 .math-card .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .math-card h4{font-size:15px;color:var(--accent);margin:0;line-height:1.4;flex:1}
 .math-card .formula{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:'Times New Roman','Georgia',serif;font-size:17px;color:#e6edf3;text-align:center;letter-spacing:.5px;overflow-x:auto}
@@ -694,6 +713,25 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     </div>
     <div class="formula-sim-result" id="formula-sim-result"></div>
   </div>
+
+  <!-- 模拟摇奖机 -->
+  <div class="drum-card">
+    <h3 style="margin:0 0 4px 0;color:var(--accent)">🎰 模拟摇奖机</h3>
+    <div class="sim-desc">
+      仿体彩直播开奖滚球桶视觉效果。点击按钮后滚筒会先滚动一阵，然后逐个“摇出”一组随机号码。
+      <span class="disclaimer-inline">⚠️ 纯属娱乐动画，号码由浏览器随机生成，不代表任何预测或中奖保证。</span>
+    </div>
+    <div class="drum-stage">
+      <div class="drum" id="drum">
+        <!-- 滚筒内滚动的小球由 JS 生成 -->
+      </div>
+      <div class="drum-chute"></div>
+    </div>
+    <div class="drum-result" id="drum-result"></div>
+    <div style="margin-top:12px;text-align:center">
+      <button class="sim-btn" id="btn-drum" onclick="runDrumDraw()">▶ 开始摇奖</button>
+    </div>
+  </div>
 </div>
 
 </main>
@@ -1010,8 +1048,10 @@ function switchMathGame(game) {
   document.getElementById('math-tab-ssq').className = game === 'ssq' ? 'sage-game-tab active' : 'sage-game-tab';
   document.getElementById('math-tab-dlt').className = game === 'dlt' ? 'sage-game-tab active' : 'sage-game-tab';
   renderMathTruth();
+  initDrumBalls();
   var _fsr = document.getElementById('formula-sim-result'); if (_fsr) _fsr.innerHTML = '';
   var _fsp = document.getElementById('formula-sim-progress'); if (_fsp) _fsp.style.display = 'none';
+  var _dr = document.getElementById('drum-result'); if (_dr) _dr.innerHTML = '';
 }
 
 function renderMathTruth() {
@@ -1364,6 +1404,72 @@ function runFormulaSim(){
   }
   setTimeout(chunk, 0);
 }
+
+// ============ 模拟摇奖机 ============
+function sampleRange(max, count){
+  var pool = [];
+  for (var i = 1; i <= max; i++) pool.push(i);
+  var out = [];
+  for (var i = 0; i < count; i++) {
+    var idx = Math.floor(Math.random() * pool.length);
+    out.push(pool[idx]);
+    pool.splice(idx, 1);
+  }
+  return out;
+}
+
+function initDrumBalls(){
+  var drum = document.getElementById('drum');
+  if (!drum) return;
+  drum.innerHTML = '';
+  var colors = ['red','blue'];
+  for (var i = 0; i < 30; i++) {
+    var b = document.createElement('div');
+    b.className = 'drum-ball ' + colors[Math.floor(Math.random() * colors.length)];
+    b.style.left = (10 + Math.floor(Math.random() * 90)) + 'px';
+    b.style.top = (10 + Math.floor(Math.random() * 40)) + 'px';
+    b.style.animationDelay = (Math.random() * -3) + 's,' + (Math.random() * -2) + 's';
+    b.style.animationDuration = (2 + Math.random() * 2) + 's,' + (1.5 + Math.random() * 1.5) + 's';
+    drum.appendChild(b);
+  }
+}
+
+function runDrumDraw(){
+  var game = _mathGame;
+  var btn = document.getElementById('btn-drum');
+  var drum = document.getElementById('drum');
+  var result = document.getElementById('drum-result');
+  if (!btn || !drum || !result) return;
+  if (btn.disabled) return;
+
+  var isSSQ = game === 'ssq';
+  var reds = sampleRange(isSSQ ? 33 : 35, isSSQ ? 6 : 5).sort(function(a,b){return a-b;});
+  var blues = sampleRange(isSSQ ? 16 : 12, isSSQ ? 1 : 2).sort(function(a,b){return a-b;});
+  var balls = reds.map(function(n){ return {n:n, cls:'red'}; }).concat(blues.map(function(n){ return {n:n, cls:'blue'}; }));
+
+  btn.disabled = true;
+  result.innerHTML = '';
+  drum.classList.add('shaking');
+
+  var i = 0;
+  function showNext(){
+    if (i >= balls.length) {
+      drum.classList.remove('shaking');
+      btn.disabled = false;
+      return;
+    }
+    var b = balls[i];
+    var el = document.createElement('div');
+    el.className = 'drum-result-ball ' + b.cls;
+    el.textContent = String(b.n).padStart(2, '0');
+    result.appendChild(el);
+    i++;
+    setTimeout(showNext, 450);
+  }
+  setTimeout(showNext, 700);
+}
+
+document.addEventListener('DOMContentLoaded', function(){ initDrumBalls(); });
 
 function finishFormulaSim(game, top3, stats){
   var isSSQ = game === 'ssq';
