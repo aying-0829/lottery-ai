@@ -133,22 +133,25 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 /* Drum / Lottery Machine */
 .drum-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)}
 .drum-card .sim-desc{font-size:13px;color:var(--text2);margin:8px 0 16px;line-height:1.6}
-.drum-stage{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0}
-.drum{width:320px;height:120px;border-radius:60px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:2px solid rgba(255,255,255,.15);box-shadow:inset 0 10px 30px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.3);position:relative;overflow:hidden}
-.drum.shaking{animation:drumShake .12s infinite}
-@keyframes drumShake{0%,100%{transform:rotate(0) translateX(0)}20%{transform:rotate(-3deg) translateX(-3px)}40%{transform:rotate(3deg) translateX(3px)}60%{transform:rotate(-2deg)}80%{transform:rotate(2deg)}}
-.drum-ball{position:absolute;width:20px;height:20px;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4);animation:drumRollX 2.6s ease-in-out infinite alternate,drumRollY 1.9s ease-in-out infinite alternate}
-.drum-ball.red{background:linear-gradient(135deg,#e74c3c,#c0392b)}
-.drum-ball.blue{background:linear-gradient(135deg,#3498db,#2980b9)}
-@keyframes drumRollX{0%{transform:translateX(0)}100%{transform:translateX(180px)}}
-@keyframes drumRollY{0%{transform:translateY(0)}100%{transform:translateY(70px)}}
-.drum-chute{width:36px;height:36px;border-radius:50% 50% 50% 0;background:linear-gradient(135deg,#374151,#1f2937);border:2px solid rgba(255,255,255,.2);transform:rotate(-45deg);box-shadow:0 4px 12px rgba(0,0,0,.3)}
-.drum-result{display:flex;gap:10px;justify-content:center;align-items:center;min-height:54px;margin-top:16px;flex-wrap:wrap}
-.drum-result-ball{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 12px rgba(0,0,0,.3);transform:scale(0);animation:drumPop .4s forwards}
-.drum-result-ball.red{background:linear-gradient(135deg,#e74c3c,#c0392b)}
-.drum-result-ball.blue{background:linear-gradient(135deg,#3498db,#2980b9)}
-@keyframes drumPop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-@media(max-width:480px){.drum{width:260px;height:100px}@keyframes drumRollX{0%{transform:translateX(0)}100%{transform:translateX(150px)}}@keyframes drumRollY{0%{transform:translateY(0)}100%{transform:translateY(50px)}}}
+.drum-stage{display:flex;align-items:center;justify-content:center;margin:14px 0}
+.drum-machine{width:420px;max-width:100%;position:relative;padding:12px;border-radius:24px;background:linear-gradient(180deg,#252b36 0%,#161b22 100%);border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 32px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08)}
+.drum{width:100%;height:140px;border-radius:70px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:3px solid rgba(255,255,255,.25);box-shadow:inset 0 0 28px rgba(0,0,0,.55),0 0 0 10px #252b36,0 10px 34px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.drum::before{content:'';position:absolute;inset:0;border-radius:70px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.1) 50%,transparent 100%);pointer-events:none}
+.drum::after{content:'';position:absolute;top:8px;left:20px;right:20px;height:22px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent);filter:blur(3px);pointer-events:none}
+.drum.shaking{animation:drumShake .1s infinite}
+@keyframes drumShake{0%,100%{transform:rotate(0) translateX(0)}20%{transform:rotate(-4deg) translateX(-4px)}40%{transform:rotate(4deg) translateX(4px)}60%{transform:rotate(-3deg)}80%{transform:rotate(3deg)}}
+.drum-ball{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,var(--c1),var(--c2));box-shadow:inset -3px -3px 8px rgba(0,0,0,.55),0 3px 6px rgba(0,0,0,.45);animation:drumRoll 2.8s ease-in-out infinite alternate}
+.drum-ball.red{--c1:#ff6b6b;--c2:#c0392b}
+.drum-ball.blue{--c1:#4dabf7;--c2:#1864ab}
+@keyframes drumRoll{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--tx),var(--ty)) rotate(360deg)}}
+.drum-chute{position:absolute;right:2px;top:50%;transform:translateY(-50%) rotate(-45deg);width:42px;height:42px;border-radius:50% 50% 50% 0;background:linear-gradient(135deg,#4a5568,#1a202c);border:2px solid rgba(255,255,255,.25);box-shadow:0 4px 12px rgba(0,0,0,.5);z-index:5}
+.drum-track{width:100%;height:58px;margin-top:18px;border-radius:12px;background:linear-gradient(180deg,#2c3442,#1a202c);border:2px solid rgba(255,255,255,.12);box-shadow:inset 0 5px 14px rgba(0,0,0,.55);display:flex;gap:10px;justify-content:center;align-items:center;padding:0 14px;position:relative}
+.drum-track::before{content:'开奖号码';position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text2);background:var(--card-bg);padding:2px 12px;border-radius:10px;border:1px solid var(--border)}
+.drum-result-ball{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.45),inset -2px -2px 6px rgba(0,0,0,.35);transform:scale(0) translateX(40px);animation:drumPop .5s forwards}
+.drum-result-ball.red{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,#ff6b6b,#c0392b)}
+.drum-result-ball.blue{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,#4dabf7,#1864ab)}
+@keyframes drumPop{0%{transform:scale(0) translateX(40px)}60%{transform:scale(1.12) translateX(-4px)}100%{transform:scale(1) translateX(0)}}
+@media(max-width:480px){.drum-machine{width:340px}.drum{height:110px;border-radius:55px}.drum-ball{width:18px;height:18px}.drum-result-ball{width:30px;height:30px;font-size:12px}}
 .math-card .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .math-card h4{font-size:15px;color:var(--accent);margin:0;line-height:1.4;flex:1}
 .math-card .formula{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:'Times New Roman','Georgia',serif;font-size:17px;color:#e6edf3;text-align:center;letter-spacing:.5px;overflow-x:auto}
@@ -431,6 +434,19 @@ main{padding:24px;max-width:1400px;margin:0 auto}
       <div class="insight" id="insight-consec"></div>
     </div>
   </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 id="title-numgrid-front">前区号码分布走势图</h3>
+      <div class="numgrid-wrap"><table id="grid-front" class="numgrid"></table></div>
+      <div class="insight" id="insight-numgrid-front"></div>
+    </div>
+    <div class="card">
+      <h3 id="title-numgrid-back">后区号码分布走势图</h3>
+      <div class="numgrid-wrap"><table id="grid-back" class="numgrid"></table></div>
+      <div class="insight" id="insight-numgrid-back"></div>
+    </div>
+  </div>
 </div>
 
 <!-- TAB: 概率模型 -->
@@ -593,6 +609,14 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     .trend-control-row select:focus,.trend-control-row input:focus{outline:none;border-color:var(--accent)}
     .trend-control-row .btn-refresh{margin:0}
     .trend-hint{font-size:12px;color:var(--text2);white-space:nowrap}
+    .numgrid-wrap{overflow-x:auto;max-width:100%;margin:8px 0}
+    .numgrid{border-collapse:collapse;font-size:11px;font-family:'Consolas','Courier New',monospace;min-width:100%}
+    .numgrid th,.numgrid td{border:1px solid var(--border);padding:2px 4px;text-align:center;min-width:22px;height:22px;line-height:18px}
+    .numgrid thead th{background:var(--bg);color:var(--text2);font-weight:600;position:sticky;top:0;z-index:2}
+    .numgrid thead th.period-col{background:var(--accent);color:#fff;min-width:64px}
+    .numgrid tbody td.period-col{background:var(--bg);color:var(--text2);font-size:10px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:1}
+    .numgrid tbody td.has-front{background:rgba(231,76,60,.18);color:#ff6b6b;font-weight:700}
+    .numgrid tbody td.has-back{background:rgba(52,152,219,.18);color:#4dabf7;font-weight:700}
     .mc-progress{margin-top:12px}
     .mc-progress-bar{height:8px;background:linear-gradient(90deg,#58a6ff,#3fb950);border-radius:6px;width:0;transition:width .15s}
     .mc-progress-text{font-size:12px;color:var(--text2);margin-left:8px}
@@ -722,12 +746,14 @@ main{padding:24px;max-width:1400px;margin:0 auto}
       <span class="disclaimer-inline">⚠️ 纯属娱乐动画，号码由浏览器随机生成，不代表任何预测或中奖保证。</span>
     </div>
     <div class="drum-stage">
-      <div class="drum" id="drum">
-        <!-- 滚筒内滚动的小球由 JS 生成 -->
+      <div class="drum-machine">
+        <div class="drum" id="drum">
+          <!-- 滚筒内滚动的小球由 JS 生成 -->
+        </div>
+        <div class="drum-chute"></div>
+        <div class="drum-track" id="drum-result"></div>
       </div>
-      <div class="drum-chute"></div>
     </div>
-    <div class="drum-result" id="drum-result"></div>
     <div style="margin-top:12px;text-align:center">
       <button class="sim-btn" id="btn-drum" onclick="runDrumDraw()">▶ 开始摇奖</button>
     </div>
@@ -1423,13 +1449,15 @@ function initDrumBalls(){
   if (!drum) return;
   drum.innerHTML = '';
   var colors = ['red','blue'];
-  for (var i = 0; i < 30; i++) {
+  for (var i = 0; i < 38; i++) {
     var b = document.createElement('div');
     b.className = 'drum-ball ' + colors[Math.floor(Math.random() * colors.length)];
-    b.style.left = (10 + Math.floor(Math.random() * 90)) + 'px';
-    b.style.top = (10 + Math.floor(Math.random() * 40)) + 'px';
-    b.style.animationDelay = (Math.random() * -3) + 's,' + (Math.random() * -2) + 's';
-    b.style.animationDuration = (2 + Math.random() * 2) + 's,' + (1.5 + Math.random() * 1.5) + 's';
+    b.style.left = (20 + Math.random() * 220) + 'px';
+    b.style.top = (18 + Math.random() * 70) + 'px';
+    b.style.setProperty('--tx', (40 + Math.random() * 140) + 'px');
+    b.style.setProperty('--ty', (10 + Math.random() * 50) + 'px');
+    b.style.animationDelay = (Math.random() * -3) + 's';
+    b.style.animationDuration = (2 + Math.random() * 2.5) + 's';
     drum.appendChild(b);
   }
 }
@@ -2174,6 +2202,54 @@ function renderTrendCharts(N){
   var nonZero = N - consecMap['0'];
   document.getElementById('insight-consec').innerHTML = '<strong>洞察：</strong>近' + N + '期中 ' +
     consecMap['0'] + ' 期无连号，' + nonZero + ' 期出现连号，连号出现率 ' + ((nonZero/N*100)).toFixed(1) + '%';
+
+  // --- 号码分布走势图（按期横列、号码竖列）---
+  renderNumberGrid(N);
+}
+
+// 号码分布走势图：每行一期，列为号码；该期出现的号码格高亮
+function renderNumberGrid(N){
+  var data = getData();
+  if (!data || !data.length) return;
+  var fKey = getFrontKey(), bKey = getBackKey();
+  var fMax = getFrontMax(), bMax = getBackMax();
+  var gameLabel = currentGame === 'ssq' ? '双色球' : '大乐透';
+  var frontLabel = currentGame === 'ssq' ? '红球' : '前区';
+  var backLabel = currentGame === 'ssq' ? '蓝球' : '后区';
+
+  // 取最近 N 期，最新期在顶部
+  var slice = data.slice(0, N).reverse();
+
+  document.getElementById('title-numgrid-front').textContent = frontLabel + '号码分布走势图（最近' + N + '期，' + gameLabel + '）';
+  document.getElementById('title-numgrid-back').textContent = backLabel + '号码分布走势图（最近' + N + '期，' + gameLabel + '）';
+
+  function build(key, maxNum){
+    var html = '<thead><tr><th class="period-col">期号/日期</th>';
+    for (var n = 1; n <= maxNum; n++) html += '<th>' + n + '</th>';
+    html += '</tr></thead><tbody>';
+    slice.forEach(function(d){
+      var arr = d[key];
+      var nums = Array.isArray(arr) ? arr : [arr];
+      var set = {};
+      nums.forEach(function(n){ set[n] = true; });
+      html += '<tr><td class="period-col">' + d.period + '<br><span style="opacity:.6;font-size:9px">' + d.date + '</span></td>';
+      for (var n = 1; n <= maxNum; n++) {
+        if (set[n]) html += '<td class="has-' + (key === fKey ? 'front' : 'back') + '">' + n + '</td>';
+        else html += '<td></td>';
+      }
+      html += '</tr>';
+    });
+    html += '</tbody>';
+    return html;
+  }
+
+  var frontEl = document.getElementById('grid-front');
+  var backEl = document.getElementById('grid-back');
+  if (frontEl) frontEl.innerHTML = build(fKey, fMax);
+  if (backEl) backEl.innerHTML = build(bKey, bMax);
+
+  document.getElementById('insight-numgrid-front').innerHTML = '<strong>解读：</strong>行=期号（最近期在顶部），列=号码；标红的格子表示该号码在该期出现。便于直观看出每个号码的近期分布与遗漏规律。';
+  document.getElementById('insight-numgrid-back').innerHTML = '<strong>解读：</strong>同上，' + backLabel + '部分；标蓝格子为该期出现的后区号码。';
 }
 
 // ============ 近期走势选号（启发式探索） ============
