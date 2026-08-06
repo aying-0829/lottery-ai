@@ -592,15 +592,21 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     .trend-control-row select:focus,.trend-control-row input:focus{outline:none;border-color:var(--accent)}
     .trend-control-row .btn-refresh{margin:0}
     .trend-hint{font-size:12px;color:var(--text2);white-space:nowrap}
-    .numgrid-wrap{overflow-x:auto;max-width:100%;margin:8px 0}
-    .numgrid{border-collapse:separate;border-spacing:0;min-width:100%}
-    .numgrid th,.numgrid td{height:46px;text-align:center;padding:0;min-width:40px;width:40px}
-    .numgrid thead th{background:transparent;color:#9aa7b5;font-weight:600;font-size:13px;position:sticky;top:0}
-    .numgrid thead th.period-col{background:var(--accent);color:#fff;min-width:118px;text-align:left;font-size:13px}
-    .numgrid tbody td.period-col{background:var(--bg);color:var(--text);font-weight:700;font-size:13px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:1}
-    .numgrid tbody td.period-col small{display:block;font-size:11px;color:var(--text2);font-weight:500}
-    .numgrid .hit{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;background:radial-gradient(circle at 32% 28%,#ff9a9a,#e03131 70%);box-shadow:0 0 10px rgba(224,49,49,.35)}
-    .numgrid .hit.b{background:radial-gradient(circle at 32% 28%,#a5d8ff,#1971c2 70%);box-shadow:0 0 10px rgba(25,113,194,.35)}
+    /* 走势号码分布表：带完整格线 + 表内滚动（页面不溢出）+ 期号列/表头固定 */
+    .numgrid-wrap{width:100%;max-width:100%;overflow:auto;max-height:74vh;margin:8px 0;border:1px solid var(--border);border-radius:10px;background:#0e131b}
+    .numgrid-wrap::-webkit-scrollbar{width:10px;height:10px}
+    .numgrid-wrap::-webkit-scrollbar-thumb{background:#39424f;border-radius:8px}
+    .numgrid-wrap::-webkit-scrollbar-track{background:#0e131b}
+    .numgrid{border-collapse:collapse;width:auto;font-size:12px;table-layout:fixed}
+    .numgrid th,.numgrid td{border:1px solid var(--border);height:40px;min-width:34px;width:34px;text-align:center;padding:0;color:var(--text2);vertical-align:middle}
+    .numgrid thead th{background:#1b2333;color:#aeb9c7;font-weight:700;font-size:11.5px;position:sticky;top:0;z-index:1}
+    .numgrid thead th.period-col{background:var(--accent);color:#fff;min-width:104px;width:104px;text-align:left;font-size:12px;z-index:3;border-color:var(--accent)}
+    .numgrid tbody td.period-col{background:var(--card-bg);color:var(--text);font-weight:700;font-size:12px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:2}
+    .numgrid tbody td.period-col small{display:block;font-size:10.5px;color:var(--text2);font-weight:500}
+    .numgrid tbody tr:nth-child(even){background:rgba(255,255,255,.018)}
+    .numgrid tbody tr:hover{background:rgba(88,166,255,.10)}
+    .numgrid .hit{width:27px;height:27px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;background:radial-gradient(circle at 32% 28%,#ff9a9a,#e03131 70%);box-shadow:0 0 9px rgba(224,49,49,.4)}
+    .numgrid .hit.b{background:radial-gradient(circle at 32% 28%,#a5d8ff,#1971c2 70%);box-shadow:0 0 9px rgba(25,113,194,.4)}
     .mc-progress{margin-top:12px}
     .mc-progress-bar{height:8px;background:linear-gradient(90deg,#58a6ff,#3fb950);border-radius:6px;width:0;transition:width .15s}
     .mc-progress-text{font-size:12px;color:var(--text2);margin-left:8px}
