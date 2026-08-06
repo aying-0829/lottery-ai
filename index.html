@@ -325,7 +325,6 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .jackpot-close:active{transform:scale(.96)}
 
 </style>
-<!-- cache-bust: 2026-08-06-v2 -->
 </head>
 <body>
 
@@ -783,11 +782,20 @@ var DATA_FILES = [
   { key: 'ssq', file: './data/ssq_data.json', schema: 'SSQ_DATA_V1' },
   { key: 'dlt', file: './data/dlt_data.json', schema: 'DLT_DATA_V1' },
   { key: 'ssq_model', file: './data/ssq_model.json', schema: 'SSQ_MODEL_V2' },
-  { key: 'dlt_model', file: './data/dlt_model.json', schema: 'DLT_MODEL_V2' },
-  // 彩圣榜真实数据（无 schema 校验，schema:null 表示跳过；optional 表示缺失不影响主站）
-  { key: 'sage_predict', file: './data/sage_predict_history.json', schema: null, optional: true },
-  { key: 'sage_backtest', file: './data/sage_backtest_result.json', schema: null, optional: true }
+  { key: 'dlt_model', file: './data/dlt_model.json', schema: 'DLT_MODEL_V2' }
 ];
+
+// 彩圣榜数据（1.5MB+）改为「按需懒加载」：仅在用户打开彩圣榜 tab 时才下载，
+// 避免每次打开主页都白白下载这个大文件（绝大多数用户用不到，能显著加快首屏加载）。
+var SAGE_LOADED = false;
+function loadSageData() {
+  if (SAGE_LOADED) return Promise.resolve();
+  SAGE_LOADED = true;
+  return Promise.all([
+    fetchWithRetry('./data/sage_predict_history.json').then(function(j){ LOADED_SAGE_PREDICT = j; }).catch(function(e){ console.warn('sage_predict 加载失败（不影响主站）:', e.message); }),
+    fetchWithRetry('./data/sage_backtest_result.json').then(function(j){ LOADED_SAGE_BACKTEST = j; }).catch(function(e){ console.warn('sage_backtest 加载失败（不影响主站）:', e.message); })
+  ]);
+}
 
 // ============ HELPERS ============
 var currentGame = 'ssq';
@@ -928,8 +936,9 @@ function classifyConsec(arr) {
 
 function fetchWithRetry(url, retries) {
   retries = retries || 1;
-  // no-store: 云端部署后避免浏览器/CDN 返回旧缓存，保证自动刷新能拿到最新数据
-  return fetch(url, { cache: 'no-store' }).then(function(r) {
+  // 不使用 no-store：让浏览器/CDN 正常缓存数据文件，重复访问走 304 秒开。
+  // 数据更新检测由 checkForUpdates() 用带 ?t= 的探测请求完成，与缓存互不干扰。
+  return fetch(url).then(function(r) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   }).catch(function(e) {
@@ -1012,12 +1021,7 @@ function initApp() {
     return;
   }
   startAutoRefresh();
-  // 渲染彩圣榜（独立功能，失败不影响主流程；延迟执行确保DOM就绪）
-  setTimeout(function() {
-    try { if (typeof renderSageRankList === 'function') renderSageRankList('ssq'); } catch(e) { console.warn('sage rank init:', e); }
-    try { if (typeof renderSageCards === 'function') renderSageCards('ssq'); } catch(e) { console.warn('sage init:', e); }
-    try { if (typeof checkSageJackpot === 'function') checkSageJackpot(); } catch(e) { console.warn('jackpot init:', e); }
-  }, 200);
+  // 彩圣榜数据改为按需懒加载（见 loadSageData）；首次渲染在用户打开「彩圣榜」tab 时触发
 }
 
 // ============ SWITCH ============
@@ -1041,12 +1045,14 @@ function switchTab(tab) {
   });
   disposeAllCharts();
   setTimeout(renderAll, 50);
-  // 彩圣榜需要独立渲染（不依赖 ECharts）
+  // 彩圣榜需要独立渲染（不依赖 ECharts）；首次打开时先懒加载 1.5MB 数据再渲染
   if (tab === 'sages' && typeof renderSageCards === 'function') {
-    setTimeout(function() {
-      if (typeof renderSageRankList === 'function') renderSageRankList(_sageCurrentGame);
-      renderSageCards(_sageCurrentGame);
-    }, 100);
+    loadSageData().then(function() {
+      setTimeout(function() {
+        if (typeof renderSageRankList === 'function') renderSageRankList(_sageCurrentGame);
+        renderSageCards(_sageCurrentGame);
+      }, 100);
+    });
   }
   // 概率真相需要独立渲染
   if (tab === 'math' && typeof renderMathTruth === 'function') {
@@ -2825,8 +2831,10 @@ function checkForUpdates() {
   Promise.all(checks).then(function() {
     if (window._dataDirty) {
       window._dataDirty = false;
-      console.log('检测到数据更新，自动重新加载…');
-      loadAllData();
+      console.log('检测到数据更新，重新加载最新数据…');
+      // 强制整页刷新（带版本参数绕过缓存），确保拿到最新数据而非本地缓存的 304
+      var sep = window.location.search ? '&' : '?';
+      window.location.href = window.location.pathname + sep + 'v=' + Date.now();
     }
   });
 }
