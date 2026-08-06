@@ -130,28 +130,34 @@ main{padding:24px;max-width:1400px;margin:0 auto}
 .sim-group .ball-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .sim-detail{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5}
 .disclaimer-inline{color:#b45309;font-weight:600}
-/* Drum / Lottery Machine */
+/* Drum / Lottery Machine — 方案二：真实球形腔直播机 */
 .drum-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)}
 .drum-card .sim-desc{font-size:13px;color:var(--text2);margin:8px 0 16px;line-height:1.6}
-.drum-stage{display:flex;align-items:center;justify-content:center;margin:14px 0}
-.drum-machine{width:420px;max-width:100%;position:relative;padding:12px;border-radius:24px;background:linear-gradient(180deg,#252b36 0%,#161b22 100%);border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 32px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08)}
-.drum{width:100%;height:140px;border-radius:70px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:3px solid rgba(255,255,255,.25);box-shadow:inset 0 0 28px rgba(0,0,0,.55),0 0 0 10px #252b36,0 10px 34px rgba(0,0,0,.5);position:relative;overflow:hidden}
-.drum::before{content:'';position:absolute;inset:0;border-radius:70px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.1) 50%,transparent 100%);pointer-events:none}
-.drum::after{content:'';position:absolute;top:8px;left:20px;right:20px;height:22px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent);filter:blur(3px);pointer-events:none}
-.drum.shaking{animation:drumShake .1s infinite}
-@keyframes drumShake{0%,100%{transform:rotate(0) translateX(0)}20%{transform:rotate(-4deg) translateX(-4px)}40%{transform:rotate(4deg) translateX(4px)}60%{transform:rotate(-3deg)}80%{transform:rotate(3deg)}}
-.drum-ball{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,var(--c1),var(--c2));box-shadow:inset -3px -3px 8px rgba(0,0,0,.55),0 3px 6px rgba(0,0,0,.45);animation:drumRoll 2.8s ease-in-out infinite alternate}
+.drum-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:14px 0}
+.r-machine{position:relative;width:300px;max-width:100%;margin:6px auto 0;padding:18px 18px 14px;border-radius:24px;
+  background:linear-gradient(165deg,#1c2330,#0e131c);border:1px solid #3a4452;
+  box-shadow:0 26px 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.12)}
+.r-neck{width:60px;height:18px;margin:0 auto 8px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#3a4452,#222a36);border:1px solid #4a5666;border-bottom:none}
+.r-globe{width:230px;height:230px;margin:0 auto;position:relative;border-radius:50%;overflow:hidden;
+  background:radial-gradient(circle at 38% 30%,rgba(255,255,255,.22),rgba(255,255,255,.04) 42%,rgba(0,0,0,.25) 100%);
+  border:3px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 0 40px rgba(0,0,0,.55),inset 0 8px 30px rgba(88,166,255,.10),0 0 30px rgba(88,166,255,.12)}
+.r-globe::before{content:'';position:absolute;top:14px;left:34px;width:70px;height:46px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0));filter:blur(3px);pointer-events:none}
+.r-globe.shaking{animation:globeShake .1s infinite}
+@keyframes globeShake{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,2px) rotate(-2deg)}50%{transform:translate(3px,-2px) rotate(2deg)}75%{transform:translate(-2px,3px) rotate(-1.5deg)}}
+.drum-ball{position:absolute;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,var(--c1),var(--c2));box-shadow:inset -3px -3px 8px rgba(0,0,0,.55),0 3px 6px rgba(0,0,0,.45);animation:drumRoll 2.4s ease-in-out infinite alternate}
 .drum-ball.red{--c1:#ff6b6b;--c2:#c0392b}
 .drum-ball.blue{--c1:#4dabf7;--c2:#1864ab}
 @keyframes drumRoll{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--tx),var(--ty)) rotate(360deg)}}
-.drum-chute{position:absolute;right:2px;top:50%;transform:translateY(-50%) rotate(-45deg);width:42px;height:42px;border-radius:50% 50% 50% 0;background:linear-gradient(135deg,#4a5568,#1a202c);border:2px solid rgba(255,255,255,.25);box-shadow:0 4px 12px rgba(0,0,0,.5);z-index:5}
-.drum-track{width:100%;height:58px;margin-top:18px;border-radius:12px;background:linear-gradient(180deg,#2c3442,#1a202c);border:2px solid rgba(255,255,255,.12);box-shadow:inset 0 5px 14px rgba(0,0,0,.55);display:flex;gap:10px;justify-content:center;align-items:center;padding:0 14px;position:relative}
+.r-tube{width:26px;height:40px;margin:8px auto 0;border-radius:0 0 14px 14px;background:linear-gradient(180deg,#222a36,#161b22);border:1px solid #3a4452;border-top:none;box-shadow:inset 0 4px 10px rgba(0,0,0,.6)}
+.r-slot{width:200px;height:13px;margin:6px auto 0;border-radius:8px;background:linear-gradient(180deg,#2b3442,#10151d);border:1px solid rgba(255,255,255,.12)}
+.drum-track{width:100%;max-width:300px;margin:16px auto 0;height:58px;border-radius:12px;background:linear-gradient(180deg,#2c3442,#1a202c);border:2px solid rgba(255,255,255,.12);box-shadow:inset 0 5px 14px rgba(0,0,0,.55);display:flex;gap:8px;justify-content:center;align-items:center;padding:0 14px;position:relative}
 .drum-track::before{content:'开奖号码';position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text2);background:var(--card-bg);padding:2px 12px;border-radius:10px;border:1px solid var(--border)}
-.drum-result-ball{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.45),inset -2px -2px 6px rgba(0,0,0,.35);transform:scale(0) translateX(40px);animation:drumPop .5s forwards}
+.drum-result-ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.45),inset -2px -2px 6px rgba(0,0,0,.35);transform:scale(0) translateX(40px);animation:drumPop .5s forwards}
 .drum-result-ball.red{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,#ff6b6b,#c0392b)}
 .drum-result-ball.blue{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.95),rgba(255,255,255,.2) 28%,transparent 48%),linear-gradient(135deg,#4dabf7,#1864ab)}
 @keyframes drumPop{0%{transform:scale(0) translateX(40px)}60%{transform:scale(1.12) translateX(-4px)}100%{transform:scale(1) translateX(0)}}
-@media(max-width:480px){.drum-machine{width:340px}.drum{height:110px;border-radius:55px}.drum-ball{width:18px;height:18px}.drum-result-ball{width:30px;height:30px;font-size:12px}}
+@media(max-width:480px){.r-machine{width:260px}.r-globe{width:200px;height:200px}.drum-ball{width:22px;height:22px}.drum-result-ball{width:28px;height:28px;font-size:11px}}
 .math-card .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .math-card h4{font-size:15px;color:var(--accent);margin:0;line-height:1.4;flex:1}
 .math-card .formula{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:12px 0;font-family:'Times New Roman','Georgia',serif;font-size:17px;color:#e6edf3;text-align:center;letter-spacing:.5px;overflow-x:auto}
@@ -587,13 +593,14 @@ main{padding:24px;max-width:1400px;margin:0 auto}
     .trend-control-row .btn-refresh{margin:0}
     .trend-hint{font-size:12px;color:var(--text2);white-space:nowrap}
     .numgrid-wrap{overflow-x:auto;max-width:100%;margin:8px 0}
-    .numgrid{border-collapse:collapse;font-size:11px;font-family:'Consolas','Courier New',monospace;min-width:100%}
-    .numgrid th,.numgrid td{border:1px solid var(--border);padding:2px 4px;text-align:center;min-width:22px;height:22px;line-height:18px}
-    .numgrid thead th{background:var(--bg);color:var(--text2);font-weight:600;position:sticky;top:0;z-index:2}
-    .numgrid thead th.period-col{background:var(--accent);color:#fff;min-width:64px}
-    .numgrid tbody td.period-col{background:var(--bg);color:var(--text2);font-size:10px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:1}
-    .numgrid tbody td.has-front{background:rgba(231,76,60,.18);color:#ff6b6b;font-weight:700}
-    .numgrid tbody td.has-back{background:rgba(52,152,219,.18);color:#4dabf7;font-weight:700}
+    .numgrid{border-collapse:separate;border-spacing:0;min-width:100%}
+    .numgrid th,.numgrid td{height:46px;text-align:center;padding:0;min-width:40px;width:40px}
+    .numgrid thead th{background:transparent;color:#9aa7b5;font-weight:600;font-size:13px;position:sticky;top:0}
+    .numgrid thead th.period-col{background:var(--accent);color:#fff;min-width:118px;text-align:left;font-size:13px}
+    .numgrid tbody td.period-col{background:var(--bg);color:var(--text);font-weight:700;font-size:13px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:1}
+    .numgrid tbody td.period-col small{display:block;font-size:11px;color:var(--text2);font-weight:500}
+    .numgrid .hit{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;background:radial-gradient(circle at 32% 28%,#ff9a9a,#e03131 70%);box-shadow:0 0 10px rgba(224,49,49,.35)}
+    .numgrid .hit.b{background:radial-gradient(circle at 32% 28%,#a5d8ff,#1971c2 70%);box-shadow:0 0 10px rgba(25,113,194,.35)}
     .mc-progress{margin-top:12px}
     .mc-progress-bar{height:8px;background:linear-gradient(90deg,#58a6ff,#3fb950);border-radius:6px;width:0;transition:width .15s}
     .mc-progress-text{font-size:12px;color:var(--text2);margin-left:8px}
@@ -723,13 +730,15 @@ main{padding:24px;max-width:1400px;margin:0 auto}
       <span class="disclaimer-inline">⚠️ 纯属娱乐动画，号码由浏览器随机生成，不代表任何预测或中奖保证。</span>
     </div>
     <div class="drum-stage">
-      <div class="drum-machine">
-        <div class="drum" id="drum">
-          <!-- 滚筒内滚动的小球由 JS 生成 -->
+      <div class="r-machine">
+        <div class="r-neck"></div>
+        <div class="r-globe" id="drum">
+          <!-- 球形腔内滚动的小球由 JS 生成 -->
         </div>
-        <div class="drum-chute"></div>
-        <div class="drum-track" id="drum-result"></div>
+        <div class="r-tube"></div>
+        <div class="r-slot"></div>
       </div>
+      <div class="drum-track" id="drum-result"></div>
     </div>
     <div style="margin-top:12px;text-align:center">
       <button class="sim-btn" id="btn-drum" onclick="runDrumDraw()">▶ 开始摇奖</button>
@@ -1426,15 +1435,15 @@ function initDrumBalls(){
   if (!drum) return;
   drum.innerHTML = '';
   var colors = ['red','blue'];
-  for (var i = 0; i < 38; i++) {
+  for (var i = 0; i < 34; i++) {
     var b = document.createElement('div');
     b.className = 'drum-ball ' + colors[Math.floor(Math.random() * colors.length)];
-    b.style.left = (20 + Math.random() * 220) + 'px';
-    b.style.top = (18 + Math.random() * 70) + 'px';
-    b.style.setProperty('--tx', (40 + Math.random() * 140) + 'px');
-    b.style.setProperty('--ty', (10 + Math.random() * 50) + 'px');
+    b.style.left = (12 + Math.random() * 190) + 'px';
+    b.style.top = (12 + Math.random() * 190) + 'px';
+    b.style.setProperty('--tx', (20 + Math.random() * 110) + 'px');
+    b.style.setProperty('--ty', (15 + Math.random() * 80) + 'px');
     b.style.animationDelay = (Math.random() * -3) + 's';
-    b.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+    b.style.animationDuration = (1.8 + Math.random() * 2.2) + 's';
     drum.appendChild(b);
   }
 }
@@ -2083,6 +2092,7 @@ function renderNumberGrid(N){
   document.getElementById('title-numgrid-back').textContent = backLabel + '号码分布走势图（最近' + N + '期，' + gameLabel + '）';
 
   function build(key, maxNum){
+    var isBack = (key !== fKey);
     var html = '<thead><tr><th class="period-col">期号/日期</th>';
     for (var n = 1; n <= maxNum; n++) html += '<th>' + n + '</th>';
     html += '</tr></thead><tbody>';
@@ -2091,9 +2101,9 @@ function renderNumberGrid(N){
       var nums = Array.isArray(arr) ? arr : [arr];
       var set = {};
       nums.forEach(function(n){ set[n] = true; });
-      html += '<tr><td class="period-col">' + d.period + '<br><span style="opacity:.6;font-size:9px">' + d.date + '</span></td>';
+      html += '<tr><td class="period-col">' + d.period + '<br><span style="opacity:.6;font-size:11px">' + d.date + '</span></td>';
       for (var n = 1; n <= maxNum; n++) {
-        if (set[n]) html += '<td class="has-' + (key === fKey ? 'front' : 'back') + '">' + n + '</td>';
+        if (set[n]) html += '<td><div class="hit' + (isBack ? ' b' : '') + '">' + n + '</div></td>';
         else html += '<td></td>';
       }
       html += '</tr>';
