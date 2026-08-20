@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-08-19T23:56:57.588141+08:00",
+  "generated_at": "2026-08-20T23:59:06.102635+08:00",
   "games": [
     {
       "game": "ssq",
       "theoretical_win_rate": 0.0675,
-      "n_total_evaluated": 1134,
+      "n_total_evaluated": 1152,
       "sages": [
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 225,
-          "win_rate": 0.0794,
+          "win_rate": 0.0781,
           "win_rate_ci": [
-            0.0344,
-            0.1727
+            0.0338,
+            0.1702
           ],
           "win_count": 5,
-          "avg_hit_red": 1.111,
-          "avg_hit_blue": 0.079,
+          "avg_hit_red": 1.109,
+          "avg_hit_blue": 0.078,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -28,18 +28,18 @@
           "strategy": "analysis"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 45,
-          "win_rate": 0.127,
+          "win_rate": 0.125,
           "win_rate_ci": [
-            0.0658,
-            0.2311
+            0.0647,
+            0.2277
           ],
           "win_count": 8,
-          "avg_hit_red": 1.238,
-          "avg_hit_blue": 0.127,
+          "avg_hit_red": 1.219,
+          "avg_hit_blue": 0.125,
           "max_streak": 2,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -49,20 +49,20 @@
           "strategy": "loyal"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
-          "total_prize": 40,
-          "win_rate": 0.0952,
+          "total_prize": 45,
+          "win_rate": 0.1094,
           "win_rate_ci": [
-            0.0444,
-            0.1926
+            0.054,
+            0.209
           ],
-          "win_count": 6,
-          "avg_hit_red": 1.095,
-          "avg_hit_blue": 0.095,
+          "win_count": 7,
+          "avg_hit_red": 1.094,
+          "avg_hit_blue": 0.109,
           "max_streak": 1,
-          "current_streak": 0,
+          "current_streak": 1,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "huajing",
@@ -70,20 +70,20 @@
           "strategy": "precision"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 35,
-          "win_rate": 0.0952,
+          "win_rate": 0.0938,
           "win_rate_ci": [
-            0.0444,
-            0.1926
+            0.0437,
+            0.1898
           ],
           "win_count": 6,
-          "avg_hit_red": 1.365,
-          "avg_hit_blue": 0.095,
+          "avg_hit_red": 1.359,
+          "avg_hit_blue": 0.094,
           "max_streak": 1,
-          "current_streak": 1,
+          "current_streak": 0,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "lvqinghou",
@@ -91,18 +91,18 @@
           "strategy": "conservative"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 35,
-          "win_rate": 0.0952,
+          "win_rate": 0.0938,
           "win_rate_ci": [
-            0.0444,
-            0.1926
+            0.0437,
+            0.1898
           ],
           "win_count": 6,
-          "avg_hit_red": 1.0,
-          "avg_hit_blue": 0.095,
+          "avg_hit_red": 1.016,
+          "avg_hit_blue": 0.094,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -112,20 +112,20 @@
           "strategy": "wild"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
-          "total_prize": 25,
-          "win_rate": 0.0476,
+          "total_prize": 30,
+          "win_rate": 0.0625,
           "win_rate_ci": [
-            0.0163,
-            0.1309
+            0.0246,
+            0.15
           ],
-          "win_count": 3,
-          "avg_hit_red": 1.254,
-          "avg_hit_blue": 0.048,
+          "win_count": 4,
+          "avg_hit_red": 1.234,
+          "avg_hit_blue": 0.062,
           "max_streak": 1,
-          "current_streak": 0,
+          "current_streak": 1,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "sushi",
@@ -133,18 +133,18 @@
           "strategy": "random"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 25,
-          "win_rate": 0.0794,
+          "win_rate": 0.0781,
           "win_rate_ci": [
-            0.0344,
-            0.1727
+            0.0338,
+            0.1702
           ],
           "win_count": 5,
-          "avg_hit_red": 1.111,
-          "avg_hit_blue": 0.079,
+          "avg_hit_red": 1.125,
+          "avg_hit_blue": 0.078,
           "max_streak": 2,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -154,17 +154,17 @@
           "strategy": "wild"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 20,
-          "win_rate": 0.0317,
+          "win_rate": 0.0312,
           "win_rate_ci": [
-            0.0087,
-            0.1086
+            0.0086,
+            0.107
           ],
           "win_count": 2,
-          "avg_hit_red": 1.254,
+          "avg_hit_red": 1.25,
           "avg_hit_blue": 0.0,
           "max_streak": 1,
           "current_streak": 0,
@@ -175,18 +175,39 @@
           "strategy": "aggressive"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
-          "total_prize": 15,
-          "win_rate": 0.0476,
+          "total_prize": 20,
+          "win_rate": 0.0469,
           "win_rate_ci": [
-            0.0163,
-            0.1309
+            0.0161,
+            0.129
           ],
           "win_count": 3,
-          "avg_hit_red": 1.127,
-          "avg_hit_blue": 0.048,
+          "avg_hit_red": 1.031,
+          "avg_hit_blue": 0.047,
+          "max_streak": 2,
+          "current_streak": 2,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "zhangqian",
+          "name": "张骞",
+          "strategy": "explorer"
+        },
+        {
+          "n_evaluated": 64,
+          "live_count": 14,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.0469,
+          "win_rate_ci": [
+            0.0161,
+            0.129
+          ],
+          "win_count": 3,
+          "avg_hit_red": 1.109,
+          "avg_hit_blue": 0.047,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -196,39 +217,18 @@
           "strategy": "cold"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 15,
-          "win_rate": 0.0317,
+          "win_rate": 0.0469,
           "win_rate_ci": [
-            0.0087,
-            0.1086
-          ],
-          "win_count": 2,
-          "avg_hit_red": 1.048,
-          "avg_hit_blue": 0.032,
-          "max_streak": 1,
-          "current_streak": 1,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "与随机无显著差异",
-          "id": "zhangqian",
-          "name": "张骞",
-          "strategy": "explorer"
-        },
-        {
-          "n_evaluated": 63,
-          "live_count": 13,
-          "backfill_count": 50,
-          "total_prize": 15,
-          "win_rate": 0.0476,
-          "win_rate_ci": [
-            0.0163,
-            0.1309
+            0.0161,
+            0.129
           ],
           "win_count": 3,
-          "avg_hit_red": 1.079,
-          "avg_hit_blue": 0.048,
+          "avg_hit_red": 1.094,
+          "avg_hit_blue": 0.047,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -238,18 +238,39 @@
           "strategy": "innovation"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 15,
-          "win_rate": 0.0476,
+          "win_rate": 0.0469,
           "win_rate_ci": [
-            0.0163,
-            0.1309
+            0.0161,
+            0.129
           ],
           "win_count": 3,
-          "avg_hit_red": 1.286,
-          "avg_hit_blue": 0.048,
+          "avg_hit_red": 1.281,
+          "avg_hit_blue": 0.047,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "shenkuo",
+          "name": "沈括",
+          "strategy": "science"
+        },
+        {
+          "n_evaluated": 64,
+          "live_count": 14,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.0469,
+          "win_rate_ci": [
+            0.0161,
+            0.129
+          ],
+          "win_count": 3,
+          "avg_hit_red": 1.297,
+          "avg_hit_blue": 0.047,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -259,17 +280,17 @@
           "strategy": "kind"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 10,
-          "win_rate": 0.0159,
+          "win_rate": 0.0156,
           "win_rate_ci": [
             0.0028,
-            0.0846
+            0.0833
           ],
           "win_count": 1,
-          "avg_hit_red": 1.254,
+          "avg_hit_red": 1.25,
           "avg_hit_blue": 0.0,
           "max_streak": 1,
           "current_streak": 0,
@@ -280,17 +301,17 @@
           "strategy": "balanced"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 10,
-          "win_rate": 0.0159,
+          "win_rate": 0.0156,
           "win_rate_ci": [
             0.0028,
-            0.0846
+            0.0833
           ],
           "win_count": 1,
-          "avg_hit_red": 1.238,
+          "avg_hit_red": 1.234,
           "avg_hit_blue": 0.0,
           "max_streak": 1,
           "current_streak": 0,
@@ -301,20 +322,20 @@
           "strategy": "aggressive"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 10,
-          "win_rate": 0.0317,
+          "win_rate": 0.0312,
           "win_rate_ci": [
-            0.0087,
-            0.1086
+            0.0086,
+            0.107
           ],
           "win_count": 2,
-          "avg_hit_red": 1.095,
-          "avg_hit_blue": 0.032,
+          "avg_hit_red": 1.094,
+          "avg_hit_blue": 0.031,
           "max_streak": 1,
-          "current_streak": 1,
+          "current_streak": 0,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "taoyuanming",
@@ -322,17 +343,17 @@
           "strategy": "random"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 10,
-          "win_rate": 0.0159,
+          "win_rate": 0.0156,
           "win_rate_ci": [
             0.0028,
-            0.0846
+            0.0833
           ],
           "win_count": 1,
-          "avg_hit_red": 1.254,
+          "avg_hit_red": 1.25,
           "avg_hit_blue": 0.0,
           "max_streak": 1,
           "current_streak": 0,
@@ -343,38 +364,17 @@
           "strategy": "balanced"
         },
         {
-          "n_evaluated": 63,
-          "live_count": 13,
-          "backfill_count": 50,
-          "total_prize": 10,
-          "win_rate": 0.0317,
-          "win_rate_ci": [
-            0.0087,
-            0.1086
-          ],
-          "win_count": 2,
-          "avg_hit_red": 1.27,
-          "avg_hit_blue": 0.032,
-          "max_streak": 1,
-          "current_streak": 0,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "与随机无显著差异",
-          "id": "shenkuo",
-          "name": "沈括",
-          "strategy": "science"
-        },
-        {
-          "n_evaluated": 63,
-          "live_count": 13,
+          "n_evaluated": 64,
+          "live_count": 14,
           "backfill_count": 50,
           "total_prize": 0,
           "win_rate": 0.0,
           "win_rate_ci": [
             0.0,
-            0.0575
+            0.0566
           ],
           "win_count": 0,
-          "avg_hit_red": 1.159,
+          "avg_hit_red": 1.172,
           "avg_hit_blue": 0.0,
           "max_streak": 0,
           "current_streak": 0,
