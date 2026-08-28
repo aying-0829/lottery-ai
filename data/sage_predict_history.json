@@ -96375,11 +96375,24 @@
         16
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96403,11 +96416,24 @@
         6
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 0,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96431,11 +96457,24 @@
         16
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 3,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96459,11 +96498,24 @@
         16
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 3,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96487,11 +96539,24 @@
         14
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 2,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96515,11 +96580,24 @@
         16
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 3,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96543,11 +96621,24 @@
         15
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96571,11 +96662,24 @@
         1
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96599,11 +96703,24 @@
         4
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 4,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96627,11 +96744,24 @@
         4
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 3,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96655,11 +96785,24 @@
         15
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96683,11 +96826,24 @@
         16
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96711,11 +96867,24 @@
         15
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 2,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96739,11 +96908,24 @@
         1
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 0,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96767,11 +96949,24 @@
         15
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 0,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96795,11 +96990,24 @@
         4
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 3,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96823,11 +97031,24 @@
         4
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "ssq",
@@ -96851,11 +97072,24 @@
         15
       ]
     },
-    "drawn": null,
-    "hit_red": null,
-    "hit_blue": null,
+    "drawn": {
+      "red": [
+        1,
+        12,
+        14,
+        18,
+        30,
+        31
+      ],
+      "blue": [
+        2
+      ]
+    },
+    "hit_red": 1,
+    "hit_blue": 0,
     "hit_front": null,
-    "hit_back": null
+    "hit_back": null,
+    "backfilled_at": "2026-08-28T08:31:06.639323+08:00"
   },
   {
     "game": "dlt",
@@ -97353,6 +97587,510 @@
       "back": [
         2,
         7
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "zhugeliang",
+    "sage_name": "诸葛亮",
+    "strategy": "balanced",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        3,
+        7,
+        8,
+        14,
+        16,
+        28
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "jiangziya",
+    "sage_name": "姜子牙",
+    "strategy": "cold",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        2,
+        3,
+        6,
+        7,
+        9,
+        33
+      ],
+      "blue": [
+        6
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "gongsunsheng",
+    "sage_name": "公孙胜",
+    "strategy": "hot",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        4,
+        5,
+        8,
+        14,
+        18
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "chaogai",
+    "sage_name": "晁盖",
+    "strategy": "aggressive",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        4,
+        5,
+        8,
+        14,
+        30
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "simaqian",
+    "sage_name": "司马迁",
+    "strategy": "analysis",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        2,
+        4,
+        18,
+        22,
+        27
+      ],
+      "blue": [
+        7
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "zongzongtang",
+    "sage_name": "左宗棠",
+    "strategy": "aggressive",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        4,
+        8,
+        14,
+        24,
+        30
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "sushi",
+    "sage_name": "苏轼",
+    "strategy": "random",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        4,
+        8,
+        24,
+        28,
+        30
+      ],
+      "blue": [
+        14
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "lvqinghou",
+    "sage_name": "吕轻侯",
+    "strategy": "conservative",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        16,
+        24,
+        25,
+        27,
+        28,
+        30
+      ],
+      "blue": [
+        4
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "zhangfei",
+    "sage_name": "张飞",
+    "strategy": "wild",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        16,
+        22,
+        25,
+        27,
+        29,
+        30
+      ],
+      "blue": [
+        1
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "guofurong",
+    "sage_name": "郭芙蓉",
+    "strategy": "wild",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        4,
+        5,
+        8,
+        18,
+        29,
+        30
+      ],
+      "blue": [
+        14
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "taoyuanming",
+    "sage_name": "陶渊明",
+    "strategy": "random",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        2,
+        16,
+        22,
+        25,
+        30
+      ],
+      "blue": [
+        5
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "luobinwang",
+    "sage_name": "骆宾王",
+    "strategy": "balanced",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        3,
+        7,
+        8,
+        14,
+        16,
+        28
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "zhangqian",
+    "sage_name": "张骞",
+    "strategy": "explorer",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        2,
+        4,
+        5,
+        8,
+        24,
+        30
+      ],
+      "blue": [
+        1
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "cailun",
+    "sage_name": "蔡伦",
+    "strategy": "innovation",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        4,
+        5,
+        25,
+        27,
+        30
+      ],
+      "blue": [
+        1
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "shenkuo",
+    "sage_name": "沈括",
+    "strategy": "science",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        4,
+        5,
+        8,
+        18,
+        27,
+        29
+      ],
+      "blue": [
+        1
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "liubei",
+    "sage_name": "刘备",
+    "strategy": "kind",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        4,
+        5,
+        8,
+        25,
+        30
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "guanyu",
+    "sage_name": "关羽",
+    "strategy": "loyal",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        1,
+        2,
+        4,
+        8,
+        18,
+        22
+      ],
+      "blue": [
+        16
+      ]
+    },
+    "drawn": null,
+    "hit_red": null,
+    "hit_blue": null,
+    "hit_front": null,
+    "hit_back": null
+  },
+  {
+    "game": "ssq",
+    "sage_id": "huajing",
+    "sage_name": "花荣",
+    "strategy": "precision",
+    "target_period": "2026100",
+    "generated_at": "2026-08-28T08:31:06.639323+08:00",
+    "model_generated_at": "2026-08-28T08:30:04.631791+08:00",
+    "method": "live",
+    "recommend": {
+      "red": [
+        5,
+        16,
+        24,
+        28,
+        29,
+        30
+      ],
+      "blue": [
+        5
       ]
     },
     "drawn": null,
