@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-09-15T03:55:42.758336+08:00",
+  "generated_at": "2026-09-16T03:10:26.370739+08:00",
   "games": [
     {
       "game": "ssq",
       "theoretical_win_rate": 0.0675,
-      "n_total_evaluated": 1332,
+      "n_total_evaluated": 1350,
       "sages": [
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 225,
-          "win_rate": 0.0676,
+          "win_rate": 0.0667,
           "win_rate_ci": [
-            0.0292,
-            0.1486
+            0.0288,
+            0.1468
           ],
           "win_count": 5,
-          "avg_hit_red": 1.122,
-          "avg_hit_blue": 0.068,
+          "avg_hit_red": 1.133,
+          "avg_hit_blue": 0.067,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -28,41 +28,20 @@
           "strategy": "analysis"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
-          "total_prize": 45,
-          "win_rate": 0.1081,
+          "total_prize": 50,
+          "win_rate": 0.12,
           "win_rate_ci": [
-            0.0558,
-            0.1991
+            0.0644,
+            0.2126
           ],
-          "win_count": 8,
-          "avg_hit_red": 1.365,
-          "avg_hit_blue": 0.108,
-          "max_streak": 1,
-          "current_streak": 1,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "与随机无显著差异",
-          "id": "lvqinghou",
-          "name": "吕轻侯",
-          "strategy": "conservative"
-        },
-        {
-          "n_evaluated": 74,
-          "live_count": 24,
-          "backfill_count": 50,
-          "total_prize": 45,
-          "win_rate": 0.1081,
-          "win_rate_ci": [
-            0.0558,
-            0.1991
-          ],
-          "win_count": 8,
-          "avg_hit_red": 1.216,
-          "avg_hit_blue": 0.108,
+          "win_count": 9,
+          "avg_hit_red": 1.2,
+          "avg_hit_blue": 0.12,
           "max_streak": 2,
-          "current_streak": 0,
+          "current_streak": 1,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "guanyu",
@@ -70,18 +49,39 @@
           "strategy": "loyal"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 45,
-          "win_rate": 0.0946,
+          "win_rate": 0.1067,
           "win_rate_ci": [
-            0.0466,
-            0.1826
+            0.055,
+            0.1966
+          ],
+          "win_count": 8,
+          "avg_hit_red": 1.36,
+          "avg_hit_blue": 0.107,
+          "max_streak": 1,
+          "current_streak": 0,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "lvqinghou",
+          "name": "吕轻侯",
+          "strategy": "conservative"
+        },
+        {
+          "n_evaluated": 75,
+          "live_count": 25,
+          "backfill_count": 50,
+          "total_prize": 45,
+          "win_rate": 0.0933,
+          "win_rate_ci": [
+            0.0459,
+            0.1803
           ],
           "win_count": 7,
-          "avg_hit_red": 1.081,
-          "avg_hit_blue": 0.095,
+          "avg_hit_red": 1.08,
+          "avg_hit_blue": 0.093,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -91,18 +91,39 @@
           "strategy": "precision"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
+          "backfill_count": 50,
+          "total_prize": 40,
+          "win_rate": 0.0933,
+          "win_rate_ci": [
+            0.0459,
+            0.1803
+          ],
+          "win_count": 7,
+          "avg_hit_red": 1.013,
+          "avg_hit_blue": 0.093,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "guofurong",
+          "name": "郭芙蓉",
+          "strategy": "wild"
+        },
+        {
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 35,
-          "win_rate": 0.0811,
+          "win_rate": 0.08,
           "win_rate_ci": [
-            0.0377,
-            0.1658
+            0.0372,
+            0.1637
           ],
           "win_count": 6,
-          "avg_hit_red": 1.149,
-          "avg_hit_blue": 0.068,
+          "avg_hit_red": 1.16,
+          "avg_hit_blue": 0.067,
           "max_streak": 2,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -112,39 +133,18 @@
           "strategy": "wild"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
-          "backfill_count": 50,
-          "total_prize": 35,
-          "win_rate": 0.0811,
-          "win_rate_ci": [
-            0.0377,
-            0.1658
-          ],
-          "win_count": 6,
-          "avg_hit_red": 1.027,
-          "avg_hit_blue": 0.081,
-          "max_streak": 1,
-          "current_streak": 0,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "与随机无显著差异",
-          "id": "guofurong",
-          "name": "郭芙蓉",
-          "strategy": "wild"
-        },
-        {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0541,
+          "win_rate": 0.0533,
           "win_rate_ci": [
-            0.0212,
-            0.1309
+            0.0209,
+            0.1293
           ],
           "win_count": 4,
-          "avg_hit_red": 1.203,
-          "avg_hit_blue": 0.054,
+          "avg_hit_red": 1.2,
+          "avg_hit_blue": 0.053,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -154,20 +154,20 @@
           "strategy": "random"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
-          "total_prize": 25,
-          "win_rate": 0.0541,
+          "total_prize": 30,
+          "win_rate": 0.0667,
           "win_rate_ci": [
-            0.0212,
-            0.1309
+            0.0288,
+            0.1468
           ],
-          "win_count": 4,
-          "avg_hit_red": 1.297,
-          "avg_hit_blue": 0.041,
-          "max_streak": 1,
-          "current_streak": 1,
+          "win_count": 5,
+          "avg_hit_red": 1.307,
+          "avg_hit_blue": 0.053,
+          "max_streak": 2,
+          "current_streak": 2,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "liubei",
@@ -175,20 +175,20 @@
           "strategy": "kind"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
-          "total_prize": 20,
-          "win_rate": 0.027,
+          "total_prize": 25,
+          "win_rate": 0.04,
           "win_rate_ci": [
-            0.0074,
-            0.0933
+            0.0137,
+            0.1111
           ],
-          "win_count": 2,
-          "avg_hit_red": 1.27,
-          "avg_hit_blue": 0.0,
+          "win_count": 3,
+          "avg_hit_red": 1.28,
+          "avg_hit_blue": 0.013,
           "max_streak": 1,
-          "current_streak": 0,
+          "current_streak": 1,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
           "id": "zongzongtang",
@@ -196,18 +196,18 @@
           "strategy": "aggressive"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 20,
-          "win_rate": 0.0405,
+          "win_rate": 0.04,
           "win_rate_ci": [
-            0.0139,
-            0.1125
+            0.0137,
+            0.1111
           ],
           "win_count": 3,
-          "avg_hit_red": 1.108,
-          "avg_hit_blue": 0.041,
+          "avg_hit_red": 1.107,
+          "avg_hit_blue": 0.04,
           "max_streak": 2,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -217,18 +217,39 @@
           "strategy": "explorer"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 15,
-          "win_rate": 0.0405,
+          "win_rate": 0.0267,
           "win_rate_ci": [
-            0.0139,
-            0.1125
+            0.0073,
+            0.0921
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.267,
+          "avg_hit_blue": 0.013,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "zhugeliang",
+          "name": "诸葛亮",
+          "strategy": "balanced"
+        },
+        {
+          "n_evaluated": 75,
+          "live_count": 25,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.0137,
+            0.1111
           ],
           "win_count": 3,
-          "avg_hit_red": 1.054,
-          "avg_hit_blue": 0.041,
+          "avg_hit_red": 1.053,
+          "avg_hit_blue": 0.04,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -238,18 +259,60 @@
           "strategy": "cold"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 15,
-          "win_rate": 0.0405,
+          "win_rate": 0.0267,
           "win_rate_ci": [
-            0.0139,
-            0.1125
+            0.0073,
+            0.0921
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.253,
+          "avg_hit_blue": 0.013,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "chaogai",
+          "name": "晁盖",
+          "strategy": "aggressive"
+        },
+        {
+          "n_evaluated": 75,
+          "live_count": 25,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.0267,
+          "win_rate_ci": [
+            0.0073,
+            0.0921
+          ],
+          "win_count": 2,
+          "avg_hit_red": 1.267,
+          "avg_hit_blue": 0.013,
+          "max_streak": 1,
+          "current_streak": 1,
+          "theoretical_win_rate": 0.0675,
+          "verdict": "与随机无显著差异",
+          "id": "luobinwang",
+          "name": "骆宾王",
+          "strategy": "balanced"
+        },
+        {
+          "n_evaluated": 75,
+          "live_count": 25,
+          "backfill_count": 50,
+          "total_prize": 15,
+          "win_rate": 0.04,
+          "win_rate_ci": [
+            0.0137,
+            0.1111
           ],
           "win_count": 3,
-          "avg_hit_red": 1.068,
-          "avg_hit_blue": 0.041,
+          "avg_hit_red": 1.053,
+          "avg_hit_blue": 0.04,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -259,18 +322,18 @@
           "strategy": "innovation"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 15,
-          "win_rate": 0.0405,
+          "win_rate": 0.04,
           "win_rate_ci": [
-            0.0139,
-            0.1125
+            0.0137,
+            0.1111
           ],
           "win_count": 3,
-          "avg_hit_red": 1.27,
-          "avg_hit_blue": 0.041,
+          "avg_hit_red": 1.267,
+          "avg_hit_blue": 0.04,
           "max_streak": 1,
           "current_streak": 0,
           "theoretical_win_rate": 0.0675,
@@ -280,59 +343,17 @@
           "strategy": "science"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
           "total_prize": 10,
-          "win_rate": 0.0135,
+          "win_rate": 0.0267,
           "win_rate_ci": [
-            0.0024,
-            0.0727
-          ],
-          "win_count": 1,
-          "avg_hit_red": 1.257,
-          "avg_hit_blue": 0.0,
-          "max_streak": 1,
-          "current_streak": 0,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "与随机无显著差异",
-          "id": "zhugeliang",
-          "name": "诸葛亮",
-          "strategy": "balanced"
-        },
-        {
-          "n_evaluated": 74,
-          "live_count": 24,
-          "backfill_count": 50,
-          "total_prize": 10,
-          "win_rate": 0.0135,
-          "win_rate_ci": [
-            0.0024,
-            0.0727
-          ],
-          "win_count": 1,
-          "avg_hit_red": 1.243,
-          "avg_hit_blue": 0.0,
-          "max_streak": 1,
-          "current_streak": 0,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "与随机无显著差异",
-          "id": "chaogai",
-          "name": "晁盖",
-          "strategy": "aggressive"
-        },
-        {
-          "n_evaluated": 74,
-          "live_count": 24,
-          "backfill_count": 50,
-          "total_prize": 10,
-          "win_rate": 0.027,
-          "win_rate_ci": [
-            0.0074,
-            0.0933
+            0.0073,
+            0.0921
           ],
           "win_count": 2,
-          "avg_hit_red": 1.135,
+          "avg_hit_red": 1.147,
           "avg_hit_blue": 0.027,
           "max_streak": 1,
           "current_streak": 0,
@@ -343,43 +364,22 @@
           "strategy": "random"
         },
         {
-          "n_evaluated": 74,
-          "live_count": 24,
+          "n_evaluated": 75,
+          "live_count": 25,
           "backfill_count": 50,
-          "total_prize": 10,
-          "win_rate": 0.0135,
+          "total_prize": 5,
+          "win_rate": 0.0133,
           "win_rate_ci": [
             0.0024,
-            0.0727
+            0.0717
           ],
           "win_count": 1,
-          "avg_hit_red": 1.257,
-          "avg_hit_blue": 0.0,
+          "avg_hit_red": 1.2,
+          "avg_hit_blue": 0.013,
           "max_streak": 1,
-          "current_streak": 0,
+          "current_streak": 1,
           "theoretical_win_rate": 0.0675,
           "verdict": "与随机无显著差异",
-          "id": "luobinwang",
-          "name": "骆宾王",
-          "strategy": "balanced"
-        },
-        {
-          "n_evaluated": 74,
-          "live_count": 24,
-          "backfill_count": 50,
-          "total_prize": 0,
-          "win_rate": 0.0,
-          "win_rate_ci": [
-            0.0,
-            0.0494
-          ],
-          "win_count": 0,
-          "avg_hit_red": 1.189,
-          "avg_hit_blue": 0.0,
-          "max_streak": 0,
-          "current_streak": 0,
-          "theoretical_win_rate": 0.0675,
-          "verdict": "显著劣于随机",
           "id": "gongsunsheng",
           "name": "公孙胜",
           "strategy": "hot"
