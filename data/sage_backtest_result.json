@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T05:31:09.710075+08:00",
+  "generated_at": "2026-11-15T04:01:17.514253+08:00",
   "games": [
     {
       "game": "ssq",
@@ -389,20 +389,20 @@
     {
       "game": "dlt",
       "theoretical_win_rate": 0.02,
-      "n_total_evaluated": 1782,
+      "n_total_evaluated": 1800,
       "sages": [
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 375,
-          "win_rate": 0.0606,
+          "win_rate": 0.06,
           "win_rate_ci": [
-            0.0281,
-            0.126
+            0.0278,
+            0.1248
           ],
           "win_count": 6,
-          "avg_hit_red": 0.838,
+          "avg_hit_red": 0.84,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -413,17 +413,17 @@
           "strategy": "explorer"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 345,
-          "win_rate": 0.0404,
+          "win_rate": 0.04,
           "win_rate_ci": [
-            0.0158,
-            0.0993
+            0.0157,
+            0.0984
           ],
           "win_count": 4,
-          "avg_hit_red": 0.747,
+          "avg_hit_red": 0.74,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -434,17 +434,17 @@
           "strategy": "wild"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 215,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.798,
+          "avg_hit_red": 0.79,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -455,17 +455,17 @@
           "strategy": "conservative"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 90,
-          "win_rate": 0.0606,
+          "win_rate": 0.06,
           "win_rate_ci": [
-            0.0281,
-            0.126
+            0.0278,
+            0.1248
           ],
           "win_count": 6,
-          "avg_hit_red": 0.828,
+          "avg_hit_red": 0.83,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -476,17 +476,17 @@
           "strategy": "science"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 60,
-          "win_rate": 0.0404,
+          "win_rate": 0.04,
           "win_rate_ci": [
-            0.0158,
-            0.0993
+            0.0157,
+            0.0984
           ],
           "win_count": 4,
-          "avg_hit_red": 0.889,
+          "avg_hit_red": 0.88,
           "avg_hit_blue": 0,
           "max_streak": 2,
           "current_streak": 0,
@@ -497,17 +497,17 @@
           "strategy": "random"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 45,
-          "win_rate": 0.0303,
+          "win_rate": 0.03,
           "win_rate_ci": [
-            0.0104,
-            0.0853
+            0.0103,
+            0.0845
           ],
           "win_count": 3,
-          "avg_hit_red": 0.869,
+          "avg_hit_red": 0.87,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -518,17 +518,17 @@
           "strategy": "analysis"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 45,
-          "win_rate": 0.0303,
+          "win_rate": 0.03,
           "win_rate_ci": [
-            0.0104,
-            0.0853
+            0.0103,
+            0.0845
           ],
           "win_count": 3,
-          "avg_hit_red": 0.717,
+          "avg_hit_red": 0.72,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -539,17 +539,17 @@
           "strategy": "random"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 45,
-          "win_rate": 0.0303,
+          "win_rate": 0.03,
           "win_rate_ci": [
-            0.0104,
-            0.0853
+            0.0103,
+            0.0845
           ],
           "win_count": 3,
-          "avg_hit_red": 0.737,
+          "avg_hit_red": 0.73,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -560,17 +560,17 @@
           "strategy": "innovation"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.768,
+          "avg_hit_red": 0.77,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -581,17 +581,17 @@
           "strategy": "balanced"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.626,
+          "avg_hit_red": 0.63,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -602,17 +602,17 @@
           "strategy": "cold"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.828,
+          "avg_hit_red": 0.83,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -623,17 +623,17 @@
           "strategy": "hot"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.848,
+          "avg_hit_red": 0.85,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -644,17 +644,17 @@
           "strategy": "aggressive"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.859,
+          "avg_hit_red": 0.85,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -665,17 +665,17 @@
           "strategy": "aggressive"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.768,
+          "avg_hit_red": 0.77,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -686,17 +686,17 @@
           "strategy": "balanced"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.747,
+          "avg_hit_red": 0.75,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -707,17 +707,17 @@
           "strategy": "loyal"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 30,
-          "win_rate": 0.0202,
+          "win_rate": 0.02,
           "win_rate_ci": [
-            0.0056,
-            0.0707
+            0.0055,
+            0.07
           ],
           "win_count": 2,
-          "avg_hit_red": 0.768,
+          "avg_hit_red": 0.76,
           "avg_hit_blue": 0,
           "max_streak": 1,
           "current_streak": 0,
@@ -728,17 +728,17 @@
           "strategy": "precision"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 0,
           "win_rate": 0.0,
           "win_rate_ci": [
             0.0,
-            0.0374
+            0.037
           ],
           "win_count": 0,
-          "avg_hit_red": 0.737,
+          "avg_hit_red": 0.73,
           "avg_hit_blue": 0,
           "max_streak": 0,
           "current_streak": 0,
@@ -749,17 +749,17 @@
           "strategy": "wild"
         },
         {
-          "n_evaluated": 99,
-          "live_count": 49,
+          "n_evaluated": 100,
+          "live_count": 50,
           "backfill_count": 50,
           "total_prize": 0,
           "win_rate": 0.0,
           "win_rate_ci": [
             0.0,
-            0.0374
+            0.037
           ],
           "win_count": 0,
-          "avg_hit_red": 0.737,
+          "avg_hit_red": 0.73,
           "avg_hit_blue": 0,
           "max_streak": 0,
           "current_streak": 0,
